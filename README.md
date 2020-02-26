@@ -1,3 +1,3 @@
 # social-audio-free-market
 
-Social network to share and download music
+A place to share, download and create free audio samples
