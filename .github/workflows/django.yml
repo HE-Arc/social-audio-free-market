@@ -17,18 +17,26 @@ jobs:
         
     services:
       mysql:
-        image: mysql:5.7
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: safm
+        image: mysql:latest
         ports:
           - 3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        env:
+          MYSQL_USER: root
+          MYSQL_PASSWORD: root
+          MYSQL_DATABASE: safm
+          MYSQL_ROOT_PASSWORD: root
+       
+        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
     steps:
-    - name: Create DB
+    - name: Verify DB Connection
+      env:
+        PORT: ${{ job.services.mysql.ports[3306] }}
       run: |
-        mysql -h127.0.0.1 -uroot -proot -e "CREATE DATABASE safm;"
+        while ! mysqladmin ping -h"127.0.0.1" -P"$PORT" --silent; do
+          sleep 1
+        done
+    
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v1
