@@ -16,6 +16,9 @@ jobs:
         python-version: [3.6, 3.7]
 
     steps:
+    - name: Create DB
+      run: |
+        mysql -h127.0.0.1 -uroot -proot -e "CREATE DATABASE safm;"
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v1
