@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [ master ]
 
+ env:
+  MYSQL_USER: root
+  MYSQL_PASSWORD: root
+  MYSQL_DATABASE: safm
+  MYSQL_ROOT_PASSWORD: root
+
 jobs:
   build:
 
@@ -19,12 +25,7 @@ jobs:
       mysql:
         image: mysql:5.7
         ports:
-          - 3306
-        env:
-          MYSQL_USER: root
-          MYSQL_PASSWORD: root
-          MYSQL_DATABASE: safm
-          MYSQL_ROOT_PASSWORD: root       
+          - 3306    
         options: --health-cmd "mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 10
 
     steps:
