@@ -74,4 +74,12 @@ jobs:
       run: |
         cd safm_project/safm_frontend
         npm install
+    - name: Nuxt Linter
+      run: |
+        cd safm_project/safm_frontend
+        npm run lintfix
+        npm run lint
+    - name: Build Nuxt application
+      run: |
+        cd safm_project/safm_frontend
         npm run build
