@@ -70,3 +70,7 @@ jobs:
       run: |
         cd safm_project
         python manage.py test
+    - name: Install npm dependencies
+      run: |
+        cd safm_project/safm_frontend
+        npm install

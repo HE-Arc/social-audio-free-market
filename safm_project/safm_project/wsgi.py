@@ -11,6 +11,7 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
+# Production: sets the DJANGO_SETTINGS_MODULE environment variable to safm_project.settings.production
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'safm_project.settings.local_settings')
 
 application = get_wsgi_application()
