@@ -55,9 +55,9 @@ jobs:
     - name: Run migrations
       env:
         SECRET_KEY: ${{ secrets.SECRET_KEY }}
-        #DJANGO_SETTINGS_MODULE: ${{ secrets.DJANGO_SETTINGS_MODULE }}
-        #PASSWORD: ${{ secrets.PASSWORD }}
-        #MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
+        DJANGO_SETTINGS_MODULE: ${{ secrets.DJANGO_SETTINGS_MODULE }}
+        PASSWORD: ${{ secrets.PASSWORD }}
+        MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
       run: |
         cd safm_project
         python manage.py migrate
