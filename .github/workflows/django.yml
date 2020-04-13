@@ -48,6 +48,10 @@ jobs:
         mysql user: root # optional, default is
         # MYSQL_PASSWORD - specified superuser password which user is power for created database
         mysql password: root # optional, default is
+    - name: Wait / Sleep
+      uses: jakejarvis/wait-action@v0.1.0
+      with:
+        time: '20s'
     - name: Run migrations
       env:
         SECRET_KEY: ${{ secrets.SECRET_KEY }}
