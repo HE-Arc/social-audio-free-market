@@ -5,7 +5,8 @@ import sys
 
 
 def main():
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'safm_project.settings')
+    # Production: sets the DJANGO_SETTINGS_MODULE environment variable to safm_project.settings.production
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'safm_project.settings.development')
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
