@@ -11,7 +11,7 @@ module.exports = {
     '@nuxtjs',
     'eslint:recommended',
     'plugin:nuxt/recommended',
-    'plugin:prettier/recommended'
+    //'plugin:prettier/recommended'
   ],
   // required to lint *.vue files
   plugins: [
@@ -22,6 +22,6 @@ module.exports = {
     'semi': [2, 'never'],
     'no-console': 'off',
     'vue/max-attributes-per-line': 'off',
-    'prettier/prettier': ['error', { 'semi': false }]
+    //'prettier/prettier': ['error', { 'semi': false }]
   }
 }
