@@ -10,6 +10,10 @@ jobs:
   build:
     
     runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [3.6, 3.7]
         
     services:
       mysql:
@@ -20,13 +24,11 @@ jobs:
           MYSQL_DATABASE: safm
           MYSQL_ROOT_PASSWORD: root
         ports:
-          - 8889    
-        options: --health-cmd "mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 10
-
+          - 3306    
     steps:
     - name: Verify DB Connection
       env:
-        PORT: ${{ job.services.mysql.ports[8889] }}
+        PORT: ${{ job.services.mysql.ports[3306] }}
       run: |
         while ! mysqladmin ping -h"127.0.0.1" -P"$PORT" --silent; do
           sleep 1
