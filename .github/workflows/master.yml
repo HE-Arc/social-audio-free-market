@@ -74,3 +74,4 @@ jobs:
       run: |
         cd safm_project/safm_frontend
         npm install
+        npm run build
