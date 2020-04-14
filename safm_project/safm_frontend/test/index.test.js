@@ -1,3 +1,5 @@
+/*
+
 import { resolve } from 'path'
 import test from 'ava'
 import { Nuxt, Builder } from 'nuxt'
@@ -40,3 +42,4 @@ test.after('Closing server', (t) => {
   const { nuxt } = t.context
   nuxt.close()
 })
+*/
