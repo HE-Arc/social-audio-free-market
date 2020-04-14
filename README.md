@@ -6,7 +6,20 @@ A place for audio samples sharing and common creations.
 
 ### Backend
 
-First, create a virtual environment :
+First, you need to add a file for your local settings in *safm_project/safm_projects/settings/local_settings.py*. This file is ignored by Git and allows you to overwrite some configurations for you development environment :
+
+```
+from safm_project.settings.common import *
+
+SECRET_KEY = 'YOUR SECRET KEY'
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+```
+
+Depending on your development database, you can also overwrite its configuration in this file.
+
+After that, create a virtual environment :
 
 ```
 python3 -m venv venv
@@ -24,4 +37,24 @@ At last, apply the migrations and run the server :
 ```
 python safm_project/manage.py migrate
 python safm_project/manage.py runserver
+```
+
+### Frontend
+
+Go to the frontend application :
+
+```
+cd safm_project/safm_frontend
+```
+
+Once there, install the npm dependencies :
+
+```
+npm install
+```
+
+At last, run the application :
+
+```
+npm run dev
 ```
