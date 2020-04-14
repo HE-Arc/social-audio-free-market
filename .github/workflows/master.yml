@@ -1,4 +1,4 @@
-name: Django CI/CD
+name: Django & Nuxt.js CI/CD
 
 on:
   push:
