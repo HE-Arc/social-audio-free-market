@@ -6,7 +6,7 @@ A place for audio samples sharing and common creations.
 
 ### Backend
 
-First, you need to add a file for your local settings in *safm_project/safm_projects/settings/local_settings.py*. This file is ignored by Git and allows you to overwrite some configurations for you development environment :
+First, you need to add a file for your local settings in *safm_project/safm_project/settings/local_settings.py*. This file is ignored by Git and allows you to overwrite some configurations for you development environment :
 
 ```
 from safm_project.settings.common import *
