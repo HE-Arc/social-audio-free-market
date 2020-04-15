@@ -80,10 +80,10 @@ jobs:
         npm run lintfix
         npm run lint
     - name: Test Nuxt application
-    run: |
-      cd safm_project/safm_frontend
-      npm test
+      run: |
+        cd safm_project/safm_frontend
+        npm test
     - name: Build Nuxt application
-    run: |
-      cd safm_project/safm_frontend
-      npm run build
+      run: |
+        cd safm_project/safm_frontend
+        npm run build
