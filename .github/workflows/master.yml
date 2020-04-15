@@ -84,6 +84,6 @@ jobs:
       cd safm_project/safm_frontend
       npm test
     - name: Build Nuxt application
-      run: |
-        cd safm_project/safm_frontend
-        npm run build
+    run: |
+      cd safm_project/safm_frontend
+      npm run build
