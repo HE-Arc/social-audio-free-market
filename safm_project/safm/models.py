@@ -29,7 +29,7 @@ class Sample(models.Model):
         return 'samples/{0}/{1}{2}'.format(instance.user.username, instance.name, ext)
 
     # Table columns
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     name = models.CharField(max_length=255)
     file = models.FileField(max_length=255, upload_to=user_directory_path)
     duration = models.FloatField(blank=True, null=True) # duration in [s]
