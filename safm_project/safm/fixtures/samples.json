@@ -1,0 +1,62 @@
+[
+{
+    "model": "safm.sample",
+    "pk": 1,
+    "fields": {
+        "user": 2,
+        "name": "Sample #01",
+        "file": "samples/len_faki/Sample_01.wav",
+        "duration": null,
+        "tempo": null,
+        "tone": "A",
+        "mode": "m",
+        "datetime_upload": "2020-04-16T09:08:20.688Z",
+        "nb_dl_unauthenticated": 0
+    }
+},
+{
+    "model": "safm.sample",
+    "pk": 2,
+    "fields": {
+        "user": 2,
+        "name": "Sample #02",
+        "file": "samples/len_faki/Sample_02.wav",
+        "duration": null,
+        "tempo": null,
+        "tone": "B",
+        "mode": "m",
+        "datetime_upload": "2020-04-16T09:18:38.788Z",
+        "nb_dl_unauthenticated": 0
+    }
+},
+{
+    "model": "safm.sample",
+    "pk": 3,
+    "fields": {
+        "user": 3,
+        "name": "Sample #03",
+        "file": "samples/oc_verde/Sample_03.wav",
+        "duration": null,
+        "tempo": null,
+        "tone": "F",
+        "mode": "m",
+        "datetime_upload": "2020-04-16T09:18:59.636Z",
+        "nb_dl_unauthenticated": 0
+    }
+},
+{
+    "model": "safm.sample",
+    "pk": 4,
+    "fields": {
+        "user": 4,
+        "name": "Sample #04",
+        "file": "samples/ricardo_villalobos/Sample_04.wav",
+        "duration": null,
+        "tempo": null,
+        "tone": "E",
+        "mode": "M",
+        "datetime_upload": "2020-04-16T09:19:16.839Z",
+        "nb_dl_unauthenticated": 0
+    }
+}
+]
