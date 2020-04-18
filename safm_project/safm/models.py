@@ -38,3 +38,8 @@ class Sample(models.Model):
     mode = models.CharField(max_length=1, choices=Mode.choices, blank=True)
     datetime_upload = models.DateTimeField(auto_now_add=True) # auto now at creation
     nb_dl_unauthenticated = models.PositiveIntegerField(default=0) # nb dl > 0
+
+
+class Tag(models.Model):
+    name = models.CharField(max_length=100)
+    samples = models.ManyToManyField(Sample)
