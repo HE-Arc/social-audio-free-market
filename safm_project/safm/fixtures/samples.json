@@ -11,7 +11,12 @@
         "tone": "A",
         "mode": "m",
         "datetime_upload": "2020-04-16T09:08:20.688Z",
-        "nb_dl_unauthenticated": 0
+        "nb_dl_unauthenticated": 0,
+        "tags": [
+            1,
+            2,
+            5
+        ]
     }
 },
 {
@@ -26,7 +31,10 @@
         "tone": "B",
         "mode": "m",
         "datetime_upload": "2020-04-16T09:18:38.788Z",
-        "nb_dl_unauthenticated": 0
+        "nb_dl_unauthenticated": 0,
+        "tags": [
+            4
+        ]
     }
 },
 {
@@ -41,7 +49,10 @@
         "tone": "F",
         "mode": "m",
         "datetime_upload": "2020-04-16T09:18:59.636Z",
-        "nb_dl_unauthenticated": 0
+        "nb_dl_unauthenticated": 0,
+        "tags": [
+            6
+        ]
     }
 },
 {
@@ -56,7 +67,15 @@
         "tone": "E",
         "mode": "M",
         "datetime_upload": "2020-04-16T09:19:16.839Z",
-        "nb_dl_unauthenticated": 0
+        "nb_dl_unauthenticated": 0,
+        "tags": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
     }
 }
 ]

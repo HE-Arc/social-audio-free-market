@@ -3,48 +3,42 @@
     "model": "safm.tag",
     "pk": 1,
     "fields": {
-        "name": "techno",
-        "samples": []
+        "name": "techno"
     }
 },
 {
     "model": "safm.tag",
     "pk": 2,
     "fields": {
-        "name": "acid",
-        "samples": []
+        "name": "acid"
     }
 },
 {
     "model": "safm.tag",
     "pk": 3,
     "fields": {
-        "name": "house",
-        "samples": []
+        "name": "house"
     }
 },
 {
     "model": "safm.tag",
     "pk": 4,
     "fields": {
-        "name": "deephouse",
-        "samples": []
+        "name": "deephouse"
     }
 },
 {
     "model": "safm.tag",
     "pk": 5,
     "fields": {
-        "name": "clap",
-        "samples": []
+        "name": "clap"
     }
 },
 {
     "model": "safm.tag",
     "pk": 6,
     "fields": {
-        "name": "snare",
-        "samples": []
+        "name": "snare"
     }
 }
 ]
