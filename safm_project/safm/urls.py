@@ -1,6 +1,6 @@
 from django.urls import path
-from . import views
+from .views import *
 
 urlpatterns = [
-    path('samples', views.samples),
+    path('api/quick', QuickSearch.as_view()),
 ]

@@ -6,12 +6,17 @@
         "user": 2,
         "name": "Sample #01",
         "file": "samples/len_faki/Sample_01.wav",
-        "duration": null,
-        "tempo": null,
+        "duration": 4.5,
+        "tempo": 130,
         "tone": "A",
         "mode": "m",
         "datetime_upload": "2020-04-16T09:08:20.688Z",
-        "nb_dl_unauthenticated": 0
+        "nb_dl_unauthenticated": 21,
+        "tags": [
+            1,
+            2,
+            5
+        ]
     }
 },
 {
@@ -21,12 +26,15 @@
         "user": 2,
         "name": "Sample #02",
         "file": "samples/len_faki/Sample_02.wav",
-        "duration": null,
-        "tempo": null,
+        "duration": 1.3,
+        "tempo": 140,
         "tone": "B",
         "mode": "m",
         "datetime_upload": "2020-04-16T09:18:38.788Z",
-        "nb_dl_unauthenticated": 0
+        "nb_dl_unauthenticated": 9,
+        "tags": [
+            4
+        ]
     }
 },
 {
@@ -36,12 +44,15 @@
         "user": 3,
         "name": "Sample #03",
         "file": "samples/oc_verde/Sample_03.wav",
-        "duration": null,
-        "tempo": null,
+        "duration": 14.8,
+        "tempo": 140,
         "tone": "F",
         "mode": "m",
         "datetime_upload": "2020-04-16T09:18:59.636Z",
-        "nb_dl_unauthenticated": 0
+        "nb_dl_unauthenticated": 2523,
+        "tags": [
+            6
+        ]
     }
 },
 {
@@ -51,12 +62,20 @@
         "user": 4,
         "name": "Sample #04",
         "file": "samples/ricardo_villalobos/Sample_04.wav",
-        "duration": null,
-        "tempo": null,
+        "duration": 6.4,
+        "tempo": 135,
         "tone": "E",
         "mode": "M",
         "datetime_upload": "2020-04-16T09:19:16.839Z",
-        "nb_dl_unauthenticated": 0
+        "nb_dl_unauthenticated": 742,
+        "tags": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
     }
 }
 ]
