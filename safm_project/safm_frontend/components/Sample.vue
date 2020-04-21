@@ -1,7 +1,6 @@
 <template>
-    <v-card
-        class="sample card"
-    >
+    <v-card class="sample card">
+        
         <v-card-title>{{ sample.name }}</v-card-title>
 
         <v-card-text>
