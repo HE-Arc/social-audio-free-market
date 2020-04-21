@@ -8,7 +8,7 @@ module.exports = {
     parser: 'babel-eslint'
   },
   extends: [
-    '@nuxtjs',
+    //'@nuxtjs',
     'eslint:recommended',
     'plugin:nuxt/recommended',
     //'plugin:prettier/recommended'
@@ -19,8 +19,11 @@ module.exports = {
   ],
   // add your custom rules here
   rules: {
-    'semi': [2, 'never'],
-    'no-console': 'off',
+    'semi': ['error', 'never'],
+    'indent': ['error', 4],
+    'no-console': 2,
+    'no-alert': 2,
+    'no-debugger': 2,
     'vue/max-attributes-per-line': 'off',
     //'prettier/prettier': ['error', { 'semi': false }]
   }
