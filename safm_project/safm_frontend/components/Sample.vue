@@ -1,8 +1,6 @@
 <template>
     <v-card class="sample card">
-        
         <v-card-title>{{ sample.name }}</v-card-title>
-
         <v-card-text>
             <v-row align="center">
                 <v-col cols="4">
@@ -19,7 +17,6 @@
                 </v-col>
             </v-row>
         </v-card-text>
-
         <v-card-text>
             <v-chip
                 v-for="tag in sample.tags"
@@ -32,7 +29,6 @@
                 {{ tag.name }}
             </v-chip>
         </v-card-text>
-
         <v-card-actions>
             <v-row align="center">
                 <v-col cols="4">
@@ -52,7 +48,6 @@
                 </v-col>
             </v-row>
         </v-card-actions>
-
     </v-card>
 </template>
 

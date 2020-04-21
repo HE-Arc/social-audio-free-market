@@ -10,7 +10,9 @@
                 @keypress.enter="quickSearch"
             >
                 <template v-slot:append>
-                    <v-icon @click="quickSearch">{{ searchIcon }}</v-icon>
+                    <v-icon
+                        @click="quickSearch">{{ searchIcon }}
+                    </v-icon>
                 </template>
             </v-text-field>
         </v-container>
@@ -22,7 +24,7 @@
                     :key="sample.id"
                     cols="6"
                 >
-                    <Sample :sample="sample"/>
+                    <Sample :sample="sample" />
                 </v-col>
             </v-row>
         </v-container>
@@ -57,10 +59,9 @@ export default {
                     this.samples = await this.$axios.$get('/quick?search=' + this.quickSearchInput)
                 }
             } catch (err) {
-                console.log(err)
                 this.samples = []
             }
-        },
-    },
+        }
+    }
 }
 </script>
