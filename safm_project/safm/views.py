@@ -16,7 +16,7 @@ class QuickSearch(generics.ListAPIView):
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', 'duration', 'tone', 'mode', 'tags__name']
 
-class DownloadSample(APIView):
+class SampleFile(APIView):
     
     def get(self, request, sample_id):
         file = Sample.objects.filter(id=sample_id).values('file').get()

@@ -32,24 +32,31 @@
         <v-card-actions>
             <v-row align="center">
                 <v-col cols="4">
-                    <v-btn @click="playSample" block>
-                        <v-icon>mdi-play</v-icon>
+                    <v-btn
+                        @click="playPauseSample"
+                        block>
+                        <v-icon>{{ playPauseIcon }}</v-icon>
                     </v-btn>
                 </v-col>
                 <v-col cols="4">
                     <v-btn
-                        :href="`${$axios.defaults.baseURL}/download_sample/${sample.id}`"
+                        :href="`${$axios.defaults.baseURL}/sample_file/${sample.id}`"
                         block>
                         <v-icon>mdi-download-outline</v-icon>
                     </v-btn>
                 </v-col>
                 <v-col cols="4">
-                    <v-btn block>
+                    <v-btn
+                        block>
                         <v-icon>mdi-eye-outline</v-icon>
                     </v-btn>
                 </v-col>
             </v-row>
         </v-card-actions>
+        <audio :id="`audio-${sample.id}`">
+            <source :src="`${$axios.defaults.baseURL}/sample_file/${sample.id}`" />
+            Your browser does not support the audio element.
+        </audio>
     </v-card>
 </template>
 
@@ -57,9 +64,29 @@
 export default {
     props: ['sample'],
 
+    data () {
+        return {
+            playing: false
+        }
+    },
+
+    computed: {
+        playPauseIcon () {
+            return this.playing ? 'mdi-pause' : 'mdi-play'
+        }
+    },
+
     methods: {
-        playSample () {
-            // 
+        playPauseSample () {
+            let audio = document.getElementById('audio-' + this.sample.id)
+
+            if (audio.paused) {
+                audio.play()
+                this.playing = true
+            } else {
+                audio.pause()
+                this.playing = false
+            }
         }
     }
 }
