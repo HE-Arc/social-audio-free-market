@@ -32,12 +32,14 @@
         <v-card-actions>
             <v-row align="center">
                 <v-col cols="4">
-                    <v-btn block>
+                    <v-btn @click="playSample" block>
                         <v-icon>mdi-play</v-icon>
                     </v-btn>
                 </v-col>
                 <v-col cols="4">
-                    <v-btn block>
+                    <v-btn
+                        :href="`${$axios.defaults.baseURL}/download_sample/${sample.id}`"
+                        block>
                         <v-icon>mdi-download-outline</v-icon>
                     </v-btn>
                 </v-col>
@@ -53,6 +55,12 @@
 
 <script>
 export default {
-    props: ['sample']
+    props: ['sample'],
+
+    methods: {
+        playSample () {
+            // 
+        }
+    }
 }
 </script>
