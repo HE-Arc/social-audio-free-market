@@ -5,7 +5,8 @@ from rest_framework import filters, generics
 from rest_framework.views import APIView
 from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
 
-from .models import Sample
+from django.contrib.auth.models import User
+from .models import *
 from .serializers import SampleSerializer
 
 # Create your views here.
@@ -15,6 +16,14 @@ class QuickSearch(generics.ListAPIView):
     serializer_class = SampleSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', 'duration', 'tone', 'mode', 'tags__name']
+
+class SamplePage(APIView):
+
+    def get(self, request, sample_id):
+        sample = Sample.objects.filter(id=sample_id).get()
+        serializer = SampleSerializer(sample)
+
+        return JsonResponse(serializer.data)
 
 class SampleFile(APIView):
     
