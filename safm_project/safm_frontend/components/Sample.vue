@@ -2,7 +2,13 @@
     <v-card class="sample card">
         <v-card-title>{{ sample.name }}</v-card-title>
         <v-card-text>
-            <v-btn :to="`/profiles/${sample.user.id}`">{{ sample.user.username }}</v-btn>
+            <v-btn
+                text
+                small
+                :to="`/profiles/${sample.user.id}`"
+            >
+                {{ sample.user.username }}
+            </v-btn>
         </v-card-text>
         <v-card-text>
             <v-row align="center">
