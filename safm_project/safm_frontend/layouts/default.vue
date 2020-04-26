@@ -116,7 +116,7 @@ export default {
         }
     },
     
-    async asyncData ({ $axios, params }) {
+    async asyncData ({ /*$axios,*/ params }) {
         try {
             if (params.query.length > 0) {
                 let baseQuickSearchInput = params.query
