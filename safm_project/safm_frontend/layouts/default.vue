@@ -50,12 +50,7 @@
             </v-btn>
             <v-toolbar-title v-text="title" />
             <v-spacer />
-            <v-btn
-                icon
-                @click.stop="rightDrawer = !rightDrawer"
-            >
-                <v-icon>mdi-menu</v-icon>
-            </v-btn>
+            <QuickSearch :baseQuickSearchInput="baseQuickSearchInput"/>
         </v-app-bar>
         <v-content>
         <v-container>
@@ -89,9 +84,16 @@
 </template>
 
 <script>
+import QuickSearch from '~/components/QuickSearch.vue'
+
 export default {
+    components: {
+        QuickSearch
+    },
+
     data () {
         return {
+            baseQuickSearchInput: '',
             clipped: false,
             drawer: false,
             fixed: false,
@@ -111,6 +113,18 @@ export default {
             right: true,
             rightDrawer: false,
             title: 'Vuetify.js'
+        }
+    },
+    
+    async asyncData ({ $axios, params }) {
+        try {
+            if (params.query.length > 0) {
+                let baseQuickSearchInput = params.query
+
+                return { baseQuickSearchInput }
+            }
+        } catch (e) {
+            return { baseQuickSearchInput: '' }
         }
     }
 }

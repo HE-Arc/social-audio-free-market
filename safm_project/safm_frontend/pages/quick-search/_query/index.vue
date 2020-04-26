@@ -1,7 +1,7 @@
 <template>
     <main>
         <v-container>
-            <QuickSearch :baseQuickSearchInput="baseQuickSearchInput"/>
+            
         </v-container>
 
         <v-container>
@@ -19,18 +19,15 @@
 </template>
 
 <script>
-import QuickSearch from '~/components/QuickSearch.vue'
 import Sample from '~/components/Sample.vue'
 
 export default {
     components: {
-        QuickSearch,
         Sample
     },
 
     data () {
         return {
-            baseQuickSearchInput: '',
             samples: []
         }
     },
@@ -38,13 +35,12 @@ export default {
     async asyncData ({ $axios, params }) {
         try {
             if (params.query.length > 0) {
-                let baseQuickSearchInput = params.query
                 let samples = await $axios.$get(`/quick?search=${params.query}`)
                 
-                return { baseQuickSearchInput, samples }
+                return { samples }
             }
         } catch (e) {
-            return { baseQuickSearchInput: '', samples: [] }
+            return { samples: [] }
         }
     }
 }
