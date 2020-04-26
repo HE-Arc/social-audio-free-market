@@ -13,16 +13,34 @@
         <v-card-text>
             <v-row align="center">
                 <v-col cols="4">
-                    <v-icon>mdi-metronome</v-icon>
-                    {{ sample.tempo }}
+                    <v-btn
+                        text
+                        small
+                        :to="`/quick-search/${sample.tempo}`"
+                    >
+                        <v-icon>mdi-metronome</v-icon>
+                        {{ sample.tempo }}
+                    </v-btn>
                 </v-col>
                 <v-col cols="4">
-                    <v-icon>mdi-music-circle-outline</v-icon>
-                    {{ sample.tone + sample.mode }}
+                    <v-btn
+                        text
+                        small
+                        :to="`/quick-search/${sample.tone + sample.mode}`"
+                    >
+                        <v-icon>mdi-music-circle-outline</v-icon>
+                        {{ sample.tone + sample.mode }}
+                    </v-btn>
                 </v-col>
                 <v-col cols="4">
-                    <v-icon>mdi-timer-outline</v-icon>
-                    {{ sample.duration + 's' }}
+                    <v-btn
+                        text
+                        small
+                        :to="`/quick-search/${sample.duration}`"
+                    >
+                        <v-icon>mdi-timer-outline</v-icon>
+                        {{ sample.duration + 's' }}
+                    </v-btn>
                 </v-col>
             </v-row>
         </v-card-text>
@@ -33,7 +51,7 @@
                 class="tag ma-1"
                 label
                 small
-                outlined
+                :to="`/quick-search/${tag.name}`"
             >
                 {{ tag.name }}
             </v-chip>
