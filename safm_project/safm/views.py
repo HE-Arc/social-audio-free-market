@@ -7,7 +7,7 @@ from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
 
 from django.contrib.auth.models import User
 from .models import *
-from .serializers import SampleSerializer
+from .serializers import *
 
 # Create your views here.
 
@@ -25,6 +25,7 @@ class SamplePage(APIView):
 
         return JsonResponse(serializer.data)
 
+
 class SampleFile(APIView):
     
     def get(self, request, sample_id):
@@ -41,4 +42,22 @@ class SampleFile(APIView):
             return response
         else:
             return HttpResponseNotFound('No matching file found.')
+        
+
+class UserProfilePage(APIView):
+
+    def get(self, request, user_id):
+        user_profile = UserProfile.objects.filter(user_id=user_id).get()
+        serializer = UserProfileSerializer(user_profile)
+
+        return JsonResponse(serializer.data)        
+
+
+class UserSamples(APIView):
+
+    def get(self, request, user_id):
+        user_samples = Sample.objects.filter(user_id=user_id)
+        serializer = SampleSerializer(user_samples, many=True)
+
+        return JsonResponse(serializer.data, safe=False)
         

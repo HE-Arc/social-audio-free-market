@@ -2,6 +2,9 @@
     <v-card class="sample card">
         <v-card-title>{{ sample.name }}</v-card-title>
         <v-card-text>
+            <v-btn :to="`/profiles/${sample.user.id}`">{{ sample.user.username }}</v-btn>
+        </v-card-text>
+        <v-card-text>
             <v-row align="center">
                 <v-col cols="4">
                     <v-icon>mdi-metronome</v-icon>
@@ -47,7 +50,7 @@
                 </v-col>
                 <v-col cols="4">
                     <v-btn
-                        :to="`samples/${sample.id}`"
+                        :to="`/samples/${sample.id}`"
                         block>
                         <v-icon>mdi-eye-outline</v-icon>
                     </v-btn>
