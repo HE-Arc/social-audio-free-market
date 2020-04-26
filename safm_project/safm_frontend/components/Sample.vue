@@ -47,6 +47,7 @@
                 </v-col>
                 <v-col cols="4">
                     <v-btn
+                        :to="`samples/${sample.id}`"
                         block>
                         <v-icon>mdi-eye-outline</v-icon>
                     </v-btn>
