@@ -15,7 +15,7 @@ class QuickSearch(generics.ListAPIView):
     queryset = Sample.objects.all()
     serializer_class = SampleSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ['name', 'duration', 'tone', 'mode', 'tags__name']
+    search_fields = ['name', 'tempo', 'tone', 'mode', 'duration', 'tags__name', 'user__username']
 
 class SamplePage(APIView):
 
