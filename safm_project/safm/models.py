@@ -43,3 +43,15 @@ class Sample(models.Model):
     datetime_upload = models.DateTimeField(auto_now_add=True) # auto now at creation
     nb_dl_unauthenticated = models.PositiveIntegerField(default=0) # nb dl > 0
     tags = models.ManyToManyField(Tag) # a sample can have multiple tags
+
+
+class UserProfile(models.Model):
+    
+    def user_directory_path(instance, filename):
+        ext = os.path.splitext(filename)[1]
+        return 'users/{0}/pp{1}'.format(instance.user.id, ext)
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    description = models.TextField(blank=True, default="No description provided.")
+    profile_picture = models.FileField(max_length=255, upload_to=user_directory_path, blank=True, default="default/pictures/pp.png")
+    email_public = models.BooleanField(default=False)
