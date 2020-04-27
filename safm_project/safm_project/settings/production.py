@@ -6,4 +6,8 @@ SECRET_KEY = os.environ['SECRET_KEY']
 DEBUG = False
 
 # SECURITY WARNING: update this when you have the production host
-ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1', 'https://safmarket.srvz-webapp.he-arc.ch/']
+
+CORS_ORIGIN_WHITELIST = [
+    'https://safmarket.srvz-webapp.he-arc.ch/',
+]
