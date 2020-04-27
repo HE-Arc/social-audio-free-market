@@ -9,5 +9,5 @@ DEBUG = False
 ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1', 'https://safmarket.srvz-webapp.he-arc.ch/']
 
 CORS_ORIGIN_WHITELIST = [
-    'https://safmarket.srvz-webapp.he-arc.ch/',
+    'https://safmarket.srvz-webapp.he-arc.ch',
 ]
