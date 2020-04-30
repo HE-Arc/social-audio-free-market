@@ -1,7 +1,7 @@
 import colors from 'vuetify/es5/util/colors'
 
 export default {
-    mode: 'universal',
+    mode: process.env.NUXT_APP_MODE || 'universal',
     /*
     ** Headers of the page
     */
@@ -20,7 +20,7 @@ export default {
     /*
     ** Customize the progress-bar color
     */
-    loading: { color: '#fff' },
+    loading: { color: '#333' },
     /*
     ** Global CSS
     */
