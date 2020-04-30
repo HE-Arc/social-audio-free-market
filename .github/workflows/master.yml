@@ -2,13 +2,13 @@ name: Django & Nuxt.js CI/CD
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, dev]
   pull_request:
-    branches: [ master ]
+    branches: [ master, dev ]
 
 jobs:
-  build:
-    
+
+  Django:
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 4
@@ -70,6 +70,15 @@ jobs:
       run: |
         cd safm_project
         python manage.py test
+
+  Nuxt:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        node-version: [12.x]
+
+    step:
     - name: Install npm dependencies
       run: |
         cd safm_project/safm_frontend
@@ -77,13 +86,14 @@ jobs:
     - name: Nuxt Linter
       run: |
         cd safm_project/safm_frontend
-        npm run lintfix
         npm run lint
     - name: Test Nuxt application
       run: |
         cd safm_project/safm_frontend
         npm test
     - name: Build Nuxt application
+      env:
+        NUXT_APP_MODE: spa
       run: |
         cd safm_project/safm_frontend
         npm run build
