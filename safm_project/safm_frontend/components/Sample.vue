@@ -5,7 +5,7 @@
             <v-btn
                 text
                 small
-                :to="`/profiles/${sample.user.id}`"
+                :to="`/profiles/${sample.user.username}`"
             >
                 {{ sample.user.username }}
             </v-btn>

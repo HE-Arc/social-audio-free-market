@@ -46,18 +46,35 @@ class SampleFile(APIView):
 
 class UserProfilePage(APIView):
 
-    def get(self, request, user_id):
-        user_profile = UserProfile.objects.filter(user_id=user_id).get()
-        serializer = UserProfileSerializer(user_profile)
+    def get(self, request, username):
 
-        return JsonResponse(serializer.data)        
+        # Can do better ?
 
+        user = User.objects.filter(username=username).values('id')
+        if user.exists():
+            user_id = user[0]['id']
+            user_profile = UserProfile.objects.filter(user_id=user_id)
+            if user_profile.exists():
+                user_profile_serializer = UserProfileSerializer(user_profile[0])
+
+                return JsonResponse(user_profile_serializer.data)
+
+        return HttpResponseNotFound('No matching user profile found.')
+              
 
 class UserSamples(APIView):
 
-    def get(self, request, user_id):
-        user_samples = Sample.objects.filter(user_id=user_id)
-        serializer = SampleSerializer(user_samples, many=True)
+    def get(self, request, username):
 
-        return JsonResponse(serializer.data, safe=False)
+        # Can do better ?
+
+        user = User.objects.filter(username=username).values('id')
+        if user.exists():
+            user_id = user[0]['id']
+            user_samples = Sample.objects.filter(user_id=user_id)
+            sample_serializer = SampleSerializer(user_samples, many=True)
+
+            return JsonResponse(sample_serializer.data, safe=False)
+
+        return HttpResponseNotFound('No matching user found.')
         

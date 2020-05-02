@@ -1,9 +1,12 @@
+import os
 from django.test import TestCase
 from django.test import Client
 from django.test import tag
+from django.conf import settings
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 from django.contrib.auth.models import User
-from .models import Sample
+from .models import *
 
 # Create your tests here.
 
@@ -11,7 +14,7 @@ class SampleTest(TestCase):
     '''
     Sample model unit testing
     '''
-    fixtures = ['users.json', 'samples.json']
+    fixtures = ['users.json', 'samples.json', 'tags.json']
 
     def setUp(self):
         import json
@@ -51,19 +54,16 @@ class SampleTest(TestCase):
 
             self.assertEqual(count, len(user_samples))
 
-    '''
     @tag('sample_filename')
     def test_sample_filename(self):
-        
+        '''
         Checks that the filename of an uploaded sample is correctly converted.
-        
-        from django.core.files.uploadedfile import SimpleUploadedFile
+        '''
 
         for user in User.objects.all():
             # Could generate a random string here
             filename = user.username
             file = SimpleUploadedFile('test.wav', b'This is the file content.')
-            #print(file)
 
             sample = Sample(
                 user=user,
@@ -73,11 +73,14 @@ class SampleTest(TestCase):
                 mode=Sample.Mode.MAJOR
             )
             sample.save()
-
-            sample = Sample.objects.get(name=filename)   
+            
+            sample = Sample.objects.get(name=filename)
             expected_filename = 'samples/{0}/{1}.wav'.format(user.username, filename)
             self.assertEqual(sample.file, expected_filename)
-    '''
+            
+            # Removes the test file in order to avoid future errors
+            file_path = os.path.join(settings.MEDIA_ROOT, expected_filename)
+            os.remove(file_path)
 
     @tag('sample_null_user_delete')
     def test_sample_null_user_delete(self):
@@ -94,3 +97,43 @@ class SampleTest(TestCase):
     
     
     # TODO: Check automatic deductions
+
+
+
+class UserProfileTest(TestCase):
+    '''
+    UserProfile model unit testing
+    '''
+    fixtures = ['users.json']
+
+    def setUp(self):
+        import json
+
+        # Reads the users fixture file
+        with open('./safm/fixtures/users.json') as json_users:
+            self.users = json.load(json_users)
+
+    @tag('user_profile_creation')
+    def test_user_profile_creation(self):
+        '''
+        Checks that the filename of an uploaded profile picture is correctly converted.
+        '''
+        for user in User.objects.all():
+            file = SimpleUploadedFile('test.jpg', b'This is the file content.')
+
+            user_profile = UserProfile(
+                user=user,
+                description='This is a random description.',
+                profile_picture=file,
+                email_public=True
+            )
+            user_profile.save()
+
+            user_profile = UserProfile.objects.get(user=user)
+            expected_filename = 'users/{0}/pp.jpg'.format(user.id)
+            self.assertEqual(user_profile.profile_picture, expected_filename)
+
+            # Removes the test file in order to avoid future errors
+            file_path = os.path.join(settings.MEDIA_ROOT, expected_filename)
+            os.remove(file_path)
+            

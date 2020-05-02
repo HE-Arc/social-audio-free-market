@@ -6,7 +6,7 @@
             v-for="comment in comments"
             :key="comment.id"
         >
-            <p>{{comment.username }}</p>
+            <p>{{ comment.username }}</p>
             <p>{{ comment.text }}</p>
             <p>{{ comment.datetime }}</p>
         </div>
