@@ -1,12 +1,12 @@
 <template>
-    <main>
-        <v-container>
+    <div class="sample-page">
+        <section class="section-sample">
             <Sample :sample="sample" />
-
+        </section>
+        <section class="section-comments">
             <Comments :comments="comments" />
-
-        </v-container>
-    </main>
+        </section>
+    </div>
 </template>
 
 <script>
