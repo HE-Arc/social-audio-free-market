@@ -41,6 +41,8 @@ namespace :node do
     on roles(:web) do |h|
       execute "cd #{release_path}/safm_project/safm_frontend && npm install"
       execute "cd #{release_path}/safm_project/safm_frontend && npm run build"
+      execute "cd #{release_path}/safm_project/safm_frontend && mv dist/* /var/www/app/public"
+      execute "cd #{release_path}/safm_project/safm_frontend && rm -rf dist"
     end
   end
 end
@@ -56,7 +58,7 @@ namespace :migrations do
   desc 'Run migrations'
   task :run_migrations do
     on roles(:web) do |h|
-      execute "echo $DJANGO_SETTINGS_MODULE && source #{venv_path}/bin/activate && cd #{release_path}/safm_project && python manage.py migrate"
+      execute "source #{venv_path}/bin/activate && cd #{release_path}/safm_project && python manage.py migrate"
     end
   end
 end
