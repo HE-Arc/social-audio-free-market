@@ -41,6 +41,7 @@ namespace :node do
     on roles(:web) do |h|
       execute "cd #{release_path}/safm_project/safm_frontend && npm install"
       execute "cd #{release_path}/safm_project/safm_frontend && npm run build"
+      execute "rm -rf /var/www/app/public/*"
       execute "cd #{release_path}/safm_project/safm_frontend && mv dist/* /var/www/app/public"
       execute "cd #{release_path}/safm_project/safm_frontend && rm -rf dist"
     end
