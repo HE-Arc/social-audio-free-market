@@ -14,7 +14,7 @@ class SampleTest(TestCase):
     '''
     Sample model unit testing
     '''
-    fixtures = ['users.json', 'samples.json']
+    fixtures = ['users.json', 'samples.json', 'tags.json']
 
     def setUp(self):
         import json

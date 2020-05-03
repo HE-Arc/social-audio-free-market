@@ -1,21 +1,15 @@
 <template>
-    <main>
-        <v-container>
-            
-        </v-container>
-
-        <v-container>
-            <v-row>
-                <v-col
-                    v-for="sample in samples"
-                    :key="sample.id"
-                    cols="6"
-                >
-                    <Sample :sample="sample" />
-                </v-col>
-            </v-row>
-        </v-container>
-    </main>
+    <div class="search-results">
+        <v-row>
+            <v-col
+                v-for="sample in samples"
+                :key="sample.id"
+                cols="6"
+            >
+                <Sample :sample="sample" />
+            </v-col>
+        </v-row>
+    </div>
 </template>
 
 <script>
