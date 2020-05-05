@@ -57,7 +57,7 @@ namespace :nuxt do
     on roles(:web) do |h|
       execute "cd #{release_path}/safm_project/safm_frontend && npm install"
       execute "cd #{release_path}/safm_project/safm_frontend && npm run build"
-      execute "cd #{release_path}/safm_project/safm_frontend && npm run start"
+      execute "cd #{release_path}/safm_project/safm_frontend && npm run start &"
     end
   end
 end
