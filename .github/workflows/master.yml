@@ -102,4 +102,3 @@ jobs:
       run: |
         cd safm_project/safm_frontend
         npm run build
-        npm run start
