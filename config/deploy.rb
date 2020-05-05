@@ -33,22 +33,7 @@ namespace :python do
   end
 end
 
-after 'deploy:published', 'node:install_packages'
-
-namespace :node do
-  desc 'Install node packages'
-  task :install_packages do
-    on roles(:web) do |h|
-      execute "cd #{release_path}/safm_project/safm_frontend && npm install"
-      execute "cd #{release_path}/safm_project/safm_frontend && npm run build"
-      execute "rm -rf /var/www/app/public/*"
-      execute "cd #{release_path}/safm_project/safm_frontend && mv dist/* /var/www/app/public"
-      execute "cd #{release_path}/safm_project/safm_frontend && rm -rf dist"
-    end
-  end
-end
-
-after 'node:install_packages', 'migrations:run_migrations'
+after 'deploy:published', 'migrations:run_migrations'
 
 namespace :migrations do
 
@@ -60,6 +45,19 @@ namespace :migrations do
   task :run_migrations do
     on roles(:web) do |h|
       execute "source #{venv_path}/bin/activate && cd #{release_path}/safm_project && python manage.py migrate"
+    end
+  end
+end
+
+after 'migrations:run_migrations', 'nuxt:install_start_build'
+
+namespace :nuxt do
+  desc 'Install node packages, build and start Nuxt application'
+  task :install_start_build do
+    on roles(:web) do |h|
+      execute "cd #{release_path}/safm_project/safm_frontend && npm install"
+      execute "cd #{release_path}/safm_project/safm_frontend && npm run build"
+      execute "cd #{release_path}/safm_project/safm_frontend && npm run start"
     end
   end
 end
