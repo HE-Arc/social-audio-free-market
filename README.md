@@ -6,7 +6,7 @@ A place for audio samples sharing and common creations.
 
 ## Demo
 
-You can find the master version of the project [here](https://safmarket.srvz-webapp.he-arc.ch/).
+You can visit the master version of the project [here](https://safmarket.srvz-webapp.he-arc.ch/).
 
 ## Installation
 
