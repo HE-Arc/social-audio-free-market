@@ -18,6 +18,7 @@ class QuickSearch(generics.ListAPIView):
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', 'tempo', 'tone', 'mode', 'duration', 'tags__name', 'user__username']
 
+
 class AdvancedSearch(generics.ListAPIView):
     queryset = Sample.objects.all()
     serializer_class = SampleSerializer
@@ -27,8 +28,9 @@ class AdvancedSearch(generics.ListAPIView):
         'tempo': ['lte', 'gte'],
         'tone': ['exact'],
         'mode': ['exact'],
-        'tags__name': ['exact'],    # How to handle multiple tags ?
+        'tags__name': ['exact'],    # How to use AND condition ?
     }
+
 
 class SamplePage(APIView):
 
