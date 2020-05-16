@@ -1,5 +1,5 @@
 <template>
-    <div id="quick-search-dialog">
+    <div>
         <v-dialog
             v-model="dialog"
             light

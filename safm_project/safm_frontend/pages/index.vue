@@ -1,3 +1,5 @@
 <template>
-    <h1>Welcome to the Social Audio Free Market</h1>
+    <div>
+        <h1>SAFMarket</h1>
+    </div>
 </template>
