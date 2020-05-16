@@ -1,4 +1,6 @@
 import os
+import json
+from rest_framework import status
 from django.test import TestCase
 from django.test import Client
 from django.test import tag
@@ -17,8 +19,6 @@ class SampleTest(TestCase):
     fixtures = ['users.json', 'samples.json', 'tags.json']
 
     def setUp(self):
-        import json
-
         # Reads the users fixture file
         with open('./safm/fixtures/users.json') as json_users:
             self.users = json.load(json_users)
@@ -137,3 +137,91 @@ class UserProfileTest(TestCase):
             file_path = os.path.join(settings.MEDIA_ROOT, expected_filename)
             os.remove(file_path)
             
+
+class QuickSearchTest(TestCase):
+    '''
+    Quick Search unit testing
+    '''
+    fixtures = ['users.json', 'samples.json', 'tags.json']
+
+    def setUp(self):
+        self.client = Client()
+
+        # Reads the users fixture file
+        with open('./safm/fixtures/users.json') as json_users:
+            self.users = json.load(json_users)
+
+        # Reads the samples fixture file
+        with open('./safm/fixtures/samples.json') as json_samples:
+            self.samples = json.load(json_samples)
+
+        # Reads the tags fixture file
+        with open('./safm/fixtures/tags.json') as json_tags:
+            self.tags = json.load(json_tags)
+
+    @tag('quick_search_returns_correct_results_length')
+    def test_quick_search_returns_correct_results_length(self):
+        '''
+        Checks that the quick search returns the correct number of samples.
+        '''
+
+        def results_len_from_fixtures(search_query):
+            '''
+            Returns the theorical number of quick search results based
+            on the given search_query and the data from the fixtures.
+            '''
+            count = 0
+            # For each sample from the samples fixture
+            for sample in self.samples:
+                # Gets the username associated to the sample
+                for user in self.users:
+                    if user['pk'] == sample['fields']['user']:
+                        username = user['fields']['username']
+                        break
+
+                # Checks wether the search_query is contained in the sample properties
+                # Continue avoids duplicated content
+                if search_query in username:
+                    count += 1
+                    continue
+                if search_query in sample['fields']['name']:
+                    count += 1
+                    continue
+                if search_query in str(sample['fields']['duration']):
+                    count += 1
+                    continue
+                if search_query in str(sample['fields']['tempo']):
+                    count += 1
+                    continue
+                if search_query in sample['fields']['tone']:
+                    count += 1
+                    continue
+                if search_query in sample['fields']['mode']:
+                    count += 1
+                    continue
+                # search_query in the sample tags
+                for tag in self.tags:
+                    if search_query in tag['fields']['name']:
+                        count += 1
+                        break
+
+            return count
+
+        for search_query in ['qtipee', '3.0', '130', 'techno']:
+            response = self.client.get('/api/quick?search=' + search_query)
+            jsonResponse = json.loads(response.content)
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(len(jsonResponse), results_len_from_fixtures(search_query))
+
+    @tag('quick_search_no_results')
+    def test_quick_search_no_results(self):
+        '''
+        Checks that the quick search returns nothing if the given
+        search query matches no sample.
+        '''
+        response = self.client.get('/api/quick?search=whoistheafterking')
+        jsonResponse = json.loads(response.content)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(jsonResponse), 0)

@@ -4,6 +4,7 @@ from django.conf import settings
 from rest_framework import filters, generics
 from rest_framework.views import APIView
 from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
+from django_filters.rest_framework import DjangoFilterBackend
 
 from django.contrib.auth.models import User
 from .models import *
@@ -16,6 +17,18 @@ class QuickSearch(generics.ListAPIView):
     serializer_class = SampleSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', 'tempo', 'tone', 'mode', 'duration', 'tags__name', 'user__username']
+
+class AdvancedSearch(generics.ListAPIView):
+    queryset = Sample.objects.all()
+    serializer_class = SampleSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = {
+        'duration': ['lte', 'gte'],
+        'tempo': ['lte', 'gte'],
+        'tone': ['exact'],
+        'mode': ['exact'],
+        'tags__name': ['exact'],    # How to handle multiple tags ?
+    }
 
 class SamplePage(APIView):
 
