@@ -21,7 +21,7 @@ test.before(async () => {
 test('Route / exits and renders HTML', async (t) => {
     const context = {}
     const { html } = await nuxt.server.renderRoute('/', context)
-    t.true(html.includes('Welcome to the Social Audio Free Market'))
+    t.true(html.includes('Market'))
 })
 /*
 test('Route /quick-search exists and renders HTML', async (t) => {
