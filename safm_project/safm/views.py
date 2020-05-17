@@ -24,8 +24,8 @@ class AdvancedSearch(generics.ListAPIView):
     serializer_class = SampleSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = {
-        'duration': ['lte', 'gte'],
-        'tempo': ['lte', 'gte'],
+        'duration': ['gte', 'lte'],
+        'tempo': ['gte', 'lte'],
         'tone': ['exact'],
         'mode': ['exact'],
         'tags__name': ['exact'],    # How to use AND condition ?
