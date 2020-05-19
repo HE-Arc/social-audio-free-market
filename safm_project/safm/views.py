@@ -16,7 +16,7 @@ class QuickSearch(generics.ListAPIView):
     queryset = Sample.objects.all()
     serializer_class = SampleSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ['name', 'tempo', 'tone', 'mode', 'duration', 'tags__name', 'user__username']
+    search_fields = ['name', 'tempo', 'key', 'mode', 'duration', 'tags__name', 'user__username']
 
 
 class AdvancedSearch(generics.ListAPIView):
@@ -28,7 +28,7 @@ class AdvancedSearch(generics.ListAPIView):
         'user__username': ['icontains'],
         'duration': ['gte', 'lte'],
         'tempo': ['gte', 'lte'],
-        'tone': ['exact'],
+        'key': ['exact'],
         'mode': ['exact'],
         'tags__name': ['icontains'],    # How to use AND condition ?
     }

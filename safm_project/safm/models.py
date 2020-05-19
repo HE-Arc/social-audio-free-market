@@ -12,8 +12,8 @@ class Tag(models.Model):
 class Sample(models.Model):
     # Audio Sample
 
-    class Tone(models.TextChoices):
-        # Tone Enum
+    class Key(models.TextChoices):
+        # Key Enum
         A = 'A'
         B = 'B'
         C = 'C'
@@ -38,7 +38,7 @@ class Sample(models.Model):
     file = models.FileField(max_length=255, upload_to=user_directory_path)
     duration = models.FloatField(blank=True, null=True) # duration in [s]
     tempo = models.PositiveIntegerField(blank=True, null=True) # tempo is > 0
-    tone = models.CharField(max_length=1, choices=Tone.choices, blank=True)
+    key = models.CharField(max_length=1, choices=Key.choices, blank=True)
     mode = models.CharField(max_length=1, choices=Mode.choices, blank=True)
     datetime_upload = models.DateTimeField(auto_now_add=True) # auto now at creation
     nb_dl_unauthenticated = models.PositiveIntegerField(default=0) # nb dl > 0

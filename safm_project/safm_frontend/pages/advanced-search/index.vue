@@ -40,8 +40,8 @@
                     </v-col>
                     <v-col cols="6">
                         <v-select
-                            v-model="params.tone"
-                            :items="toneItems"
+                            v-model="params.key"
+                            :items="keyItems"
                             label="Key"
                             multiple
                         ></v-select>
@@ -119,7 +119,7 @@ export default {
                 duration__lte: 30.0,
                 tempo__gte: 1,
                 tempo__lte: 200,
-                tone: [],   //RENAME TONE TO KEY
+                key: [],
                 mode: '',
                 tags__name__icontains: []
             },
@@ -129,8 +129,21 @@ export default {
             tempoRange: [1, 200],
             tempoMin: 1,
             tempoMax: 200,
-            toneItems: ['A', 'B', 'C'], // FETCH TONES FROM API
-            modeItems: ['Any', 'Minor', 'Major'],
+            keyItems: ['A', 'B', 'C', 'D', 'E', 'F', 'G'],
+            modeItems: [
+                {
+                    text: 'Any',
+                    value: ''
+                },
+                {
+                    text: 'Minor',
+                    value: 'm'
+                },
+                {
+                    text: 'Major',
+                    value: 'M'
+                }
+            ],
             tagInput: '',
             samples: []
         }

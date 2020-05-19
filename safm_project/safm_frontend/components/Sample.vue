@@ -26,10 +26,10 @@
                     <v-btn
                         text
                         small
-                        :to="`/quick-search/${sample.tone + sample.mode}`"
+                        :to="`/quick-search/${sample.key + sample.mode}`"
                     >
                         <v-icon>mdi-music-circle-outline</v-icon>
-                        {{ sample.tone + sample.mode }}
+                        {{ sample.key + sample.mode }}
                     </v-btn>
                 </v-col>
                 <v-col cols="4">
