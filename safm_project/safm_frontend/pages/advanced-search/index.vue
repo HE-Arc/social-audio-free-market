@@ -5,13 +5,13 @@
                 <v-row align="center">
                     <v-col cols="6">
                         <v-text-field
-                            v-model="params.name"
+                            v-model="params.name__icontains"
                             label="Name"
                         ></v-text-field>
                     </v-col>
                     <v-col cols="6">
                         <v-text-field
-                            v-model="params.user__username"
+                            v-model="params.user__username__icontains"
                             label="Username"
                         ></v-text-field>
                     </v-col>
@@ -61,7 +61,7 @@
                         </v-text-field>
                         <v-chip-group>
                             <v-chip
-                                v-for="(tag, i) in params.tags__name"
+                                v-for="(tag, i) in params.tags__name__icontains"
                                 :key="tag"
                                 close
                                 @click:close="removeTag(i)"
@@ -109,15 +109,15 @@ export default {
         return {
             // Advanced Search params
             params: {
-                name: '',   // Sample name
-                user__username: '',
+                name__icontains: '',   // Sample name
+                user__username__icontains: '',
                 duration_gte: 0.1,
                 duration_lte: 30.0,
                 tempo_gte: 1,
                 tempo_lte: 200,
                 tone: [],   //RENAME TONE TO KEY
                 mode: '',
-                tags__name: []
+                tags__name__icontains: []
             },
             durationRange: [0.1, 30.0],
             tempoRange: [1, 200],
@@ -137,16 +137,16 @@ export default {
     methods: {
         addTag () {
             if (this.tagInput.length > 0) {
-                if (! this.params.tags__name.includes(this.tagInput)) {
+                if (! this.params.tags__name__icontains.includes(this.tagInput)) {
                     // Inserts tag at beginning of array
-                    this.params.tags__name.splice(0, 0, this.tagInput)
+                    this.params.tags__name__icontains.splice(0, 0, this.tagInput)
                     this.tagInput = ''
                 }
             }
         },
 
         removeTag (index) {
-            this.params.tags.splice(index, 1)
+            this.params.tags__name__icontains.splice(index, 1)
         },
 
         async advancedSearch () {
@@ -169,6 +169,7 @@ export default {
 
             // Removes the last '&'
             params = params.substring(0, params.length - 1)
+            console.log(params)
             
             try {
                 this.samples = await this.$axios.$get('/ad_search?' + params)

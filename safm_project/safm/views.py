@@ -24,11 +24,13 @@ class AdvancedSearch(generics.ListAPIView):
     serializer_class = SampleSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = {
+        'name': ['icontains'],
+        'user__username': ['icontains'],
         'duration': ['gte', 'lte'],
         'tempo': ['gte', 'lte'],
         'tone': ['exact'],
         'mode': ['exact'],
-        'tags__name': ['exact'],    # How to use AND condition ?
+        'tags__name': ['icontains'],    # How to use AND condition ?
     }
 
 
