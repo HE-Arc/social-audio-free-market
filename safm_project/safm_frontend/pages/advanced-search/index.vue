@@ -7,12 +7,14 @@
                         <v-text-field
                             v-model="params.name__icontains"
                             label="Name"
+                            @keypress.enter="advancedSearch"
                         ></v-text-field>
                     </v-col>
                     <v-col cols="6">
                         <v-text-field
                             v-model="params.user__username__icontains"
                             label="Username"
+                            @keypress.enter="advancedSearch"
                         ></v-text-field>
                     </v-col>
                     <v-col cols="6">
@@ -158,6 +160,8 @@ export default {
                     this.params.tags__name__icontains.splice(0, 0, this.tagInput)
                     this.tagInput = ''
                 }
+            } else {
+                this.advancedSearch()
             }
         },
 
