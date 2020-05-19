@@ -18,20 +18,22 @@
                     <v-col cols="6">
                         <v-range-slider
                             v-model="durationRange"
-                            :min="params.duration_gte"
-                            :max="params.duration_lte"
+                            :min="durationMin"
+                            :max="durationMax"
                             step=0.1
                             label="Duration [s]"
                             thumb-label="always"
+                            @change="durationRangeOnChange"
                         ></v-range-slider>
                     </v-col>
                     <v-col cols="6">
                         <v-range-slider
                             v-model="tempoRange"
-                            :min="params.tempo_gte"
-                            :max="params.tempo_lte"
+                            :min="tempoMin"
+                            :max="tempoMax"
                             label="Tempo"
                             thumb-label="always"
+                            @change="tempoRangeOnChange"
                         ></v-range-slider>
                     </v-col>
                     <v-col cols="6">
@@ -107,20 +109,24 @@ export default {
 
     data () {
         return {
-            // Advanced Search params
+             // Advanced Search params
             params: {
                 name__icontains: '',   // Sample name
                 user__username__icontains: '',
-                duration_gte: 0.1,
-                duration_lte: 30.0,
-                tempo_gte: 1,
-                tempo_lte: 200,
+                duration__gte: 0,
+                duration__lte: 30.0,
+                tempo__gte: 1,
+                tempo__lte: 200,
                 tone: [],   //RENAME TONE TO KEY
                 mode: '',
                 tags__name__icontains: []
             },
             durationRange: [0.1, 30.0],
+            durationMin: 0.1,
+            durationMax: 30.0,
             tempoRange: [1, 200],
+            tempoMin: 1,
+            tempoMax: 200,
             toneItems: ['A', 'B', 'C'], // FETCH TONES FROM API
             modeItems: ['Any', 'Minor', 'Major'],
             tagInput: '',
@@ -135,6 +141,16 @@ export default {
     },
     
     methods: {
+        durationRangeOnChange () {
+            this.params.duration__gte = this.durationRange[0]
+            this.params.duration__lte = this.durationRange[1]
+        },
+
+        tempoRangeOnChange () {
+            this.params.tempo__gte = this.tempoRange[0]
+            this.params.tempo__lte = this.tempoRange[1]
+        },
+
         addTag () {
             if (this.tagInput.length > 0) {
                 if (! this.params.tags__name__icontains.includes(this.tagInput)) {
@@ -169,7 +185,6 @@ export default {
 
             // Removes the last '&'
             params = params.substring(0, params.length - 1)
-            console.log(params)
             
             try {
                 this.samples = await this.$axios.$get('/ad_search?' + params)
