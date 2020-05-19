@@ -36,6 +36,17 @@
                         </v-text-field>
                     </v-container>
                 </v-card-text>
+                <v-card-actions>
+                    <v-container>
+                        <v-btn
+                            color="primary"
+                            text
+                            @click="advancedSearch"
+                        >
+                            Advanced Form
+                        </v-btn>
+                    </v-container>
+                </v-card-actions>
             </v-card>
         </v-dialog>
     </div>
@@ -64,6 +75,11 @@ export default {
                 this.$router.push(`/quick-search/${this.quickSearchInput}`)
                 this.quickSearchInput = ''
             }
+        },
+
+        advancedSearch () {
+            this.dialog = false
+            this.$router.push('/advanced-search')
         }
     }
 }
