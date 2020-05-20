@@ -74,6 +74,19 @@
                             </v-chip>
                         </v-chip-group>
                     </v-col>
+                    <v-col cols="6">
+                        <v-select
+                            v-model="ordering"
+                            :items="orderingItems"
+                            label="Order by"
+                        ></v-select>
+                    </v-col>
+                    <v-col cols="6">
+                        <v-switch
+                            v-model="orderingReverse"
+                            label="Reversed Order"
+                        ></v-switch>
+                    </v-col>
                     <v-col cols="12">
                         <v-btn
                             block
@@ -111,7 +124,7 @@ export default {
 
     data () {
         return {
-             // Advanced Search params
+            // Advanced Search params
             params: {
                 name__icontains: '',   // Sample name
                 user__username__icontains: '',
@@ -145,6 +158,30 @@ export default {
                 }
             ],
             tagInput: '',
+            ordering: '',
+            orderingItems: [
+                {
+                    text: 'Name',
+                    value: 'name'
+                },
+                {
+                    text: 'Username',
+                    value: 'user__username'
+                },
+                {
+                    text: 'Duration',
+                    value: 'duration'
+                },
+                {
+                    text: 'Tempo',
+                    value: 'tempo'
+                },
+                {
+                    text: 'Key',
+                    value: 'key'
+                }
+            ],
+            orderingReverse: false,
             samples: []
         }
     },
@@ -202,6 +239,11 @@ export default {
 
             // Removes the last '&'
             params = params.substring(0, params.length - 1)
+
+            // There is an order by property set
+            if (this.ordering) {
+                params += `&ordering=${this.orderingReverse ? '-' : ''}${this.ordering}`
+            }
             
             try {
                 this.samples = await this.$axios.$get('/ad_search?' + params)
