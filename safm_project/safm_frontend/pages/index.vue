@@ -1,5 +1,59 @@
 <template>
     <div>
-        <h1>SAFMarket</h1>
+        <v-container>
+            <h1>SAFMarket</h1>
+            <v-text-field
+                v-model="quickSearchInput"
+                label="Tag, tone, tempo, username, ..."
+                autofocus
+                outlined
+                hide-details
+                single-line
+                @keypress.enter="quickSearch"
+            >
+                <template v-slot:append>
+                    <v-icon @click="quickSearch">{{ quickSearchIcon }}</v-icon>
+                </template>
+            </v-text-field>
+            <v-btn
+                color="primary"
+                text
+                @click="advancedSearch"
+            >
+                Advanced Form
+            </v-btn>
+        </v-container>
     </div>
 </template>
+
+<script>
+export default {
+
+    data () {
+        return {
+            quickSearchInput: ''
+        }
+    },
+
+    computed: {
+        quickSearchIcon () {
+            return this.quickSearchInput.length > 0 ? 'mdi-magnify' : ''
+        }
+    },
+
+    methods: {
+        quickSearch () {
+            if (this.quickSearchInput.length > 0) {
+                this.dialog = false
+                this.$router.push(`/quick-search/${this.quickSearchInput}`)
+                this.quickSearchInput = ''
+            }
+        },
+
+        advancedSearch () {
+            this.dialog = false
+            this.$router.push('/advanced-search')
+        }
+    }
+}
+</script>

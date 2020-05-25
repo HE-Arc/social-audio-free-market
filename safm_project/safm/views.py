@@ -4,6 +4,8 @@ from django.conf import settings
 from rest_framework import filters, generics
 from rest_framework.views import APIView
 from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
+from django_filters.rest_framework import DjangoFilterBackend
+from django_filters.filters import OrderingFilter
 
 from django.contrib.auth.models import User
 from .models import *
@@ -15,7 +17,30 @@ class QuickSearch(generics.ListAPIView):
     queryset = Sample.objects.all()
     serializer_class = SampleSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ['name', 'tempo', 'tone', 'mode', 'duration', 'tags__name', 'user__username']
+    search_fields = ['name', 'tempo', 'key', 'mode', 'duration', 'tags__name', 'user__username']
+
+
+class AdvancedSearch(generics.ListAPIView):
+    queryset = Sample.objects.all()
+    serializer_class = SampleSerializer
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_fields = {
+        'name': ['icontains'],
+        'user__username': ['icontains'],
+        'duration': ['gte', 'lte'],
+        'tempo': ['gte', 'lte'],
+        'key': ['exact'],
+        'mode': ['exact'],
+        'tags__name': ['icontains'],    # How to use AND condition ?
+    }
+    ordering_fields = [
+        'name',
+        'user__username',
+        'duration',
+        'tempo',
+        'key',
+    ]
+
 
 class SamplePage(APIView):
 
