@@ -365,6 +365,8 @@ class AdvancedSearchTest(TestCase):
             count = 0
             for sample in self.samples:
                 mode = sample['fields']['mode']
+                # When no specific mode is selected, the advanced search
+                # should return both minor and major samples
                 if m == '' or m == mode:
                     count += 1
 
