@@ -362,9 +362,13 @@ class AdvancedSearchTest(TestCase):
         of samples based on the mode property.
         '''
         for m in ['', 'm', 'M']:
+            print('----- MODE -----')
+            print(m)
             count = 0
             for sample in self.samples:
                 mode = sample['fields']['mode']
+                print('In Sample For')
+                print(mode)
                 # When no specific mode is selected, the advanced search
                 # should return both minor and major samples
                 if m == '' or m == mode:
@@ -373,6 +377,10 @@ class AdvancedSearchTest(TestCase):
             url = '/api/ad_search?mode={0}'.format(m)
             response = self.client.get(url)
             jsonResponse = json.loads(response.content)
+            print('JSON Response Length')
+            print(len(jsonResponse))
+            print('JSON Response')
+            print(jsonResponse)
 
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             self.assertEqual(len(jsonResponse), count)
