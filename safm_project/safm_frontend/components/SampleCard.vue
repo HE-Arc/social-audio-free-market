@@ -97,6 +97,10 @@
 </template>
 
 <script>
+if (process.browser) {
+    var WaveSurfer = require('wavesurfer.js')
+}
+
 export default {
     props: [
         'id',
@@ -138,8 +142,16 @@ export default {
                 barGap: null
             })
 
+            // Loads the sample audio file
             let audioFileUrl = `${this.$axios.defaults.baseURL}/sample_file/${this.id}`
             this.wavesurfer.load(audioFileUrl)
+
+            // Repeats the audio file if the repeatSample property is true
+            this.wavesurfer.on('finish', () => {
+                if (this.$store.state.repeatSample) {
+                    this.wavesurfer.play()
+                }
+            })
         },
 
         playPause () {

@@ -15,10 +15,6 @@ export default {
         ],
         link: [
             { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
-        ],
-        // FIXME: build this file
-        script: [
-            { src: '/wavesurfer.js' }
         ]
     },
     /*
