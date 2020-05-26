@@ -10,6 +10,7 @@
                 {{ sample.user.username }}
             </v-btn>
         </v-card-text>
+        <div :id="`waveform-${sample.id}`"></div>
         <v-card-text>
             <v-row align="center">
                 <v-col cols="4">
@@ -60,7 +61,7 @@
             <v-row align="center">
                 <v-col cols="4">
                     <v-btn
-                        @click="playPauseSample"
+                        @click="playPause"
                         block>
                         <v-icon>{{ playPauseIcon }}</v-icon>
                     </v-btn>
@@ -81,10 +82,6 @@
                 </v-col>
             </v-row>
         </v-card-actions>
-        <audio :id="`audio-${sample.id}`">
-            <source :src="`${$axios.defaults.baseURL}/sample_file/${sample.id}`" />
-            Your browser does not support the audio element.
-        </audio>
     </v-card>
 </template>
 
@@ -94,27 +91,39 @@ export default {
 
     data () {
         return {
-            playing: false
+            wavesurfer: null
         }
     },
 
     computed: {
         playPauseIcon () {
-            return this.playing ? 'mdi-pause' : 'mdi-play'
+            if (this.wavesurfer) {
+                return this.wavesurfer.isPlaying() ? 'mdi-pause' : 'mdi-play'
+            }
         }
     },
 
-    methods: {
-        playPauseSample () {
-            let audio = document.getElementById('audio-' + this.sample.id)
+    mounted () {
+        this.initWaveSurfer()
+    },
 
-            if (audio.paused) {
-                audio.play()
-                this.playing = true
-            } else {
-                audio.pause()
-                this.playing = false
-            }
+    methods: {
+        initWaveSurfer () {
+            this.wavesurfer = WaveSurfer.create({
+                container: `#waveform-${this.sample.id}`,
+                waveColor: 'violet',
+                progressColor: 'purple',
+                barWidth: 2,
+                barHeight: 1,
+                barGap: null
+            })
+
+            let audioFileUrl = `${this.$axios.defaults.baseURL}/sample_file/${this.sample.id}`
+            this.wavesurfer.load(audioFileUrl)
+        },
+
+        playPause () {
+            this.wavesurfer.playPause()
         }
     }
 }
