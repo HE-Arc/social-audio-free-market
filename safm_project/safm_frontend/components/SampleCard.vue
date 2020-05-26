@@ -1,53 +1,44 @@
 <template>
     <v-card class="sample card">
-        <v-card-title>{{ sample.name }}</v-card-title>
-        <v-card-text>
-            <v-btn
-                text
-                small
-                :to="`/profiles/${sample.user.username}`"
-            >
-                {{ sample.user.username }}
-            </v-btn>
-        </v-card-text>
-        <div :id="`waveform-${sample.id}`"></div>
+        <v-card-title class="headline">{{ name }}</v-card-title>
+        <div :id="`waveform-${id}`"></div>
         <v-card-text>
             <v-row align="center">
                 <v-col cols="4">
                     <v-btn
                         text
                         small
-                        :to="`/quick-search/${sample.tempo}`"
+                        :to="`/quick-search/${tempo}`"
                     >
-                        <v-icon>mdi-metronome</v-icon>
-                        {{ sample.tempo }}
+                        <v-icon class="mx-2">mdi-metronome</v-icon>
+                        {{ tempo }}
                     </v-btn>
                 </v-col>
                 <v-col cols="4">
                     <v-btn
                         text
                         small
-                        :to="`/quick-search/${sample.key + sample.mode}`"
+                        :to="`/quick-search/${_key + mode}`"
                     >
-                        <v-icon>mdi-music-circle-outline</v-icon>
-                        {{ sample.key + sample.mode }}
+                        <v-icon class="mx-2">mdi-music-circle-outline</v-icon>
+                        {{ _key + mode }}
                     </v-btn>
                 </v-col>
                 <v-col cols="4">
                     <v-btn
                         text
                         small
-                        :to="`/quick-search/${sample.duration}`"
+                        :to="`/quick-search/${duration}`"
                     >
-                        <v-icon>mdi-timer-outline</v-icon>
-                        {{ sample.duration + 's' }}
+                        <v-icon class="mx-2">mdi-timer-outline</v-icon>
+                        {{ duration + 's' }}
                     </v-btn>
                 </v-col>
             </v-row>
         </v-card-text>
         <v-card-text>
             <v-chip
-                v-for="tag in sample.tags"
+                v-for="tag in tags"
                 :key="tag.id"
                 class="tag ma-1"
                 label
@@ -57,26 +48,46 @@
                 {{ tag.name }}
             </v-chip>
         </v-card-text>
+        <v-card-text>
+            By
+            <v-btn
+                text
+                small
+                :to="`/profiles/${username}`"
+                class="pa-0"
+            >
+                {{ username }}
+            </v-btn>
+        </v-card-text>
         <v-card-actions>
             <v-row align="center">
-                <v-col cols="4">
+                <v-col cols="4" align="center">
                     <v-btn
                         @click="playPause"
-                        block>
+                        fab
+                        large
+                        class="sample-playpause"
+                    >
                         <v-icon>{{ playPauseIcon }}</v-icon>
                     </v-btn>
                 </v-col>
-                <v-col cols="4">
+                <v-col cols="4" align="center">
                     <v-btn
-                        :href="`${$axios.defaults.baseURL}/sample_file/${sample.id}`"
-                        block>
+                        :href="`${$axios.defaults.baseURL}/sample_file/${id}`"
+                        fab
+                        large
+                        class="sample-download"
+                    >
                         <v-icon>mdi-download-outline</v-icon>
                     </v-btn>
                 </v-col>
-                <v-col cols="4">
+                <v-col cols="4" align="center">
                     <v-btn
-                        :to="`/samples/${sample.id}`"
-                        block>
+                        :to="`/samples/${id}`"
+                        fab
+                        large
+                        class="sample-detail"
+                    >
                         <v-icon>mdi-eye-outline</v-icon>
                     </v-btn>
                 </v-col>
@@ -87,7 +98,16 @@
 
 <script>
 export default {
-    props: ['sample'],
+    props: [
+        'id',
+        'name',
+        'tempo',
+        '_key',
+        'mode',
+        'duration',
+        'tags',
+        'username'
+    ],
 
     data () {
         return {
@@ -110,7 +130,7 @@ export default {
     methods: {
         initWaveSurfer () {
             this.wavesurfer = WaveSurfer.create({
-                container: `#waveform-${this.sample.id}`,
+                container: `#waveform-${this.id}`,
                 waveColor: 'violet',
                 progressColor: 'purple',
                 barWidth: 2,
@@ -118,7 +138,7 @@ export default {
                 barGap: null
             })
 
-            let audioFileUrl = `${this.$axios.defaults.baseURL}/sample_file/${this.sample.id}`
+            let audioFileUrl = `${this.$axios.defaults.baseURL}/sample_file/${this.id}`
             this.wavesurfer.load(audioFileUrl)
         },
 

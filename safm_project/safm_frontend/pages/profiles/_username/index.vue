@@ -4,25 +4,17 @@
 
         </section>
         <section class="user-samples">
-            <v-row>
-                <v-col
-                    v-for="sample in samples"
-                    :key="sample.id"
-                    cols="6"
-                >
-                    <Sample :sample="sample" />
-                </v-col>
-            </v-row>
+            <SampleList :samples="samples" />
         </section>
     </div>
 </template>
 
 <script>
-import Sample from '~/components/Sample.vue'
+import SampleList from '~/components/SampleList.vue'
 
 export default {
     components: {
-        Sample
+        SampleList
     },
 
     data () {
