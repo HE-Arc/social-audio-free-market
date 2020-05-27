@@ -14,7 +14,7 @@
                     :name="sample.name"
                     :tempo="sample.tempo"
                     :_key="sample.key"
-                    :mode="sample.mode"
+                    :_mode="sample.mode"
                     :duration="sample.duration"
                     :tags="sample.tags"
                     :username="sample.user.username"
@@ -35,3 +35,9 @@ export default {
     props: ['samples']
 }
 </script>
+
+<style>
+.sample .v-btn__content {
+    text-transform: none !important;
+}
+</style>

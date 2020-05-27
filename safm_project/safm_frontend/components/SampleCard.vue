@@ -107,7 +107,7 @@ export default {
         'name',
         'tempo',
         '_key',
-        'mode',
+        '_mode',
         'duration',
         'tags',
         'username'
@@ -120,6 +120,10 @@ export default {
     },
 
     computed: {
+        mode () {
+            return this._mode == 'min' ? 'm' : this._mode == 'maj' ? 'M' : ''
+        },
+
         playPauseIcon () {
             if (this.wavesurfer) {
                 return this.wavesurfer.isPlaying() ? 'mdi-pause' : 'mdi-play'
