@@ -4,7 +4,8 @@
             <v-col
                 v-for="sample in samples"
                 :key="sample.id"
-                cols="3"
+                cols="12"
+                lg="3"
                 md="4"
                 sm="6"
                 xs="12"
