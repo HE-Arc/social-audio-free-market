@@ -24,8 +24,8 @@ class Sample(models.Model):
 
     class Mode(models.TextChoices):
         # Mode Enum
-        MINOR = 'm', 'Minor'
-        MAJOR = 'M', 'Major'
+        MINOR = 'min'
+        MAJOR = 'maj'
 
     def user_directory_path(instance, filename):
         # File will be uploaded to MEDIA_ROOT/samples/<username>/<sample_name>
@@ -36,10 +36,10 @@ class Sample(models.Model):
     user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     name = models.CharField(max_length=255)
     file = models.FileField(max_length=255, upload_to=user_directory_path)
-    duration = models.FloatField(blank=True, null=True) # duration in [s]
+    duration = models.DecimalField(max_digits=4, decimal_places=1, blank=True, null=True) # duration in [s]
     tempo = models.PositiveIntegerField(blank=True, null=True) # tempo is > 0
     key = models.CharField(max_length=1, choices=Key.choices, blank=True)
-    mode = models.CharField(max_length=1, choices=Mode.choices, blank=True)
+    mode = models.CharField(max_length=3, choices=Mode.choices, blank=True)
     datetime_upload = models.DateTimeField(auto_now_add=True) # auto now at creation
     nb_dl_unauthenticated = models.PositiveIntegerField(default=0) # nb dl > 0
     tags = models.ManyToManyField(Tag) # a sample can have multiple tags

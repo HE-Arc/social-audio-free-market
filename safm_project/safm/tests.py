@@ -208,15 +208,9 @@ class QuickSearchTest(TestCase):
 
             return count
 
-        for search_query in ['qtipee', '3.0', '130', 'techno']:
-            print('--- QUICK SEARCH ---')
-            print(search_query)
+        for search_query in ['qtipee', '130', 'techno']:
             response = self.client.get('/api/quick?search=' + search_query)
             jsonResponse = json.loads(response.content)
-
-            print('JSON RESPONSE LEN')
-            print(len(jsonResponse))
-            print(jsonResponse)
 
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             self.assertEqual(len(jsonResponse), results_len_from_fixtures(search_query))
@@ -367,9 +361,7 @@ class AdvancedSearchTest(TestCase):
         Checks that the Advanced Search returns the correct number
         of samples based on the mode property.
         '''
-        for m in ['', 'm', 'M']:
-            print('----- MODE -----')
-            print(m)
+        for m in ['', 'min', 'maj']:
             count = 0
             for sample in self.samples:
                 mode = sample['fields']['mode']
@@ -378,15 +370,9 @@ class AdvancedSearchTest(TestCase):
                 if m == '' or m == mode:
                     count += 1
 
-            print('COUNT')
-            print(count)
             url = '/api/ad_search?mode={0}'.format(m)
             response = self.client.get(url)
             jsonResponse = json.loads(response.content)
-            print('JSON Response Length')
-            print(len(jsonResponse))
-            print('JSON Response')
-            print(jsonResponse)
 
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             self.assertEqual(len(jsonResponse), count)
