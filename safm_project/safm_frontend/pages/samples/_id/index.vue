@@ -1,7 +1,6 @@
 <template>
     <div class="sample-page">
         <section class="section-sample">
-            <Sample :sample="sample" />
         </section>
         <section class="section-comments">
             <Comments :comments="comments" />
@@ -10,12 +9,10 @@
 </template>
 
 <script>
-import Sample from '~/components/Sample.vue'
 import Comments from '~/components/Comments.vue'
 
 export default {
     components: {
-        Sample,
         Comments
     },
 

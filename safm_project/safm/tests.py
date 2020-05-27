@@ -208,7 +208,7 @@ class QuickSearchTest(TestCase):
 
             return count
 
-        for search_query in ['qtipee', '3.0', '130', 'techno']:
+        for search_query in ['qtipee', '130', 'techno']:
             response = self.client.get('/api/quick?search=' + search_query)
             jsonResponse = json.loads(response.content)
 
@@ -361,7 +361,7 @@ class AdvancedSearchTest(TestCase):
         Checks that the Advanced Search returns the correct number
         of samples based on the mode property.
         '''
-        for m in ['', 'm', 'M']:
+        for m in ['', 'min', 'maj']:
             count = 0
             for sample in self.samples:
                 mode = sample['fields']['mode']

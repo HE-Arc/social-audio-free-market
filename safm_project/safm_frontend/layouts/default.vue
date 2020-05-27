@@ -20,7 +20,17 @@
         <v-footer
             app
         >
-            <span>&copy; {{ new Date().getFullYear() }}</span>
+            <v-container>
+                <v-row>
+                    <v-col cols="4">
+                        <v-switch
+                            :v-model="`this.$store.state.repeatSample`"
+                            :prepend-icon="repeatIcon"
+                            @change="repeatSampleOnToggle"
+                        ></v-switch>
+                    </v-col>
+                </v-row>
+            </v-container>
         </v-footer>
     </v-app>
 </template>
@@ -36,6 +46,18 @@ export default {
     data () {
         return {
             title: 'SAFMarket'
+        }
+    },
+
+    computed: {
+        repeatIcon () {
+            return this.$store.state.repeatSample ? 'mdi-repeat' : 'mdi-repeat-off'
+        }
+    },
+
+    methods: {
+        repeatSampleOnToggle () {
+            this.$store.commit('toggleRepeatSample')
         }
     }
 }

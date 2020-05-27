@@ -1,23 +1,15 @@
 <template>
-    <div class="search-results">
-        <v-row>
-            <v-col
-                v-for="sample in samples"
-                :key="sample.id"
-                cols="6"
-            >
-                <Sample :sample="sample" />
-            </v-col>
-        </v-row>
+    <div>
+        <SampleList :samples="samples" />
     </div>
 </template>
 
 <script>
-import Sample from '~/components/Sample.vue'
+import SampleList from '~/components/SampleList.vue'
 
 export default {
     components: {
-        Sample
+        SampleList
     },
 
     data () {
