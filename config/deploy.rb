@@ -57,6 +57,7 @@ namespace :nuxt do
     on roles(:web) do |h|
       execute "cd #{release_path}/safm_project/safm_frontend && npm install"
       execute "cd #{release_path}/safm_project/safm_frontend && npm run build"
+      execute "kill -9 $(lsof -t -i tcp:3000)"
       execute "cd #{release_path}/safm_project/safm_frontend && npm run start &"
     end
   end
