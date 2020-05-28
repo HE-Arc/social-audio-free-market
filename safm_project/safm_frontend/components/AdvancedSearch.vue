@@ -129,11 +129,11 @@ export default {
                 },
                 {
                     text: 'Minor',
-                    value: 'm'
+                    value: 'min'
                 },
                 {
                     text: 'Major',
-                    value: 'M'
+                    value: 'maj'
                 }
             ],
             tagInput: '',
