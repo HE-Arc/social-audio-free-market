@@ -1,14 +1,25 @@
 <template>
-    <div class="sample-page">
-        <section class="section-sample">
-        </section>
-        <section class="section-comments">
-            <Comments :comments="comments" />
-        </section>
+    <div>
+        <v-row>
+            <v-col
+                cols="8"
+            >
+                <div :id="`waveform-${sample.id}`"></div>
+            </v-col>
+            <v-col
+                cols="4"
+            >
+                <div>HELLO</div>
+            </v-col>
+        </v-row>
+        <Comments :comments="comments" />
     </div>
 </template>
 
 <script>
+if (process.browser) {
+    var WaveSurfer = require('wavesurfer.js')
+}
 import Comments from '~/components/Comments.vue'
 
 export default {
@@ -18,9 +29,14 @@ export default {
 
     data () {
         return {
+            wavesurfer: null,
             sample: [],
             comments: []
         }
+    },
+
+    mounted () {
+        this.initWaveSurfer()
     },
 
     async asyncData({ $axios, params }) {
@@ -45,6 +61,30 @@ export default {
             return { sample, comments }
         } catch (e) {
             return { sample: [], comments: [] }
+        }
+    },
+
+    methods: {
+        initWaveSurfer () {
+            this.wavesurfer = WaveSurfer.create({
+                container: `#waveform-${this.sample.id}`,
+                waveColor: 'violet',
+                progressColor: 'purple',
+                barWidth: 2,
+                barHeight: 1,
+                barGap: null
+            })
+
+            // Loads the sample audio file
+            let audioFileUrl = `${this.$axios.defaults.baseURL}/sample_file/${this.sample.id}`
+            this.wavesurfer.load(audioFileUrl)
+
+            // Repeats the audio file if the repeatSample property is true
+            this.wavesurfer.on('finish', () => {
+                if (this.$store.state.repeatSample) {
+                    this.wavesurfer.play()
+                }
+            })
         }
     }
 }

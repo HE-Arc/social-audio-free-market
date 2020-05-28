@@ -1,7 +1,13 @@
 <template>
     <v-card class="sample card">
         <v-card-title class="headline">{{ name }}</v-card-title>
-        <div :id="`waveform-${id}`"></div>
+        <WaveForm
+            ref="waveform"
+            :id="id"
+            @onPlay="onPlay"
+            @onPause="onPause"
+            @onFinish="onFinish"
+        />
         <v-card-text>
             <v-row align="center">
                 <v-col cols="4">
@@ -97,11 +103,13 @@
 </template>
 
 <script>
-if (process.browser) {
-    var WaveSurfer = require('wavesurfer.js')
-}
+import WaveForm from '~/components/WaveForm.vue'
 
 export default {
+    components: {
+        WaveForm
+    },
+
     props: [
         'id',
         'name',
@@ -115,7 +123,7 @@ export default {
 
     data () {
         return {
-            wavesurfer: null
+            isPlaying: false
         }
     },
 
@@ -125,41 +133,25 @@ export default {
         },
 
         playPauseIcon () {
-            if (this.wavesurfer) {
-                return this.wavesurfer.isPlaying() ? 'mdi-pause' : 'mdi-play'
-            }
+            return this.isPlaying ? 'mdi-pause' : 'mdi-play'
         }
     },
 
-    mounted () {
-        this.initWaveSurfer()
-    },
-
     methods: {
-        initWaveSurfer () {
-            this.wavesurfer = WaveSurfer.create({
-                container: `#waveform-${this.id}`,
-                waveColor: 'violet',
-                progressColor: 'purple',
-                barWidth: 2,
-                barHeight: 1,
-                barGap: null
-            })
-
-            // Loads the sample audio file
-            let audioFileUrl = `${this.$axios.defaults.baseURL}/sample_file/${this.id}`
-            this.wavesurfer.load(audioFileUrl)
-
-            // Repeats the audio file if the repeatSample property is true
-            this.wavesurfer.on('finish', () => {
-                if (this.$store.state.repeatSample) {
-                    this.wavesurfer.play()
-                }
-            })
+        playPause () {
+            this.$refs.waveform.playPause()
         },
 
-        playPause () {
-            this.wavesurfer.playPause()
+        onPlay () {
+            this.isPlaying = true
+        },
+
+        onPause () {
+            this.isPlaying = false
+        },
+
+        onFinish () {
+            this.isPlaying = false
         }
     }
 }
