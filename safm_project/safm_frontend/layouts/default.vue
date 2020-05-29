@@ -11,6 +11,34 @@
             </nuxt-link>
             <v-spacer />
             <QuickSearch />
+            <Login v-if="!$store.state.auth" />
+            <Logout v-else />
+            <!--v-menu
+                open-on-hover
+                close-on-content-click
+                bottom
+                offset-y
+                origin="center center"
+                transition="scale-transition"
+            >
+                <template v-slot:activator="{ on }">
+                    <v-btn
+                        v-on="on"
+                        fab
+                        depressed
+                    >
+                        <v-icon>mdi-account</v-icon>
+                    </v-btn>
+                </template>
+                <v-list>
+                    <v-list-item v-if="!$store.state.auth">
+                        <Login />
+                    </v-list-item>
+                    <v-list-item v-else>
+                        <Logout />
+                    </v-list-item>
+                </v-list>
+            </v-menu-->
         </v-app-bar>
         <v-content>
             <v-container>
@@ -37,10 +65,14 @@
 
 <script>
 import QuickSearch from '~/components/QuickSearch.vue'
+import Login from '~/components/auth/Login.vue'
+import Logout from '~/components/auth/Logout.vue'
 
 export default {
     components: {
-        QuickSearch
+        QuickSearch,
+        Login,
+        Logout
     },
 
     data () {
@@ -56,6 +88,7 @@ export default {
     },
 
     methods: {
+
         repeatSampleOnToggle () {
             this.$store.commit('toggleRepeatSample')
         }

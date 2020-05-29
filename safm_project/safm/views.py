@@ -1,9 +1,13 @@
 import os
 import mimetypes
 from django.conf import settings
+from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
 from rest_framework import filters, generics
 from rest_framework.views import APIView
-from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
+from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.filters import OrderingFilter
 
@@ -12,6 +16,15 @@ from .models import *
 from .serializers import *
 
 # Create your views here.
+
+class Logout(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        request.user.auth_token.delete()
+        return HttpResponse(status=status.HTTP_200_OK)
+
 
 class QuickSearch(generics.ListAPIView):
     queryset = Sample.objects.all()

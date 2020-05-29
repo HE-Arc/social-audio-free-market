@@ -45,7 +45,8 @@ export default {
     modules: [
         // Doc: https://axios.nuxtjs.org/usage
         '@nuxtjs/axios',
-        '@nuxtjs/pwa'
+        '@nuxtjs/pwa',
+        '@nuxtjs/toast'
     ],
     /*
     ** Axios module configuration
@@ -74,6 +75,20 @@ export default {
                 }
             }
         }
+    },
+    toast: {
+        position: 'top-right',
+        register: [
+            {
+                name: 'error',
+                message: 'Woops... Something went wrong',
+                options: {
+                    type: 'error',
+                    theme: 'bubble',
+                    duration: 3000
+                }
+            }
+        ]
     },
     /*
     ** Build configuration
