@@ -88,6 +88,7 @@ export default {
                     const authToken = response.data.token
                     this.$store.commit('setAuth', authToken)
                     Cookie.set('auth', authToken)
+
                     this.dialog = false
                     this.$toast.success('Successfully logged in !', {
                         theme: 'bubble',
@@ -96,6 +97,7 @@ export default {
                 })
                 .catch((error) => {
                     this.password = ''
+                    
                     this.$toast.error('Invalid login', {
                         theme: 'bubble',
                         duration: 3000

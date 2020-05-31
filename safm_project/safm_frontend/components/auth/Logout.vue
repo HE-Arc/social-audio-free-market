@@ -42,6 +42,8 @@
 </template>
 
 <script>
+const Cookie = process.client ? require('js-cookie') : undefined
+
 export default {
     data () {
         return {
@@ -59,6 +61,7 @@ export default {
                 .then((response) => {
                     this.$store.commit('setAuth', null)
                     Cookie.remove('auth')
+                    
                     this.$toast.success('Successfully logged out !', {
                         theme: 'bubble',
                         duration: 3000
