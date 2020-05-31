@@ -30,6 +30,8 @@
                                             label="Username"
                                             autofocus
                                             required
+                                            :error-messages="usernameErrors"
+                                            @blur="$v.username.$touch()"
                                             @keypress.enter="login"
                                         ></v-text-field>
                                     </v-col>
@@ -37,8 +39,12 @@
                                         <v-text-field
                                             v-model="password"
                                             label="Password"
-                                            type="password"
                                             required
+                                            :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                                            :type="showPassword ? 'text' : 'password'"
+                                            @click:append="showPassword = !showPassword"
+                                            :error-messages="passwordErrors"
+                                            @blur="$v.password.$touch()"
                                             @keypress.enter="login"
                                         ></v-text-field>
                                     </v-col>
@@ -60,20 +66,62 @@
                         You are already logged in.
                     </div>
                 </v-card-text>
+                <v-card-text>
+                    <v-container>
+                        <v-layout align-center>
+                            <v-flex class="text-center">
+                                <v-btn
+                                    text
+                                    to="/signup"
+                                >
+                                    Sign Up
+                                </v-btn>
+                            </v-flex>
+                        </v-layout>
+                    </v-container>
+                </v-card-text>
             </v-card>
         </v-dialog>
     </div>
 </template>
 
 <script>
+import { validationMixin } from 'vuelidate'
+import { required/*, email*/ } from 'vuelidate/lib/validators'
 const Cookie = process.client ? require('js-cookie') : undefined
 
 export default {
+    mixins: [validationMixin],
+
+    validations: {
+        username: { required },
+        password: { required },
+    },
+
     data () {
         return {
             dialog: false,
             username: '',
-            password: ''
+            password: '',
+            showPassword: false
+        }
+    },
+
+    computed: {
+        usernameErrors () {
+            const errors = []
+            if (!this.$v.username.$dirty) return errors
+            !this.$v.username.required && errors.push('Username is required')
+
+            return errors
+        },
+
+        passwordErrors () {
+            const errors = []
+            if (!this.$v.password.$dirty) return errors
+            !this.$v.password.required && errors.push('Password is required')
+
+            return errors
         }
     },
 
@@ -83,26 +131,27 @@ export default {
             body.set('username', this.username)
             body.set('password', this.password)
 
-            await this.$axios.post('/login', body)
+            const authToken = await this.$axios.post('/login', body)
                 .then((response) => {
-                    const authToken = response.data.token
-                    this.$store.commit('setAuth', authToken)
-                    Cookie.set('auth', authToken)
-
-                    this.dialog = false
-                    this.$toast.success('Successfully logged in !', {
-                        theme: 'bubble',
-                        duration: 3000
-                    })
+                    return response.data.token
                 })
                 .catch((error) => {
-                    this.password = ''
-                    
-                    this.$toast.error('Invalid login', {
-                        theme: 'bubble',
-                        duration: 3000
-                    })
+                    return null
                 })
+
+            if (authToken) {
+                this.$store.commit('setAuth', authToken)
+                Cookie.set('auth', authToken)
+
+                this.dialog = false
+                this.$toast.success('Successfully logged in !', {
+                    duration: 3000
+                })
+            } else {
+                this.$toast.error('Invalid login', {
+                    duration: 3000
+                })
+            }
         }
     }
 }
