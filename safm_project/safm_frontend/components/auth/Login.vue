@@ -72,9 +72,10 @@
                             <v-flex class="text-center">
                                 <v-btn
                                     text
-                                    to="/signup"
+                                    to="/register"
+                                    @click="dialog = !dialog"
                                 >
-                                    Sign Up
+                                    Register
                                 </v-btn>
                             </v-flex>
                         </v-layout>

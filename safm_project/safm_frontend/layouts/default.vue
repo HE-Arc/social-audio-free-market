@@ -4,9 +4,12 @@
             fixed
             app
         >
-            <nuxt-link to="/" >
-                <v-toolbar-title v-text="title" />
-            </nuxt-link>
+            <v-btn
+                to="/"
+                text
+            >
+                {{ title }}
+            </v-btn>
             <v-spacer />
             <QuickSearch />
             <Login v-if="!$store.state.auth" />
