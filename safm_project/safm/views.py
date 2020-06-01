@@ -83,6 +83,38 @@ class SamplePage(APIView):
         return JsonResponse(serializer.data)
 
 
+class SampleUpload(generics.CreateAPIView):
+    model = Sample
+    serializer_class = SampleSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        '''
+        Overriden create method in order to set the current user
+        to the uploaded sample.
+        '''
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        sample = self.perform_create(serializer)
+
+        if sample:
+            return JsonResponse({'id': sample.id}, status=status.HTTP_201_CREATED)
+
+        return JsonResponse({'error': 'You are not logged in.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    def perform_create(self, serializer):
+        '''
+        Overriden perform_create method in order to set the current
+        user to the SampleSerializer before save.
+        '''
+        user = self.request.user
+        if user:
+            return serializer.save(user=user)
+        
+        return False
+
+
 class SampleFile(APIView):
     
     def get(self, request, sample_id):
