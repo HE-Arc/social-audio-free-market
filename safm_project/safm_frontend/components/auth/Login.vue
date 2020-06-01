@@ -136,7 +136,7 @@ export default {
                 .then((response) => {
                     return response.data.token
                 })
-                .catch((error) => {
+                .catch(() => {
                     return null
                 })
 

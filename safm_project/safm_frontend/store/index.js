@@ -1,5 +1,3 @@
-const cookieparser = process.server ? require('cookieparser') : undefined
-
 export const state = () => ({
     auth: null,
     repeatSample: false

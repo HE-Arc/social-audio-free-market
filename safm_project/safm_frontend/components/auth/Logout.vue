@@ -58,7 +58,7 @@ export default {
                     'Authorization': `Token ${this.$store.state.auth}`
                 }
             })
-                .then((response) => {
+                .then(() => {
                     this.$store.commit('setAuth', null)
                     Cookie.remove('auth')
                     
@@ -67,7 +67,7 @@ export default {
                         duration: 3000
                     })
                 })
-                .catch((error) => {
+                .catch(() => {
                     this.$toast.global.error()
                 })
         }
