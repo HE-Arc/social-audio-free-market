@@ -45,6 +45,8 @@
 const Cookie = process.client ? require('js-cookie') : undefined
 
 export default {
+    middleware: 'authenticated',
+
     data () {
         return {
             dialog: false
@@ -63,7 +65,6 @@ export default {
                     Cookie.remove('auth')
                     
                     this.$toast.success('Successfully logged out !', {
-                        theme: 'bubble',
                         duration: 3000
                     })
                 })
