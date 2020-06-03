@@ -12,6 +12,14 @@
             </v-btn>
             <v-spacer />
             <QuickSearch />
+            <v-btn
+                v-if="$store.state.auth"
+                to="/upload"
+                fab
+                depressed
+            >
+                <v-icon>mdi-cloud-upload</v-icon>
+            </v-btn>
             <Login v-if="!$store.state.auth" />
             <Logout v-else />
         </v-app-bar>

@@ -28,8 +28,8 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class SampleSerializer(serializers.ModelSerializer):
-    tags = TagSerializer(many=True) # join on tags
-    user = UserSerializer()
+    tags = TagSerializer(many=True, required=False) # Join on tags
+    user = UserSerializer(required=False) # Not required in order to set the current user
 
     class Meta:
         model = Sample
