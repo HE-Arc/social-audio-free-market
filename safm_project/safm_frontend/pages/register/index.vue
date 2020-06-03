@@ -58,7 +58,7 @@ import { required, email } from 'vuelidate/lib/validators'
 const Cookie = process.client ? require('js-cookie') : undefined
 
 export default {
-    middleware: ['unauthenticated'],
+    middleware: 'unauthenticated',
 
     mixins: [validationMixin],
 

@@ -12,16 +12,38 @@
             </v-btn>
             <v-spacer />
             <QuickSearch />
-            <v-btn
-                v-if="$store.state.auth"
-                to="/upload"
-                fab
-                depressed
-            >
-                <v-icon>mdi-cloud-upload</v-icon>
-            </v-btn>
             <Login v-if="!$store.state.auth" />
-            <Logout v-else />
+            <v-menu
+                v-else
+                open-on-hover
+                offset-y
+            >
+                <template v-slot:activator="{ on }">
+                    <v-btn
+                        v-on="on"
+                        fab
+                        depressed
+                    >
+                        <v-icon>mdi-account</v-icon>
+                    </v-btn>
+                </template>
+                <v-list>
+                    <v-list-item-group>
+                        <v-list-item
+                            v-for="(item, i) in accountMenu"
+                            :key="i"
+                            @click="handleFunctionCall(item.method)"
+                        >
+                            <v-list-item-icon>
+                                <v-icon>{{ item.icon }}</v-icon>
+                            </v-list-item-icon>
+                            <v-list-item-content>
+                                <v-list-item-title>{{ item.title }}</v-list-item-title>
+                            </v-list-item-content>
+                        </v-list-item>
+                    </v-list-item-group>
+                </v-list>
+            </v-menu>
         </v-app-bar>
         <v-content>
             <v-container>
@@ -49,18 +71,21 @@
 <script>
 import QuickSearch from '~/components/QuickSearch.vue'
 import Login from '~/components/auth/Login.vue'
-import Logout from '~/components/auth/Logout.vue'
+const Cookie = process.client ? require('js-cookie') : undefined
 
 export default {
     components: {
         QuickSearch,
-        Login,
-        Logout
+        Login
     },
 
     data () {
         return {
-            title: 'SAFMarket'
+            title: 'SAFMarket',
+            accountMenu: [
+                { icon: 'mdi-cloud-upload', title: 'Upload', method: 'upload' },
+                { icon: 'mdi-logout', title: 'Logout', method: 'logout' }
+            ]
         }
     },
 
@@ -73,6 +98,33 @@ export default {
     methods: {
         repeatSampleOnToggle () {
             this.$store.commit('toggleRepeatSample')
+        },
+
+        handleFunctionCall (functionName) {
+            this[functionName]()
+        },
+
+        upload () {
+            this.$router.push('/upload')
+        },
+
+        async logout () {
+            await this.$axios.post('/logout', {}, {
+                headers: {
+                    'Authorization': `Token ${this.$store.state.auth}`
+                }
+            })
+                .then(() => {
+                    this.$store.commit('setAuth', null)
+                    Cookie.remove('auth')
+                    
+                    this.$toast.success('Successfully logged out !', {
+                        duration: 3000
+                    })
+                })
+                .catch(() => {
+                    this.$toast.global.error()
+                })
         }
     }
 }
