@@ -3,8 +3,7 @@ from django.contrib.auth.models import User
 
 import os
 import wave
-import numpy as np
-from aubio import source, tempo
+import librosa
 
 # Create your models here.
 
@@ -56,34 +55,19 @@ class Sample(models.Model):
         
         self._deduce_duration(frames, rate)
         self._deduce_tempo(rate)
+        #self._deduce_key_mode()
         self.save()
 
     def _deduce_duration(self, frames, rate):
         self.duration = frames / float(rate)
 
     def _deduce_tempo(self, rate):
-        win_s, hop_s = 1024, 512
-        s = source(self.file.path, rate, hop_s)
-        o = tempo('specdiff', win_s, hop_s, rate)
-        # List of beats, in samples
-        beats = []
-        # Total number of frames read
-        total_frames = 0
+        y = librosa.load(self.file.path)[0] # Returns a tuple
+        tempo = librosa.beat.beat_track(y=y, sr=rate)[0] # Returns a tuple
+        self.tempo = tempo
 
-        while True:
-            samples, read = s()
-            is_beat = o(samples)
-            if is_beat:
-                this_beat = o.get_last_s()
-                beats.append(this_beat)
-            total_frames += read
-            if read < hop_s:
-                break
-
-        if len(beats) > 1:
-            self.tempo = np.mean(60. / np.diff(beats))
-        else:
-            self.tempo = 0
+    def _deduce_key_mode(self):
+        return None
 
 
 class UserProfile(models.Model):
