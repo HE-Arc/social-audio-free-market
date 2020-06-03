@@ -1,5 +1,7 @@
 import os
+import re
 import mimetypes
+import wave
 from django.conf import settings
 from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
 from rest_framework import filters, generics
@@ -95,10 +97,20 @@ class SampleUpload(generics.CreateAPIView):
         to the uploaded sample.
         '''
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        serializer.is_valid(raise_exception=True)        
         sample = self.perform_create(serializer)
 
         if sample:
+            # Adds the sample tags
+            tags = request.POST.get('tags', '')
+            tags_list = [tag.strip() for tag in tags.split(',')]
+            for tag_name in tags_list:
+                tag = Tag.objects.get_or_create(name=tag_name)[0] # Returns a tuple
+                sample.tags.add(tag)
+
+            # Automatically deducted sample properties
+            sample.deduce_properties()
+        
             return JsonResponse({'id': sample.id}, status=status.HTTP_201_CREATED)
 
         return JsonResponse({'error': 'You are not logged in.'}, status=status.HTTP_401_UNAUTHORIZED)
