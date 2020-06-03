@@ -18,7 +18,7 @@ export const mutations = {
 export const actions = {
     nuxtServerInit ({ commit }, { req }) {
         let auth = null
-        if (req.headers.cookie) {
+        if (req && req.headers.cookie) {
             const parsed = cookieparser.parse(req.headers.cookie)
             // Sets the authentification token if the corresponding cookie is present
             try {
