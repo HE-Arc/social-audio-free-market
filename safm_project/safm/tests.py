@@ -13,6 +13,93 @@ from .models import *
 
 # Create your tests here.
 
+class AuthTest(TestCase):
+    '''
+    Authentication unit testing
+    '''
+    def setUp(self):
+        self.client = Client()
+
+        self.username = 'test'
+        self.email = 'test@safmarket.com'
+        self.password = 'foo'
+
+        self.user = User.objects.create(
+            username=self.username,
+            email=self.email,
+        )
+        self.user.set_password(self.password)
+        self.user.save()
+
+    @tag('login')
+    def test_login(self):
+        response = self.client.post('/api/login', { 'username': self.username, 'password': self.password })
+        self.assertEqual(200, response.status_code)
+        
+        # Successful login returns an authentication token
+        jsonResponse = json.loads(response.content)
+        self.assertIn('token', jsonResponse)
+
+        # Wrong credentials
+        response = self.client.post('/api/login', { 'username': self.username, 'password': 'password' })
+        self.assertEqual(400, response.status_code)
+
+    @tag('logout')
+    def test_logout(self):
+        response = self.client.post('/api/login', { 'username': self.username, 'password': self.password })
+        token = json.loads(response.content)['token']
+        
+        headers = {
+            'HTTP_AUTHORIZATION': 'Token ' + token
+        }
+        response = self.client.post('/api/logout', **headers)
+        self.assertEqual(200, response.status_code)
+
+    @tag('registration')
+    def test_registration(self):
+        response = self.client.post('/api/register', {
+            'username': 'foo',
+            'email': 'foobar@safmarket.com',
+            'password': 'bar',
+            'password_confirm': 'bar'
+        })
+        self.assertEqual(201, response.status_code)
+
+        # Successful registration returns an authentication token
+        jsonResponse = json.loads(response.content)
+        self.assertIn('token', jsonResponse)
+
+    @tag('registration_unique_username')
+    def test_registration_unique_username(self):
+        response = self.client.post('/api/register', {
+            'username': self.username,
+            'email': 'foobar@safmarket.com',
+            'password': self.password,
+            'password_confirm': self.password
+        })
+        self.assertEqual(400, response.status_code)
+
+    @tag('registration_unique_email')
+    def test_registration_unique_email(self):
+        response = self.client.post('/api/register', {
+            'username': 'foo',
+            'email': self.email,
+            'password': self.password,
+            'password_confirm': self.password
+        })
+        self.assertEqual(400, response.status_code)
+
+    @tag('registration_confirm_password')
+    def test_registration_confirm_password(self):
+        response = self.client.post('/api/register', {
+            'username': 'foo',
+            'email': 'foobar@safmarket.com',
+            'password': self.password,
+            'password_confirm': self.password + self.password
+        })
+        self.assertEqual(400, response.status_code)
+
+
 class SampleTest(TestCase):
     '''
     Sample model unit testing
