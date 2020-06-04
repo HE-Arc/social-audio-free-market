@@ -106,6 +106,18 @@ class SampleUpload(generics.CreateAPIView):
         sample = self.perform_create(serializer)
 
         if sample:
+            # Sample key
+            key = request.POST.get('key')
+            print(key)
+            if key in [item.value for item in Sample.Key]:
+                print('euuuuuh non')
+                sample.key = key
+
+            # Sample mode
+            mode = request.POST.get('mode')
+            if mode in [item.value for item in Sample.Mode]:
+                sample.mode = mode
+
             # Adds the sample tags
             tags = request.POST.get('tags', '')
             tags_list = [tag.strip() for tag in tags.split(',')]
@@ -115,6 +127,8 @@ class SampleUpload(generics.CreateAPIView):
 
             # Automatically deducted sample properties
             sample.deduce_properties()
+
+            sample.save()
         
             return JsonResponse({'id': sample.id}, status=status.HTTP_201_CREATED)
 

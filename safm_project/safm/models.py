@@ -56,8 +56,6 @@ class Sample(models.Model):
         
         self._deduce_duration(frames, rate)
         self._deduce_tempo(rate)
-        #self._deduce_key_mode()
-        self.save()
 
     def _deduce_duration(self, frames, rate):
         self.duration = frames / float(rate)
@@ -85,10 +83,7 @@ class Sample(models.Model):
             self.tempo = np.mean(60. / np.diff(beats))
         else:
             self.tempo = 0
-
-    def _deduce_key_mode(self):
-        #TODO
-        return None
+            
 
 class UserProfile(models.Model):
     

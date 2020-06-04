@@ -26,6 +26,20 @@
                             @keypress.enter="upload"
                         ></v-text-field>
                     </v-col>
+                    <v-col cols="6">
+                        <v-select
+                            v-model="key"
+                            :items="keyItems"
+                            label="Key"
+                        ></v-select>
+                    </v-col>
+                    <v-col cols="6">
+                        <v-select
+                            v-model="mode"
+                            :items="modeItems"
+                            label="Mode"
+                        ></v-select>
+                    </v-col>
                     <v-col cols="12">
                         <v-text-field
                             v-model="tagInput"
@@ -81,6 +95,23 @@ export default {
         return {
             file: [],
             name: '',
+            key: '',
+            keyItems: ['-', 'A', 'B', 'C', 'D', 'E', 'F', 'G'],
+            mode: '',
+            modeItems: [
+                {
+                    text: '-',
+                    value: 'None'
+                },
+                {
+                    text: 'Minor',
+                    value: 'min'
+                },
+                {
+                    text: 'Major',
+                    value: 'maj'
+                }
+            ],
             tagInput: '',
             tags: []
         }
@@ -113,6 +144,8 @@ export default {
             let body = new FormData()
             body.append('file', this.file)
             body.set('name', this.name)
+            body.set('key', this.key)
+            body.set('mode', this.mode)
             body.set('tags', this.tags)
 
             const sampleId = await this.$axios.post('/upload_sample', body, {
