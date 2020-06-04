@@ -28,8 +28,8 @@
                                         <v-text-field
                                             v-model="username"
                                             label="Username"
-                                            autofocus
                                             required
+                                            autofocus
                                             :error-messages="usernameErrors"
                                             @blur="$v.username.$touch()"
                                             @keypress.enter="login"
@@ -39,10 +39,8 @@
                                         <v-text-field
                                             v-model="password"
                                             label="Password"
+                                            type="password"
                                             required
-                                            :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                                            :type="showPassword ? 'text' : 'password'"
-                                            @click:append="showPassword = !showPassword"
                                             :error-messages="passwordErrors"
                                             @blur="$v.password.$touch()"
                                             @keypress.enter="login"
@@ -105,8 +103,7 @@ export default {
         return {
             dialog: false,
             username: '',
-            password: '',
-            showPassword: false
+            password: ''
         }
     },
 
@@ -145,6 +142,9 @@ export default {
             if (authToken) {
                 this.$store.commit('setAuth', authToken)
                 Cookie.set('auth', authToken)
+
+                this.$store.commit('setUsername', this.username)
+                Cookie.set('username', this.username)
 
                 this.dialog = false
                 this.$toast.success('Successfully logged in !', {

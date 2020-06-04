@@ -41,6 +41,11 @@ class Register(generics.CreateAPIView):
         '''
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+
+        # Checks password confirmation
+        if request.POST.get('password') != request.POST.get('password_confirm'):
+            return JsonResponse({'password_confirm': 'Password confirmation does not match.'}, status=status.HTTP_400_BAD_REQUEST)
+
         self.perform_create(serializer)
         token = Token.objects.get_or_create(user=serializer.instance)[0] # Returns tuple
 

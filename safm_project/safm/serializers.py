@@ -1,11 +1,12 @@
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 from django.contrib.auth.models import User
 from .models import *
 
 class UserSerializer(serializers.ModelSerializer):
-    #email = serializers.EmailField(validators=[UniqueValidator(queryset=User.objects.all())])
-    email = serializers.EmailField()
+    email = serializers.EmailField(validators=[UniqueValidator(queryset=User.objects.all())])
     password = serializers.CharField(write_only=True)
+    password_confirm = serializers.CharField(write_only=True)
 
     def create(self, validated_data):
         user = User.objects.create(
@@ -19,7 +20,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'password']
+        fields = ['id', 'username', 'email', 'password', 'password_confirm']
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:

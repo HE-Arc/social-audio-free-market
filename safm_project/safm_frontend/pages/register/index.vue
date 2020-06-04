@@ -27,12 +27,21 @@
                         <v-text-field
                             v-model="password"
                             label="Password"
+                            type="password"
                             required
-                            :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                            :type="showPassword ? 'text' : 'password'"
-                            @click:append="showPassword = !showPassword"
                             :error-messages="passwordErrors"
                             @blur="$v.password.$touch()"
+                            @keypress.enter="register"
+                        ></v-text-field>
+                    </v-col>
+                    <v-col cols="12">
+                        <v-text-field
+                            v-model="password_confirm"
+                            label="Confirm Password"
+                            type="password"
+                            required
+                            :error-messages="passwordConfirmErrors"
+                            @blur="$v.password_confirm.$touch()"
                             @keypress.enter="register"
                         ></v-text-field>
                     </v-col>
@@ -66,6 +75,7 @@ export default {
         username: { required },
         email: { required, email },
         password: { required },
+        password_confirm: { required }
     },
     
     data () {
@@ -73,7 +83,7 @@ export default {
             username: '',
             email: '',
             password: '',
-            showPassword: false
+            password_confirm: ''
         }
     },
 
@@ -101,6 +111,14 @@ export default {
             !this.$v.password.required && errors.push('Password is required')
 
             return errors
+        },
+        
+        passwordConfirmErrors () {
+            const errors = []
+            if (!this.$v.password_confirm.$dirty) return errors
+            !this.$v.password_confirm.required && errors.push('Confirm Password is required')
+
+            return errors
         }
     },
 
@@ -110,6 +128,7 @@ export default {
             body.set('username', this.username)
             body.set('email', this.email)
             body.set('password', this.password)
+            body.set('password_confirm', this.password_confirm)
 
             const authToken = await this.$axios.post('/register', body)
                 .then((response) => {
@@ -117,7 +136,7 @@ export default {
                 })
                 .catch((error) => {
                     for (let e in error.response.data) {
-                        this.$toast.error(error.response.data[e], {
+                        this.$toast.error(`${e}: ${error.response.data[e]}`, {
                             duration: 5000
                         })
                     }

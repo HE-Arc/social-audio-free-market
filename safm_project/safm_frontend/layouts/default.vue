@@ -21,10 +21,11 @@
                 <template v-slot:activator="{ on }">
                     <v-btn
                         v-on="on"
-                        fab
                         depressed
+                        class="account-menu"
                     >
                         <v-icon>mdi-account</v-icon>
+                        {{ username }}
                     </v-btn>
                 </template>
                 <v-list>
@@ -90,6 +91,10 @@ export default {
     },
 
     computed: {
+        username () {
+            return this.$store.state.username
+        },
+
         repeatIcon () {
             return this.$store.state.repeatSample ? 'mdi-repeat' : 'mdi-repeat-off'
         }
@@ -117,6 +122,7 @@ export default {
                 .then(() => {
                     this.$store.commit('setAuth', null)
                     Cookie.remove('auth')
+                    Cookie.remove('username')
                     
                     this.$toast.success('Successfully logged out !', {
                         duration: 3000
@@ -129,3 +135,9 @@ export default {
     }
 }
 </script>
+
+<style>
+.account-menu {
+    text-transform: none !important;
+}
+</style>

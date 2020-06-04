@@ -5,7 +5,6 @@
             <v-text-field
                 v-model="quickSearchInput"
                 label="Tag, tone, tempo, username, ..."
-                autofocus
                 outlined
                 hide-details
                 single-line
