@@ -1,7 +1,7 @@
 <template>
     <div>
         <v-container>
-            <form>
+            <form id="sample-upload-form">
                 <v-row align=center>
                     <v-col cols="12">
                         <v-file-input
