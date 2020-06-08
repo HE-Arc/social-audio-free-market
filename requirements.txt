@@ -1,9 +1,5 @@
 asgiref==3.2.7
-aubio==0.4.9
-audioread==2.1.8
-cffi==1.14.0
-decorator==4.4.2
-Django==3.0.5
+Django==3.0.7
 django-cors-headers==3.2.1
 django-extensions==2.2.9
 django-filter==2.2.0
