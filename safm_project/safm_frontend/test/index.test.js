@@ -18,10 +18,11 @@ test.before(async () => {
 }, 30000)
 
 // Example of testing only generated html
+
 test('Route / exits and renders HTML', async (t) => {
     const context = {}
     const { html } = await nuxt.server.renderRoute('/', context)
-    t.true(html.includes('Market'))
+    t.true(html.includes('nuxt'))
 })
 /*
 test('Route /quick-search exists and renders HTML', async (t) => {

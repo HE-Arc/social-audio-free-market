@@ -10,18 +10,8 @@
                         small
                         :to="`/quick-search/${tempo}`"
                     >
-                        <v-icon class="mx-2">mdi-metronome</v-icon>
+                        <v-icon>mdi-metronome</v-icon>
                         {{ tempo }}
-                    </v-btn>
-                </v-col>
-                <v-col cols="4">
-                    <v-btn
-                        text
-                        small
-                        :to="`/quick-search/${_key + mode}`"
-                    >
-                        <v-icon class="mx-2">mdi-music-circle-outline</v-icon>
-                        {{ _key + mode }}
                     </v-btn>
                 </v-col>
                 <v-col cols="4">
@@ -30,8 +20,18 @@
                         small
                         :to="`/quick-search/${duration}`"
                     >
-                        <v-icon class="mx-2">mdi-timer-outline</v-icon>
+                        <v-icon>mdi-timer-outline</v-icon>
                         {{ duration + 's' }}
+                    </v-btn>
+                </v-col>
+                <v-col cols="4" v-if="_key || mode">
+                    <v-btn
+                        text
+                        small
+                        :to="`/quick-search/${_key + mode}`"
+                    >
+                        <v-icon>mdi-music-circle-outline</v-icon>
+                        {{ _key + mode }}
                     </v-btn>
                 </v-col>
             </v-row>

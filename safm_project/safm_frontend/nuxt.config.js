@@ -45,14 +45,15 @@ export default {
     modules: [
         // Doc: https://axios.nuxtjs.org/usage
         '@nuxtjs/axios',
-        '@nuxtjs/pwa'
+        '@nuxtjs/pwa',
+        '@nuxtjs/toast'
     ],
     /*
     ** Axios module configuration
     ** See https://axios.nuxtjs.org/options
     */
     axios: {
-        baseURL: process.env.AXIOS_BASE_URL || 'http://127.0.0.1:8000/api'
+        baseURL: process.env.AXIOS_BASE_URL || 'http://localhost:8000/api'
     },
     /*
     ** vuetify module configuration
@@ -74,6 +75,20 @@ export default {
                 }
             }
         }
+    },
+    toast: {
+        position: 'top-right',
+        register: [
+            {
+                name: 'error',
+                message: 'Woops... Something went wrong',
+                options: {
+                    type: 'error',
+                    theme: 'bubble',
+                    duration: 3000
+                }
+            }
+        ]
     },
     /*
     ** Build configuration

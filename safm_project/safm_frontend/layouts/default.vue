@@ -4,13 +4,47 @@
             fixed
             app
         >
-            <nuxt-link
+            <v-btn
                 to="/"
+                text
             >
-                <v-toolbar-title v-text="title" />
-            </nuxt-link>
+                {{ title }}
+            </v-btn>
             <v-spacer />
             <QuickSearch />
+            <Login v-if="!$store.state.auth" />
+            <v-menu
+                v-else
+                open-on-hover
+                offset-y
+            >
+                <template v-slot:activator="{ on }">
+                    <v-btn
+                        v-on="on"
+                        depressed
+                        class="account-menu"
+                    >
+                        <v-icon>mdi-account</v-icon>
+                        {{ username }}
+                    </v-btn>
+                </template>
+                <v-list>
+                    <v-list-item-group>
+                        <v-list-item
+                            v-for="(item, i) in accountMenu"
+                            :key="i"
+                            @click="handleFunctionCall(item.method)"
+                        >
+                            <v-list-item-icon>
+                                <v-icon>{{ item.icon }}</v-icon>
+                            </v-list-item-icon>
+                            <v-list-item-content>
+                                <v-list-item-title>{{ item.title }}</v-list-item-title>
+                            </v-list-item-content>
+                        </v-list-item>
+                    </v-list-item-group>
+                </v-list>
+            </v-menu>
         </v-app-bar>
         <v-content>
             <v-container>
@@ -37,19 +71,30 @@
 
 <script>
 import QuickSearch from '~/components/QuickSearch.vue'
+import Login from '~/components/auth/Login.vue'
+const Cookie = process.client ? require('js-cookie') : undefined
 
 export default {
     components: {
-        QuickSearch
+        QuickSearch,
+        Login
     },
 
     data () {
         return {
-            title: 'SAFMarket'
+            title: 'SAFMarket',
+            accountMenu: [
+                { icon: 'mdi-cloud-upload', title: 'Upload', method: 'upload' },
+                { icon: 'mdi-logout', title: 'Logout', method: 'logout' }
+            ]
         }
     },
 
     computed: {
+        username () {
+            return this.$store.state.username
+        },
+
         repeatIcon () {
             return this.$store.state.repeatSample ? 'mdi-repeat' : 'mdi-repeat-off'
         }
@@ -58,7 +103,41 @@ export default {
     methods: {
         repeatSampleOnToggle () {
             this.$store.commit('toggleRepeatSample')
+        },
+
+        handleFunctionCall (functionName) {
+            this[functionName]()
+        },
+
+        upload () {
+            this.$router.push('/upload')
+        },
+
+        async logout () {
+            await this.$axios.post('/logout', {}, {
+                headers: {
+                    'Authorization': `Token ${this.$store.state.auth}`
+                }
+            })
+                .then(() => {
+                    this.$store.commit('setAuth', null)
+                    Cookie.remove('auth')
+                    Cookie.remove('username')
+                    
+                    this.$toast.success('Successfully logged out !', {
+                        duration: 3000
+                    })
+                })
+                .catch(() => {
+                    this.$toast.global.error()
+                })
         }
     }
 }
 </script>
+
+<style>
+.account-menu {
+    text-transform: none !important;
+}
+</style>
