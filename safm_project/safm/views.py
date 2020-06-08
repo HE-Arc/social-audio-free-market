@@ -82,7 +82,9 @@ class AdvancedSearch(generics.ListAPIView):
 
 
 class SamplePage(APIView):
-
+    
+    #TODO: other APIView class ?
+    
     def get(self, request, sample_id):
         sample = Sample.objects.filter(id=sample_id).get()
         serializer = SampleSerializer(sample)
@@ -108,9 +110,7 @@ class SampleUpload(generics.CreateAPIView):
         if sample:
             # Sample key
             key = request.POST.get('key')
-            print(key)
             if key in [item.value for item in Sample.Key]:
-                print('euuuuuh non')
                 sample.key = key
 
             # Sample mode
@@ -168,7 +168,7 @@ class UserProfilePage(APIView):
 
     def get(self, request, username):
 
-        # Can do better ?
+        #TODO: Can do better ?
 
         user = User.objects.filter(username=username).values('id')
         if user.exists():
@@ -186,7 +186,7 @@ class UserSamples(APIView):
 
     def get(self, request, username):
 
-        # Can do better ?
+        #TODO: Can do better ?
 
         user = User.objects.filter(username=username).values('id')
         if user.exists():

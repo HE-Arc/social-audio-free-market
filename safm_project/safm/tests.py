@@ -182,10 +182,114 @@ class SampleTest(TestCase):
         for sample in Sample.objects.all():
             self.assertTrue(sample.user == None)
 
-    
-    
-    # TODO: Check automatic deductions
 
+class UploadSampleTest(TestCase):
+    '''
+    Upload sample unit testing
+    '''
+    def setUp(self):
+        self.client = Client()
+
+        self.username = 'test'
+        self.email = 'test@safmarket.com'
+        self.password = 'foo'
+
+        self.user = User.objects.create(
+            username=self.username,
+            email=self.email,
+        )
+        self.user.set_password(self.password)
+        self.user.save()
+
+        self.test_file = './safm/test/Test_Sample.wav'
+
+    @tag('sample_upload_requires_authentication')
+    def test_sample_upload_requires_authentication(self):
+        '''
+        Checks that a user cannot upload a sample if not logged in.
+        '''
+        # Cannot upload when not logged in
+        with open(self.test_file, 'rb') as f:
+            unauthorizedResponse = self.client.post('/api/upload_sample', {
+                'name': 'Test Sample',
+                'file': f
+            })
+            self.assertEqual(401, unauthorizedResponse.status_code)
+
+    @tag('sample_upload')
+    def test_sample_upload(self):
+        '''
+        Checks that a user can upload a sample if logged in and that
+        it creates a new Sample model and returns its ID.
+        '''
+         # Login
+        loginResponse = self.client.post('/api/login', { 'username': self.username, 'password': self.password })
+        self.assertEqual(200, loginResponse.status_code)
+        token = json.loads(loginResponse.content)['token']
+        
+        # Can upload when logged in
+        headers = {
+            'HTTP_AUTHORIZATION': 'Token ' + token
+        }
+        with open(self.test_file, 'rb') as f:    
+            response = self.client.post('/api/upload_sample', {
+                'name': 'Test Sample',
+                'file': f
+            }, **headers)
+            self.assertEqual(201, response.status_code)
+
+            # Checks that the response contains the newly created Sample model ID
+            jsonResponse = json.loads(response.content)
+            self.assertIn('id', jsonResponse)
+
+    @tag('sample_upload_properties')
+    def test_sample_upload_properties(self):
+        '''
+        Checks that the sample information entered by the user is
+        correctly uploaded and that the automatically deducted properties
+        are also correct.
+        '''
+         # Login
+        loginResponse = self.client.post('/api/login', { 'username': self.username, 'password': self.password })
+        self.assertEqual(200, loginResponse.status_code)
+        token = json.loads(loginResponse.content)['token']
+        
+        # Can upload when logged in
+        sample_id = -1
+        sample_name = 'Test Sample'
+        sample_tags = 'acid,techno,kick'
+        sample_key = 'C'
+        sample_mode = 'maj'
+        headers = {
+            'HTTP_AUTHORIZATION': 'Token ' + token
+        }
+        with open(self.test_file, 'rb') as f:    
+            response = self.client.post('/api/upload_sample', {
+                'name': sample_name,
+                'file': f,
+                'key': sample_key,
+                'mode': sample_mode,
+                'tags': sample_tags
+            }, **headers)
+            self.assertEqual(201, response.status_code)
+            sample_id = json.loads(response.content)['id']
+
+        self.assertTrue(sample_id > 0)
+        # Gets the newly created Sample model and checks its properties
+        #sample = Sample.objects.get(pk=sample_id)
+        sampleJson = self.client.get('/api/sample/{0}'.format(sample_id))
+        sample = json.loads(sampleJson.content)
+        
+        self.assertEqual(sample['user']['username'], self.username)
+        self.assertEqual(sample['name'], sample_name)
+        self.assertEqual(sample['key'], sample_key)
+        self.assertEqual(sample['mode'], sample_mode)
+        self.assertEqual(sample['nb_dl_unauthenticated'], 0)
+        self.assertEqual(len(sample['tags']), 3)
+
+        # Automatically deducted properties
+        self.assertEqual(float(sample['duration']), 7.4)
+        self.assertEqual(sample['tempo'], 130)
 
 
 class UserProfileTest(TestCase):
