@@ -66,8 +66,6 @@ class Sample(models.Model):
         o = tempo('specdiff', win_s, hop_s, rate)
         # List of beats, in samples
         beats = []
-        # Total number of frames read
-        total_frames = 0
 
         while True:
             samples, read = s()
@@ -75,7 +73,6 @@ class Sample(models.Model):
             if is_beat:
                 this_beat = o.get_last_s()
                 beats.append(this_beat)
-            total_frames += read
             if read < hop_s:
                 break
 

@@ -119,7 +119,7 @@ class SampleUpload(generics.CreateAPIView):
                 sample.mode = mode
 
             # Adds the sample tags
-            tags = request.POST.get('tags', '')
+            tags = re.escape(request.POST.get('tags', ''))
             tags_list = [tag.strip() for tag in tags.split(',')]
             for tag_name in tags_list:
                 tag = Tag.objects.get_or_create(name=tag_name)[0] # Returns a tuple
