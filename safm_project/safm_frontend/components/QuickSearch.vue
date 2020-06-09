@@ -23,7 +23,7 @@
                     <v-container>
                         <v-text-field
                             v-model="quickSearchInput"
-                            label="Tag, tone, tempo, username, ..."
+                            label="Tag, tempo, user, ..."
                             autofocus
                             outlined
                             hide-details
@@ -39,7 +39,7 @@
                 <v-card-actions>
                     <v-container>
                         <v-btn
-                            color="primary"
+                            color="accent"
                             text
                             @click="advancedSearch"
                         >

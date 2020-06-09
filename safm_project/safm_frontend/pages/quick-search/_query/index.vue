@@ -1,5 +1,6 @@
 <template>
     <div>
+        <h2 class="page-title">Search Results</h2>
         <SampleList :samples="samples" />
     </div>
 </template>

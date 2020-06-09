@@ -23,6 +23,7 @@
                         v-on="on"
                         depressed
                         class="account-menu"
+                        :to="`/profiles/${$store.state.username}`"
                     >
                         <v-icon>mdi-account</v-icon>
                         {{ username }}
@@ -55,7 +56,7 @@
             app
         >
             <v-container>
-                <v-row>
+                <!--v-row>
                     <v-col cols="4">
                         <v-switch
                             :v-model="`this.$store.state.repeatSample`"
@@ -63,7 +64,7 @@
                             @change="repeatSampleOnToggle"
                         ></v-switch>
                     </v-col>
-                </v-row>
+                </v-row-->
             </v-container>
         </v-footer>
     </v-app>
@@ -95,15 +96,19 @@ export default {
             return this.$store.state.username
         },
 
+        /*
         repeatIcon () {
             return this.$store.state.repeatSample ? 'mdi-repeat' : 'mdi-repeat-off'
         }
+        */
     },
 
     methods: {
+        /*
         repeatSampleOnToggle () {
             this.$store.commit('toggleRepeatSample')
         },
+        */
 
         handleFunctionCall (functionName) {
             this[functionName]()
@@ -139,5 +144,55 @@ export default {
 <style>
 .account-menu {
     text-transform: none !important;
+}
+
+.page-title {
+    font-size: 2.7em;
+    text-align: center;
+    margin: 0.5em 0;
+}
+section {
+    padding: 3em 0;
+}
+.section-title {
+    font-size: 2.3em;
+    margin: 0 0 1em 0;
+}
+
+.custom-loader {
+    animation: loader 1s infinite;
+    display: flex;
+}
+@-moz-keyframes loader {
+    from {
+        transform: rotate(0);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+@-webkit-keyframes loader {
+    from {
+        transform: rotate(0);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+@-o-keyframes loader {
+    from {
+        transform: rotate(0);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+@keyframes loader {
+    from {
+        transform: rotate(0);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
 </style>

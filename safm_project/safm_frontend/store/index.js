@@ -2,8 +2,8 @@ const cookieparser = process.server ? require('cookieparser') : undefined
 
 export const state = () => ({
     auth: null,
-    username: '',
-    repeatSample: false
+    username: ''
+    //repeatSample: false
 })
 
 export const mutations = {
@@ -13,11 +13,13 @@ export const mutations = {
 
     setUsername (state, username) {
         state.username = username
-    },
+    }
 
+    /*
     toggleRepeatSample (state) {
         state.repeatSample = !state.repeatSample
     }
+    */
 }
 
 export const actions = {

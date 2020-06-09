@@ -1,7 +1,8 @@
 <template>
     <div>
         <v-container>
-            <form>
+            <h2 class="page-title">Create Account</h2>
+            <form id="register-form">
                 <v-row align="center">
                     <v-col cols="12">
                         <v-text-field
@@ -48,8 +49,8 @@
                     <v-col cols="12">
                         <v-btn
                             block
-                            large
-                            color="primary"
+                            x-large
+                            color="accent"
                             @click="register"
                         >
                             Register

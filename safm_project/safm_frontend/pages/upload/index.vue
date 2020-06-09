@@ -1,12 +1,13 @@
 <template>
     <div>
         <v-container>
-            <form>
+            <h2 class="page-title">Upload Sample</h2>
+            <form id="sample-upload-form">
                 <v-row align=center>
                     <v-col cols="12">
                         <v-file-input
                             v-model="file"
-                            label="File"
+                            label="File*"
                             show-size
                             prepend-icon="mdi-file-music"
                             required
@@ -19,7 +20,7 @@
                     <v-col cols="12">
                         <v-text-field
                             v-model="name"
-                            label="Name"
+                            label="Name*"
                             required
                             :error-messages="nameErrors"
                             @blur="$v.name.$touch()"
@@ -64,8 +65,8 @@
                     <v-col cols="12">
                         <v-btn
                             block
-                            large
-                            color="primary"
+                            x-large
+                            color="accent"
                             @click="upload"
                         >
                             Upload

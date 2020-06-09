@@ -1,6 +1,10 @@
 <template>
-    <v-card class="sample card">
-        <v-card-title class="headline">{{ name }}</v-card-title>
+    <v-card
+        class="sample card"
+    >
+        <v-card-title class="headline">
+            <nuxt-link :to="`/samples/${id}`">{{ name }}</nuxt-link>
+        </v-card-title>
         <div :id="`waveform-${id}`"></div>
         <v-card-text>
             <v-row align="center">
@@ -63,12 +67,22 @@
             <v-row align="center">
                 <v-col cols="4" align="center">
                     <v-btn
-                        @click="playPause"
                         fab
                         large
-                        class="sample-playpause"
+                        :color="playPauseColor"
+                        @click="playPause"
                     >
                         <v-icon>{{ playPauseIcon }}</v-icon>
+                    </v-btn>
+                </v-col>
+                <v-col cols="4" align="center">
+                    <v-btn
+                        fab
+                        large
+                        :color="repeatSample ? 'accent' : ''"
+                        @click="repeatSample = !repeatSample"
+                    >
+                        <v-icon>{{ repeatSampleIcon }}</v-icon>
                     </v-btn>
                 </v-col>
                 <v-col cols="4" align="center">
@@ -76,19 +90,8 @@
                         :href="`${$axios.defaults.baseURL}/sample_file/${id}`"
                         fab
                         large
-                        class="sample-download"
                     >
                         <v-icon>mdi-download-outline</v-icon>
-                    </v-btn>
-                </v-col>
-                <v-col cols="4" align="center">
-                    <v-btn
-                        :to="`/samples/${id}`"
-                        fab
-                        large
-                        class="sample-detail"
-                    >
-                        <v-icon>mdi-eye-outline</v-icon>
                     </v-btn>
                 </v-col>
             </v-row>
@@ -115,7 +118,8 @@ export default {
 
     data () {
         return {
-            wavesurfer: null
+            wavesurfer: null,
+            repeatSample: false
         }
     },
 
@@ -128,6 +132,16 @@ export default {
             if (this.wavesurfer) {
                 return this.wavesurfer.isPlaying() ? 'mdi-pause' : 'mdi-play'
             }
+        },
+
+        playPauseColor () {
+            if (this.wavesurfer) {
+                return this.wavesurfer.isPlaying() ? 'primary' : ''
+            }
+        },
+
+        repeatSampleIcon () {
+            return this.repeatSample ? 'mdi-repeat' : 'mdi-repeat-off'
         }
     },
 
@@ -152,7 +166,7 @@ export default {
 
             // Repeats the audio file if the repeatSample property is true
             this.wavesurfer.on('finish', () => {
-                if (this.$store.state.repeatSample) {
+                if (this.repeatSample/* || this.$store.state.repeatSample*/) {
                     this.wavesurfer.play()
                 }
             })
