@@ -53,7 +53,7 @@
             </v-container>
         </v-content>
         <v-footer
-            app
+            
         >
             <v-container>
                 <!--v-row>

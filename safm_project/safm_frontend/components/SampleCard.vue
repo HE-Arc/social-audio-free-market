@@ -147,6 +147,12 @@ export default {
 
     mounted () {
         this.initWaveSurfer()
+
+        this.$nuxt.$on('stopAll', () => {
+            if (this.wavesurfer.isPlaying()) {
+                this.wavesurfer.stop()
+            }
+        })
     },
 
     methods: {
@@ -164,10 +170,16 @@ export default {
             let audioFileUrl = `${this.$axios.defaults.baseURL}/sample_file/${this.id}`
             this.wavesurfer.load(audioFileUrl)
 
+            this.wavesurfer.on('play', () => {
+                this.$nuxt.$emit('samplePlay')
+            })
+
             // Repeats the audio file if the repeatSample property is true
             this.wavesurfer.on('finish', () => {
                 if (this.repeatSample/* || this.$store.state.repeatSample*/) {
                     this.wavesurfer.play()
+                } else {
+                    this.$nuxt.$emit('sampleStop')
                 }
             })
         },
