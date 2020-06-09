@@ -1,7 +1,11 @@
 <template>
     <div>
+        <h2 class="page-title">Advanced Search</h2>
         <AdvancedSearch />
-        <SampleList :samples="samples" />
+        <section>
+            <h3 class="section-title">Search results</h3>
+            <SampleList :samples="samples" />
+        </section>
     </div>
 </template>
 

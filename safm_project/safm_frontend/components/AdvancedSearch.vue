@@ -88,8 +88,8 @@
             <v-col cols="12">
                 <v-btn
                     block
-                    large
-                    color="primary"
+                    x-large
+                    color="accent"
                     @click="advancedSearch"
                 >
                     Search

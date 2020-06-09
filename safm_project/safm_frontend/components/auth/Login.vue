@@ -2,6 +2,7 @@
     <div>
         <v-dialog
             v-model="dialog"
+            max-width="600"
             light
         >
             <template v-slot:activator="{ on }">
@@ -50,7 +51,7 @@
                                         <v-btn
                                             block
                                             large
-                                            color="primary"
+                                            color="accent"
                                             @click="login"
                                         >
                                             Login

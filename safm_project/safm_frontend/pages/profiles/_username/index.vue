@@ -1,9 +1,8 @@
 <template>
-    <div class="user-profile">
-        <section class="user-info">
-
-        </section>
-        <section class="user-samples">
+    <div>
+        <h2 class="page-title">{{ username }}</h2>
+        <section>
+            <h3 class="section-title">User Samples</h3>
             <SampleList :samples="samples" />
         </section>
     </div>
@@ -21,6 +20,12 @@ export default {
         return {
             userProfile: [],
             samples: []
+        }
+    },
+
+    computed: {
+        username () {
+            return this.$route.params.username
         }
     },
 
