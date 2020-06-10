@@ -20,6 +20,11 @@ export default {
 
     mounted () {
         this.initWaveSurfer()
+
+        // On Stop All event
+        this.$nuxt.$on('stopAll', () => {
+            this.wavesurfer.pause()
+        })
     },
 
     methods: {
@@ -50,12 +55,11 @@ export default {
             // On finish event
             this.wavesurfer.on('finish', () => {
                 this.$emit('onFinish')
-
-                // Repeats the audio file if the repeatSample property is true
-                if (this.$store.state.repeatSample) {
-                    this.wavesurfer.play()
-                }
             })
+        },
+
+        play () {
+            this.wavesurfer.play()
         },
 
         playPause () {

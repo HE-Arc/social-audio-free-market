@@ -1,6 +1,8 @@
 <template>
     <v-card class="sample card">
-        <v-card-title class="headline">{{ name }}</v-card-title>
+        <v-card-title class="headline">
+            <nuxt-link :to="`/samples/${id}`">{{ name }}</nuxt-link>
+        </v-card-title>
         <WaveForm
             ref="waveform"
             :id="id"
@@ -16,18 +18,8 @@
                         small
                         :to="`/quick-search/${tempo}`"
                     >
-                        <v-icon class="mx-2">mdi-metronome</v-icon>
+                        <v-icon>mdi-metronome</v-icon>
                         {{ tempo }}
-                    </v-btn>
-                </v-col>
-                <v-col cols="4">
-                    <v-btn
-                        text
-                        small
-                        :to="`/quick-search/${_key + mode}`"
-                    >
-                        <v-icon class="mx-2">mdi-music-circle-outline</v-icon>
-                        {{ _key + mode }}
                     </v-btn>
                 </v-col>
                 <v-col cols="4">
@@ -36,8 +28,18 @@
                         small
                         :to="`/quick-search/${duration}`"
                     >
-                        <v-icon class="mx-2">mdi-timer-outline</v-icon>
+                        <v-icon>mdi-timer-outline</v-icon>
                         {{ duration + 's' }}
+                    </v-btn>
+                </v-col>
+                <v-col cols="4" v-if="_key || mode">
+                    <v-btn
+                        text
+                        small
+                        :to="`/quick-search/${_key + mode}`"
+                    >
+                        <v-icon>mdi-music-circle-outline</v-icon>
+                        {{ _key + mode }}
                     </v-btn>
                 </v-col>
             </v-row>
@@ -46,7 +48,7 @@
             <v-chip
                 v-for="tag in tags"
                 :key="tag.id"
-                class="tag ma-1"
+                class="tag mx-1"
                 label
                 small
                 :to="`/quick-search/${tag.name}`"
@@ -69,12 +71,22 @@
             <v-row align="center">
                 <v-col cols="4" align="center">
                     <v-btn
-                        @click="playPause"
                         fab
                         large
-                        class="sample-playpause"
+                        :color="playPauseColor"
+                        @click="playPause"
                     >
                         <v-icon>{{ playPauseIcon }}</v-icon>
+                    </v-btn>
+                </v-col>
+                <v-col cols="4" align="center">
+                    <v-btn
+                        fab
+                        large
+                        :color="repeatSample ? 'accent' : ''"
+                        @click="repeatSample = !repeatSample"
+                    >
+                        <v-icon>{{ repeatSampleIcon }}</v-icon>
                     </v-btn>
                 </v-col>
                 <v-col cols="4" align="center">
@@ -82,19 +94,8 @@
                         :href="`${$axios.defaults.baseURL}/sample_file/${id}`"
                         fab
                         large
-                        class="sample-download"
                     >
                         <v-icon>mdi-download-outline</v-icon>
-                    </v-btn>
-                </v-col>
-                <v-col cols="4" align="center">
-                    <v-btn
-                        :to="`/samples/${id}`"
-                        fab
-                        large
-                        class="sample-detail"
-                    >
-                        <v-icon>mdi-eye-outline</v-icon>
                     </v-btn>
                 </v-col>
             </v-row>
@@ -123,7 +124,8 @@ export default {
 
     data () {
         return {
-            isPlaying: false
+            isPlaying: false,
+            repeatSample: false
         }
     },
 
@@ -133,7 +135,15 @@ export default {
         },
 
         playPauseIcon () {
-            return this.isPlaying ? 'mdi-pause' : 'mdi-play'
+           return this.isPlaying ? 'mdi-pause' : 'mdi-play'
+        },
+
+        playPauseColor () {
+           return this.isPlaying ? 'primary' : ''
+        },
+
+        repeatSampleIcon () {
+            return this.repeatSample ? 'mdi-repeat' : 'mdi-repeat-off'
         }
     },
 
@@ -144,14 +154,21 @@ export default {
 
         onPlay () {
             this.isPlaying = true
+            this.$nuxt.$emit('samplePlay')
         },
 
         onPause () {
             this.isPlaying = false
+            this.$nuxt.$emit('sampleStop')
         },
 
         onFinish () {
-            this.isPlaying = false
+            if (this.repeatSample) {
+                this.$refs.waveform.play()
+            } else {
+                this.isPlaying = false
+                this.$nuxt.$emit('sampleStop')
+            }
         }
     }
 }

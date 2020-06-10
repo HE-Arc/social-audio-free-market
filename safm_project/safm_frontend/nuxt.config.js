@@ -45,14 +45,15 @@ export default {
     modules: [
         // Doc: https://axios.nuxtjs.org/usage
         '@nuxtjs/axios',
-        '@nuxtjs/pwa'
+        '@nuxtjs/pwa',
+        '@nuxtjs/toast'
     ],
     /*
     ** Axios module configuration
     ** See https://axios.nuxtjs.org/options
     */
     axios: {
-        baseURL: process.env.AXIOS_BASE_URL || 'http://127.0.0.1:8000/api'
+        baseURL: process.env.AXIOS_BASE_URL || 'http://localhost:8000/api'
     },
     /*
     ** vuetify module configuration
@@ -64,16 +65,30 @@ export default {
             dark: true,
             themes: {
                 dark: {
-                    primary: colors.blue.darken2,
-                    accent: colors.grey.darken3,
+                    primary: colors.teal.accent4,
+                    accent: colors.pink.darken1,
                     secondary: colors.amber.darken3,
                     info: colors.teal.lighten1,
                     warning: colors.amber.base,
-                    error: colors.deepOrange.accent4,
-                    success: colors.green.accent3
+                    error: colors.red.darken4,
+                    success: colors.green.darken4
                 }
             }
         }
+    },
+    toast: {
+        position: 'top-right',
+        register: [
+            {
+                name: 'error',
+                message: 'Woops... Something went wrong',
+                options: {
+                    type: 'error',
+                    theme: 'bubble',
+                    duration: 3000
+                }
+            }
+        ]
     },
     /*
     ** Build configuration

@@ -1,33 +1,35 @@
 <template>
     <div>
         <v-container>
-            <h1>SAFMarket</h1>
-            <v-text-field
-                v-model="quickSearchInput"
-                label="Tag, tone, tempo, username, ..."
-                autofocus
-                outlined
-                hide-details
-                single-line
-                @keypress.enter="quickSearch"
-            >
-                <template v-slot:append>
-                    <v-icon @click="quickSearch">{{ quickSearchIcon }}</v-icon>
-                </template>
-            </v-text-field>
-            <v-btn
-                color="primary"
-                text
-                @click="advancedSearch"
-            >
-                Advanced Form
-            </v-btn>
+            <h2 class="page-title">SAFMarket</h2>
+            <section>
+                <v-text-field
+                    v-model="quickSearchInput"
+                    label="Tag, tempo, user, ..."
+                    outlined
+                    hide-details
+                    single-line
+                    @keypress.enter="quickSearch"
+                >
+                    <template v-slot:append>
+                        <v-icon @click="quickSearch">{{ quickSearchIcon }}</v-icon>
+                    </template>
+                </v-text-field>
+                <v-btn
+                    color="primary"
+                    text
+                    @click="advancedSearch"
+                >
+                    Advanced Form
+                </v-btn>
+            </section>
         </v-container>
     </div>
 </template>
 
 <script>
 export default {
+    middleware: 'authenticated',
 
     data () {
         return {
