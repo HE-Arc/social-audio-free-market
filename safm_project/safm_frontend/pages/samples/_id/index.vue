@@ -11,7 +11,7 @@
             />
             <section>
                 <v-row>
-                    <v-col cols="4">
+                    <v-col cols="3">
                         <v-card>
                             <nuxt-link :to="`/profiles/${sample.user.username}`">
                             <v-img
@@ -25,7 +25,7 @@
                             </v-card-title>
                             </nuxt-link>
                             <v-card-actions>
-                                <v-row align="center">
+                                <v-row>
                                     <v-col cols="12">
                                         <v-icon class="mr-1">mdi-music-note</v-icon>
                                         <span class="mr-2">8</span>
@@ -46,21 +46,31 @@
                             </v-card-actions>     
                         </v-card>
                     </v-col>
-                    <v-col cols="8">
-                            <v-row>
-                            <v-col cols="4">
-                                <v-icon>mdi-metronome</v-icon>
-                                {{ sample.tempo }}
-                            </v-col>
-                            <v-col cols="4">
-                                <v-icon>mdi-timer-outline</v-icon>
-                                {{ sample.duration }}
-                            </v-col>
-                            <v-col cols="4" v-if="sample.key || sample.mode">
-                                <v-icon>mdi-music-circle-outline</v-icon>
-                                {{ sample.key + sample.mode }}
-                            </v-col>
-                        </v-row>
+                    <v-col cols="9">
+                        <v-card>
+                            <v-card-actions>
+                                <v-row class="text-center headline">
+                                    <v-col cols="4">
+                                        <v-icon large class="mr-2">mdi-metronome</v-icon>
+                                        {{ sample.tempo }}
+                                    </v-col>
+                                    <v-col cols="4">
+                                        <v-icon large class="mr-2">mdi-timer-outline</v-icon>
+                                        {{ sample.duration }}s
+                                    </v-col>
+                                    <v-col cols="4">
+                                        
+                                        <v-icon large class="mr-2">mdi-music-circle-outline</v-icon>
+                                        {{ keyMode }}
+                                    </v-col>
+                                </v-row>
+                            </v-card-actions>
+                            <v-divider class="mx-6"></v-divider>
+                            <v-card-text>
+                                Veniam pariatur deserunt exercitation anim enim veniam id aliquip sit velit. Laborum officia proident laboris incididunt incididunt excepteur ad reprehenderit. Irure nostrud non sunt consequat adipisicing proident ex enim. Duis non labore dolor fugiat incididunt amet velit ut irure sit amet esse tempor.
+                                Ad nisi et qui qui officia dolor ullamco duis tempor aute nulla eiusmod elit. Ipsum proident consectetur ipsum ipsum et laboris dolor id ad ut deserunt velit ad. Lorem amet proident qui commodo ut cillum excepteur cillum anim ullamco ea nulla esse ipsum. Minim ex labore deserunt occaecat proident non incididunt velit consequat deserunt et cupidatat. Laboris occaecat mollit proident exercitation ea mollit elit. Incididunt nisi nostrud ullamco exercitation velit irure. Culpa proident non elit pariatur adipisicing Lorem occaecat ad mollit occaecat.
+                            </v-card-text>
+                        </v-card>
                     </v-col>
                 </v-row>
             </section>
@@ -88,6 +98,16 @@ export default {
             isPlaying: false,
             repeatSample: false,
             comments: []
+        }
+    },
+
+    computed: {
+        keyMode () {
+            if (this.sample.key || this.sample.mode) {
+                return this.sample.key + (this.sample.mode == 'min' ? 'm' : this.sample.mode == 'maj' ? 'M' : '')
+            }
+
+            return '-'
         }
     },
 
