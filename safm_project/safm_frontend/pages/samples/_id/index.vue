@@ -2,27 +2,68 @@
     <div>
         <v-container>
             <h2 class="page-title">{{ sample.name }}</h2>
-            <WaveForm
-                ref="waveform"
-                :id="sample.id"
-                @onPlay="onPlay"
-                @onPause="onPause"
-                @onFinish="onFinish"
-            />
+            <section>
+                <WaveForm
+                    ref="waveform"
+                    :id="sample.id"
+                    @onPlay="onPlay"
+                    @onPause="onPause"
+                    @onFinish="onFinish"
+                />
+            </section>
+            <v-card>
+                <v-card-actions>
+                    <v-btn
+                        fab
+                        x-large
+                        :color="playPauseColor"
+                        @click="playPause"
+                        class="mx-2"
+                    >
+                        <v-icon>{{ playPauseIcon }}</v-icon>
+                    </v-btn>
+                    <v-btn
+                        fab
+                        x-large
+                        :color="repeatSample ? 'accent' : ''"
+                        @click="repeatSample = !repeatSample"
+                        class="mx-2"
+                    >
+                        <v-icon>{{ repeatSampleIcon }}</v-icon>
+                    </v-btn>
+                    <v-btn
+                        fab
+                        x-large
+                        :href="`${$axios.defaults.baseURL}/sample_file/${sample.id}`"
+                        class="mx-2"
+                    >
+                        <v-icon>mdi-download-outline</v-icon>
+                    </v-btn>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        fab
+                        x-large
+                        @click="likedSample = !likedSample"
+                        class="pink--text"
+                    >
+                        <v-icon>{{ likeSampleIcon }}</v-icon>
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
             <section>
                 <v-row>
-                    <v-col cols="3">
-                        <v-card>
+                    <v-col cols="2" lg="2" md="3" sm=12>
+                        <v-card class="text-center">
                             <nuxt-link :to="`/profiles/${sample.user.username}`">
-                            <v-img
-                                src="https://image.flaticon.com/icons/svg/17/17004.svg"
-                                width="100"
-                                height="100"
-                                color="white"
-                            ></v-img>
-                            <v-card-title>
-                                {{ sample.user.username }}
-                            </v-card-title>
+                                <v-img
+                                    src="https://image.flaticon.com/icons/svg/17/17004.svg"
+                                    width="100"
+                                    height="100"
+                                    color="white"
+                                ></v-img>
+                                <v-card-title class="justify-center">
+                                    {{ sample.user.username }}
+                                </v-card-title>
                             </nuxt-link>
                             <v-card-actions>
                                 <v-row>
@@ -46,7 +87,7 @@
                             </v-card-actions>     
                         </v-card>
                     </v-col>
-                    <v-col cols="9">
+                    <v-col cols="10" lg="10" md="9" sm=12>
                         <v-card>
                             <v-card-actions>
                                 <v-row class="text-center headline">
@@ -97,11 +138,28 @@ export default {
             sample: {},
             isPlaying: false,
             repeatSample: false,
+            likedSample: false,
             comments: []
         }
     },
 
     computed: {
+        playPauseIcon () {
+           return this.isPlaying ? 'mdi-pause' : 'mdi-play'
+        },
+
+        playPauseColor () {
+           return this.isPlaying ? 'primary' : ''
+        },
+
+        repeatSampleIcon () {
+            return this.repeatSample ? 'mdi-repeat' : 'mdi-repeat-off'
+        },
+
+        likeSampleIcon () {
+            return this.likedSample ? 'mdi-heart' : 'mdi-heart-outline'
+        },
+
         keyMode () {
             if (this.sample.key || this.sample.mode) {
                 return this.sample.key + (this.sample.mode == 'min' ? 'm' : this.sample.mode == 'maj' ? 'M' : '')
@@ -153,3 +211,9 @@ export default {
     }
 }
 </script>
+
+<style scoped>
+.v-image {
+    margin: 0 auto;
+}
+</style>
