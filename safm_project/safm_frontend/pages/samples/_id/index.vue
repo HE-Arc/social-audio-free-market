@@ -111,6 +111,10 @@
                                 Veniam pariatur deserunt exercitation anim enim veniam id aliquip sit velit. Laborum officia proident laboris incididunt incididunt excepteur ad reprehenderit. Irure nostrud non sunt consequat adipisicing proident ex enim. Duis non labore dolor fugiat incididunt amet velit ut irure sit amet esse tempor.
                                 Ad nisi et qui qui officia dolor ullamco duis tempor aute nulla eiusmod elit. Ipsum proident consectetur ipsum ipsum et laboris dolor id ad ut deserunt velit ad. Lorem amet proident qui commodo ut cillum excepteur cillum anim ullamco ea nulla esse ipsum. Minim ex labore deserunt occaecat proident non incididunt velit consequat deserunt et cupidatat. Laboris occaecat mollit proident exercitation ea mollit elit. Incididunt nisi nostrud ullamco exercitation velit irure. Culpa proident non elit pariatur adipisicing Lorem occaecat ad mollit occaecat.
                             </v-card-text>
+                            <v-divider class="mx-6"></v-divider>
+                            <v-card-text>
+                                {{ `Uploaded on ${new Date(sample.datetime_upload).toLocaleDateString()}` }}
+                            </v-card-text>
                         </v-card>
                     </v-col>
                 </v-row>
