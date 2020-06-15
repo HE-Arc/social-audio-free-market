@@ -1,11 +1,15 @@
 <template>
-    <v-card
-        class="sample card"
-    >
+    <v-card class="sample card">
         <v-card-title class="headline">
             <nuxt-link :to="`/samples/${id}`">{{ name }}</nuxt-link>
         </v-card-title>
-        <div :id="`waveform-${id}`"></div>
+        <WaveForm
+            ref="waveform"
+            :id="id"
+            @onPlay="onPlay"
+            @onPause="onPause"
+            @onFinish="onFinish"
+        />
         <v-card-text>
             <v-row align="center">
                 <v-col cols="4">
@@ -44,7 +48,7 @@
             <v-chip
                 v-for="tag in tags"
                 :key="tag.id"
-                class="tag ma-1"
+                class="tag mx-1"
                 label
                 small
                 :to="`/quick-search/${tag.name}`"
@@ -100,11 +104,13 @@
 </template>
 
 <script>
-if (process.browser) {
-    var WaveSurfer = require('wavesurfer.js')
-}
+import WaveForm from '~/components/WaveForm.vue'
 
 export default {
+    components: {
+        WaveForm
+    },
+
     props: [
         'id',
         'name',
@@ -118,7 +124,7 @@ export default {
 
     data () {
         return {
-            wavesurfer: null,
+            isPlaying: false,
             repeatSample: false
         }
     },
@@ -129,15 +135,11 @@ export default {
         },
 
         playPauseIcon () {
-            if (this.wavesurfer) {
-                return this.wavesurfer.isPlaying() ? 'mdi-pause' : 'mdi-play'
-            }
+            return this.isPlaying ? 'mdi-pause' : 'mdi-play'
         },
 
         playPauseColor () {
-            if (this.wavesurfer) {
-                return this.wavesurfer.isPlaying() ? 'primary' : ''
-            }
+            return this.isPlaying ? 'primary' : ''
         },
 
         repeatSampleIcon () {
@@ -145,47 +147,28 @@ export default {
         }
     },
 
-    mounted () {
-        this.initWaveSurfer()
-
-        this.$nuxt.$on('stopAll', () => {
-            if (this.wavesurfer.isPlaying()) {
-                this.wavesurfer.stop()
-            }
-        })
-    },
-
     methods: {
-        initWaveSurfer () {
-            this.wavesurfer = WaveSurfer.create({
-                container: `#waveform-${this.id}`,
-                waveColor: 'violet',
-                progressColor: 'purple',
-                barWidth: 2,
-                barHeight: 1,
-                barGap: null
-            })
-
-            // Loads the sample audio file
-            let audioFileUrl = `${this.$axios.defaults.baseURL}/sample_file/${this.id}`
-            this.wavesurfer.load(audioFileUrl)
-
-            this.wavesurfer.on('play', () => {
-                this.$nuxt.$emit('samplePlay')
-            })
-
-            // Repeats the audio file if the repeatSample property is true
-            this.wavesurfer.on('finish', () => {
-                if (this.repeatSample/* || this.$store.state.repeatSample*/) {
-                    this.wavesurfer.play()
-                } else {
-                    this.$nuxt.$emit('sampleStop')
-                }
-            })
+        playPause () {
+            this.$refs.waveform.playPause()
         },
 
-        playPause () {
-            this.wavesurfer.playPause()
+        onPlay () {
+            this.isPlaying = true
+            this.$nuxt.$emit('samplePlay')
+        },
+
+        onPause () {
+            this.isPlaying = false
+            this.$nuxt.$emit('sampleStop')
+        },
+
+        onFinish () {
+            if (this.repeatSample) {
+                this.$refs.waveform.play()
+            } else {
+                this.isPlaying = false
+                this.$nuxt.$emit('sampleStop')
+            }
         }
     }
 }

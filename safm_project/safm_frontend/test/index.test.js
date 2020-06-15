@@ -48,13 +48,13 @@ test('Route /register exists and renders HTML', async (t) => {
     const { html } = await nuxt.server.renderRoute('/register', context)
     t.true(html.includes('nuxt'))
 })
-
+/*
 test('Route /samples exists and renders HTML', async (t) => {
     const context = {}
     const { html } = await nuxt.server.renderRoute('/samples', context)
     t.true(html.includes('nuxt'))
 })
-
+*/
 test('Route /upload exists and renders HTML', async (t) => {
     const context = {}
     const { html } = await nuxt.server.renderRoute('/upload', context)

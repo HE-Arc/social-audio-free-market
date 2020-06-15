@@ -46,6 +46,8 @@ export default {
         SampleCard
     },
 
+    props: ['samples'],
+
     data () {
         return {
             numberPlaying: 0
@@ -57,8 +59,6 @@ export default {
             return this.numberPlaying < 1
         }
     },
-
-    props: ['samples'],
 
     mounted () {
         this.$nuxt.$on('samplePlay', () => {
@@ -72,7 +72,6 @@ export default {
 
     methods: {
         stopAll() {
-            this.numberPlaying = 0
             this.$nuxt.$emit('stopAll')
         }
     }

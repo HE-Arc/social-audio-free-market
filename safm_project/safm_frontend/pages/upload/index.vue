@@ -27,6 +27,13 @@
                             @keypress.enter="upload"
                         ></v-text-field>
                     </v-col>
+                    <v-col cols="12">
+                        <v-textarea
+                            v-model="description"
+                            label="Description"
+                            @keypress.enter="upload"
+                        ></v-textarea>
+                    </v-col>
                     <v-col cols="6">
                         <v-select
                             v-model="key"
@@ -96,6 +103,7 @@ export default {
         return {
             file: [],
             name: '',
+            description: '',
             key: '',
             keyItems: ['-', 'A', 'B', 'C', 'D', 'E', 'F', 'G'],
             mode: '',
@@ -145,6 +153,7 @@ export default {
             let body = new FormData()
             body.append('file', this.file)
             body.set('name', this.name)
+            body.set('description', this.description)
             body.set('key', this.key)
             body.set('mode', this.mode)
             body.set('tags', this.tags)

@@ -257,6 +257,7 @@ class UploadSampleTest(TestCase):
         # Can upload when logged in
         sample_id = -1
         sample_name = 'Test Sample'
+        sample_description = 'Test description'
         sample_tags = 'acid,techno,kick'
         sample_key = 'C'
         sample_mode = 'maj'
@@ -267,6 +268,7 @@ class UploadSampleTest(TestCase):
             response = self.client.post('/api/upload_sample', {
                 'name': sample_name,
                 'file': f,
+                'description': sample_description,
                 'key': sample_key,
                 'mode': sample_mode,
                 'tags': sample_tags
@@ -282,6 +284,7 @@ class UploadSampleTest(TestCase):
         
         self.assertEqual(sample['user']['username'], self.username)
         self.assertEqual(sample['name'], sample_name)
+        self.assertEqual(sample['description'], sample_description)
         self.assertEqual(sample['key'], sample_key)
         self.assertEqual(sample['mode'], sample_mode)
         self.assertEqual(sample['nb_dl_unauthenticated'], 0)
