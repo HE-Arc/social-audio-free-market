@@ -106,6 +106,18 @@
                                 </v-row>
                             </v-card-actions>
                             <v-divider class="mx-6"></v-divider>
+                            <v-card-text>
+                                <v-chip
+                                    v-for="tag in sample.tags"
+                                    :key="tag.id"
+                                    class="tag mx-1"
+                                    label
+                                    small
+                                >
+                                    {{ tag.name }}
+                                </v-chip>
+                            </v-card-text>
+                            <v-divider class="mx-6"></v-divider>
                             <v-card-text class="px-6 body-1">
                                 {{ sample.description }}
                             </v-card-text>
