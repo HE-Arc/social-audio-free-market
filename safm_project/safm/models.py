@@ -93,3 +93,19 @@ class UserProfile(models.Model):
     description = models.TextField(blank=True, default='No description provided.')
     profile_picture = models.FileField(max_length=255, upload_to=user_directory_path, blank=True, default='default/pictures/pp.png')
     email_public = models.BooleanField(default=False)
+
+
+class UserSampleDownload(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    sample = models.ForeignKey(Sample, on_delete=models.CASCADE)
+    datetime_download = models.DateTimeField(auto_now_add=True) # auto now at creation
+
+
+class SampleForkFrom(models.Model):
+    sample = models.ForeignKey(Sample, related_name='sample_fork_from_base', on_delete=models.CASCADE)
+    sample_from = models.ForeignKey(Sample, related_name='sample_fork_from', on_delete=models.CASCADE)
+
+
+class SampleForkTo(models.Model):
+    sample = models.ForeignKey(Sample, related_name='sample_fork_to_base', on_delete=models.CASCADE)
+    sample_to = models.ForeignKey(Sample, related_name='sample_fork_to', on_delete=models.CASCADE)
