@@ -100,19 +100,17 @@
                                         {{ sample.duration }}s
                                     </v-col>
                                     <v-col cols="4">
-                                        
                                         <v-icon large class="mr-2">mdi-music-circle-outline</v-icon>
                                         {{ keyMode }}
                                     </v-col>
                                 </v-row>
                             </v-card-actions>
                             <v-divider class="mx-6"></v-divider>
-                            <v-card-text>
-                                Veniam pariatur deserunt exercitation anim enim veniam id aliquip sit velit. Laborum officia proident laboris incididunt incididunt excepteur ad reprehenderit. Irure nostrud non sunt consequat adipisicing proident ex enim. Duis non labore dolor fugiat incididunt amet velit ut irure sit amet esse tempor.
-                                Ad nisi et qui qui officia dolor ullamco duis tempor aute nulla eiusmod elit. Ipsum proident consectetur ipsum ipsum et laboris dolor id ad ut deserunt velit ad. Lorem amet proident qui commodo ut cillum excepteur cillum anim ullamco ea nulla esse ipsum. Minim ex labore deserunt occaecat proident non incididunt velit consequat deserunt et cupidatat. Laboris occaecat mollit proident exercitation ea mollit elit. Incididunt nisi nostrud ullamco exercitation velit irure. Culpa proident non elit pariatur adipisicing Lorem occaecat ad mollit occaecat.
+                            <v-card-text class="px-6 body-1">
+                                {{ sample.description }}
                             </v-card-text>
                             <v-divider class="mx-6"></v-divider>
-                            <v-card-text>
+                            <v-card-text class="px-6 body-2">
                                 {{ `Uploaded on ${new Date(sample.datetime_upload).toLocaleDateString()}` }}
                             </v-card-text>
                         </v-card>
@@ -142,6 +140,7 @@ export default {
             sample: {},
             isPlaying: false,
             repeatSample: false,
+            downloadLink: ``,
             likedSample: false,
             comments: []
         }
@@ -149,11 +148,11 @@ export default {
 
     computed: {
         playPauseIcon () {
-           return this.isPlaying ? 'mdi-pause' : 'mdi-play'
+            return this.isPlaying ? 'mdi-pause' : 'mdi-play'
         },
 
         playPauseColor () {
-           return this.isPlaying ? 'primary' : ''
+            return this.isPlaying ? 'primary' : ''
         },
 
         repeatSampleIcon () {

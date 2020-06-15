@@ -135,11 +135,11 @@ export default {
         },
 
         playPauseIcon () {
-           return this.isPlaying ? 'mdi-pause' : 'mdi-play'
+            return this.isPlaying ? 'mdi-pause' : 'mdi-play'
         },
 
         playPauseColor () {
-           return this.isPlaying ? 'primary' : ''
+            return this.isPlaying ? 'primary' : ''
         },
 
         repeatSampleIcon () {
