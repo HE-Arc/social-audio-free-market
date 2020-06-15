@@ -130,6 +130,10 @@
                 </v-row>
             </section>
             <section>
+                <h3 class="section-title">Fork</h3>
+                To be integrated...
+            </section>
+            <section>
                 <h3 class="section-title">Comments</h3>
                 <Comments :comments="comments" />
             </section>
