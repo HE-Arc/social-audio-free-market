@@ -158,11 +158,7 @@ export default {
             body.set('mode', this.mode)
             body.set('tags', this.tags)
 
-            const sampleId = await this.$axios.post('/upload_sample', body, {
-                headers: {
-                    'Authorization': `Token ${this.$store.state.auth}`
-                }
-            })
+            const sampleId = await this.$axios.post('/upload_sample', body)
                 .then((response) => {
                     return response.data.id
                 })

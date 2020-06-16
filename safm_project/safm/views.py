@@ -149,15 +149,25 @@ class SampleUpload(generics.CreateAPIView):
 class SampleFile(APIView):
     
     def get(self, request, sample_id):
-        file = Sample.objects.filter(id=sample_id).values('file').get()
+        sample = Sample.objects.get(pk=sample_id)
+        sample_file = sample.file
 
-        if file:
-            path_to_file = os.path.join(settings.MEDIA_ROOT, file['file'])
-            with open(path_to_file, 'rb') as sample_file:
-                mime_type = mimetypes.MimeTypes().guess_type(file['file'][0])
-                response = HttpResponse(sample_file, content_type=mime_type)
-                filename = file['file'].split('/')[-1]
+        if sample:
+            if request.auth:
+                # If the user is authenticated, adds this sample to its downloads
+                UserSampleDownload.objects.get_or_create(
+                    user=request.user,
+                    sample=sample
+                )
+                
+            # Returns the audio file as a file attachment
+            path_to_file = os.path.join(settings.MEDIA_ROOT, sample_file.name)
+            with open(path_to_file, 'rb') as f:
+                mime_type = mimetypes.MimeTypes().guess_type(sample_file.name)
+                response = HttpResponse(f, content_type=mime_type)
+                filename = sample_file.name.split('/')[-1]
                 response['Content-Disposition'] = f'attachement; filename="{filename}"'
+                response['Access-Control-Expose-Headers'] = 'Content-Disposition' # To allow the client to read it
 
             return response
         else:

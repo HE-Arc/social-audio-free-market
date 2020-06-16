@@ -6,3 +6,4 @@ from .models import *
 admin.site.register(Tag)
 admin.site.register(Sample)
 admin.site.register(UserProfile)
+admin.site.register(UserSampleDownload)

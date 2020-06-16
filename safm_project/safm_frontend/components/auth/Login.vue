@@ -147,6 +147,8 @@ export default {
                 this.$store.commit('setUsername', this.username)
                 Cookie.set('username', this.username)
 
+                this.$axios.setHeader('Authorization', `Token ${authToken}`)
+
                 this.dialog = false
                 this.$toast.success('Successfully logged in !', {
                     duration: 3000

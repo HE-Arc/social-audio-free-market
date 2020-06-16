@@ -35,6 +35,7 @@ export const actions = {
                 username = parsed.username
             } catch (error) {
                 // Not a valid authentication token nor username
+                console.log(error)
             }
         }
 
