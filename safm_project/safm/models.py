@@ -45,7 +45,7 @@ class Sample(models.Model):
     mode = models.CharField(max_length=3, choices=Mode.choices, blank=True)
     description = models.TextField(blank=True, default='No description provided.')
     datetime_upload = models.DateTimeField(auto_now_add=True) # auto now at creation
-    nb_dl_unauthenticated = models.PositiveIntegerField(default=0) # nb dl > 0
+    number_downloads = models.PositiveIntegerField(default=0) # nb dl > 0
     tags = models.ManyToManyField(Tag) # a sample can have multiple tags
 
     def deduce_properties(self):

@@ -173,7 +173,7 @@ export default {
         },
 
         downloadSample () {
-            this.$axios.get(`/sample_file/${this.id}`, {
+            this.$axios.get(`/sample_file/${this.id}/1`, {
                 responseType: 'blob'
             })
                 .then((response) => {

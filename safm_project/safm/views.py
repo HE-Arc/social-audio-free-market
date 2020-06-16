@@ -148,17 +148,22 @@ class SampleUpload(generics.CreateAPIView):
 
 class SampleFile(APIView):
     
-    def get(self, request, sample_id):
+    def get(self, request, sample_id, download):
         sample = Sample.objects.get(pk=sample_id)
         sample_file = sample.file
 
         if sample:
-            if request.auth:
-                # If the user is authenticated, adds this sample to its downloads
-                UserSampleDownload.objects.get_or_create(
-                    user=request.user,
-                    sample=sample
-                )
+            if download == 1:
+                if request.auth:
+                    # If the user is authenticated, adds this sample to its downloads
+                    UserSampleDownload.objects.get_or_create(
+                        user=request.user,
+                        sample=sample
+                    )
+
+                # Increments the sample number of downloads
+                sample.number_downloads += 1
+                sample.save()
                 
             # Returns the audio file as a file attachment
             path_to_file = os.path.join(settings.MEDIA_ROOT, sample_file.name)
