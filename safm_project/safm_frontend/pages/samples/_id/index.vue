@@ -34,7 +34,7 @@
                     <v-btn
                         fab
                         x-large
-                        :href="`${$axios.defaults.baseURL}/sample_file/${sample.id}`"
+                        @click="downloadSample"
                         class="mx-2"
                     >
                         <v-icon>mdi-download-outline</v-icon>
@@ -144,6 +144,7 @@
 <script>
 import WaveForm from '~/components/WaveForm.vue'
 import Comments from '~/components/Comments.vue'
+const fileDownload = process.client ? require('js-file-download') : undefined
 
 export default {
     components: {
@@ -226,6 +227,32 @@ export default {
             } else {
                 this.isPlaying = false
             }
+        },
+
+        downloadSample () {
+            this.$axios.get(`/sample_file/${this.sample.id}/1`, {
+                responseType: 'blob'
+            })
+                .then((response) => {
+                    let contentDisposition = response.request.getResponseHeader('Content-Disposition')
+
+                    if (contentDisposition) {
+                        let filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+                        let matches = filenameRegex.exec(contentDisposition)
+
+                        if (matches !== null && matches[1]) {
+                            let filename = matches[1].replace(/['"]/g, '')
+                            fileDownload(response.data, filename)
+                        }
+                    }
+                })
+                .catch((error) => {
+                    for (let e in error.response.data) {
+                        this.$toast.error(`${e}: ${error.response.data[e]}`, {
+                            duration: 5000
+                        })
+                    }
+                })
         }
     }
 }
