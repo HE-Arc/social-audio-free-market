@@ -70,6 +70,28 @@
                         </v-chip-group>
                     </v-col>
                     <v-col cols="12">
+                        <v-checkbox
+                            v-model="selectedForkFrom"
+                            v-for="(downloaded, i) in downloadedSamples"
+                            :key="i"
+                            :value="downloaded.sample.id"
+                        >
+                            <template v-slot:label>
+                                <v-card>
+                                    <v-card-title class="headline">
+                                        <nuxt-link :to="`/samples/${downloaded.sample.id}`">{{ downloaded.sample.name }}</nuxt-link>
+                                    </v-card-title>
+                                    <v-card-text>
+                                        By <nuxt-link :to="`/profiles/${downloaded.sample.user.username}`">{{ downloaded.sample.user.username }}</nuxt-link>
+                                    </v-card-text>
+                                    <v-card-text>
+                                        Downloaded on {{ downloaded.datetime_download }}
+                                    </v-card-text>
+                                </v-card>
+                            </template>
+                        </v-checkbox>
+                    </v-col>
+                    <v-col cols="12">
                         <v-btn
                             block
                             x-large
@@ -122,7 +144,9 @@ export default {
                 }
             ],
             tagInput: '',
-            tags: []
+            tags: [],
+            selectedForkFrom: [],
+            downloadedSamples: []
         }
     },
 
@@ -148,6 +172,16 @@ export default {
         }
     },
 
+    async asyncData ({ $axios }) {
+        try {
+            let downloadedSamples = await $axios.$get('/user_downloads')
+
+            return { downloadedSamples }
+        } catch (e) {
+            return { downloadedSamples: [] }
+        }
+    },
+
     methods: {
         async upload () {
             let body = new FormData()
@@ -157,6 +191,7 @@ export default {
             body.set('key', this.key)
             body.set('mode', this.mode)
             body.set('tags', this.tags)
+            body.append('forks_from', this.selectedForkFrom)
 
             const sampleId = await this.$axios.post('/upload_sample', body)
                 .then((response) => {

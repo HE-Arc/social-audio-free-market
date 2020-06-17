@@ -125,9 +125,19 @@ class SampleUpload(generics.CreateAPIView):
                 tag = Tag.objects.get_or_create(name=tag_name)[0] # Returns a tuple
                 sample.tags.add(tag)
 
+            # Adds the sample forks from
+            forks_from = re.escape(request.POST.get('forks_from', ''))
+            forks_from_list = [fork_from.strip() for fork_from in forks_from.split(',')]
+            for fork_from_id in forks_from_list:
+                SampleForkFrom.objects.get_or_create(
+                    sample=sample,
+                    sample_from=Sample.objects.get(pk=fork_from_id)
+                )
+
             # Automatically deducted sample properties
             sample.deduce_properties()
 
+            # Updates the Sample model
             sample.save()
         
             return JsonResponse({'id': sample.id}, status=status.HTTP_201_CREATED)
