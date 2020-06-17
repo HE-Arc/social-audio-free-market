@@ -187,7 +187,19 @@ class SampleFile(APIView):
             return response
         else:
             return HttpResponseNotFound('No matching file found.')
-        
+
+
+class SampleForkFrom(generics.ListAPIView):
+    lookup_field = 'sample'
+    queryset = SampleForkFrom.objects.all()
+    serializer_class = SampleForkFromSerializer
+
+
+class SampleForkTo(generics.ListAPIView):
+    lookup_field = 'sample'
+    queryset = SampleForkTo.objects.all()
+    serializer_class = SampleForkToSerializer
+
 
 class UserDownloads(APIView):
     authentication_classes = [TokenAuthentication]

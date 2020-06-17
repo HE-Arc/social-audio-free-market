@@ -45,6 +45,22 @@ class UserDownloadSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class SampleForkFromSerializer(serializers.ModelSerializer):
+    sample_from = SampleSerializer()
+
+    class Meta:
+        model = SampleForkFrom
+        fields = ['sample_from']
+
+
+class SampleForkToSerializer(serializers.ModelSerializer):
+    sample_to = SampleSerializer()
+
+    class Meta:
+        model = SampleForkTo
+        fields = ['sample_to']
+
+
 class UserProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer()
 
