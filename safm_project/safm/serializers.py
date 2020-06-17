@@ -37,6 +37,14 @@ class SampleSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class UserDownloadSerializer(serializers.ModelSerializer):
+    sample = SampleSerializer()
+
+    class Meta:
+        model = UserSampleDownload
+        fields = '__all__'
+
+
 class UserProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer()
 
