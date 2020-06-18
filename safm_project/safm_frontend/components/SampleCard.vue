@@ -11,38 +11,32 @@
             @onFinish="onFinish"
         />
         <v-card-text>
-            <v-row align="center">
-                <v-col cols="4">
-                    <v-btn
-                        text
-                        small
-                        :to="`/quick-search/${tempo}`"
-                    >
-                        <v-icon>mdi-metronome</v-icon>
-                        {{ tempo }}
-                    </v-btn>
-                </v-col>
-                <v-col cols="4">
-                    <v-btn
-                        text
-                        small
-                        :to="`/quick-search/${duration}`"
-                    >
-                        <v-icon>mdi-timer-outline</v-icon>
-                        {{ duration + 's' }}
-                    </v-btn>
-                </v-col>
-                <v-col cols="4" v-if="_key || mode">
-                    <v-btn
-                        text
-                        small
-                        :to="`/quick-search/${_key + mode}`"
-                    >
-                        <v-icon>mdi-music-circle-outline</v-icon>
-                        {{ _key + mode }}
-                    </v-btn>
-                </v-col>
-            </v-row>
+            <div class="d-flex justify-space-around">
+                <v-btn
+                    text
+                    small
+                    :to="`/quick-search/${tempo}`"
+                >
+                    <v-icon>mdi-metronome</v-icon>
+                    <span class="mx-1">{{ tempo }}</span>
+                </v-btn>
+                <v-btn
+                    text
+                    small
+                    :to="`/quick-search/${duration}`"
+                >
+                    <v-icon>mdi-timer-outline</v-icon>
+                    <span class="mx-1">{{ duration + 's' }}</span>
+                </v-btn>
+                <v-btn
+                    text
+                    small
+                    :to="`/quick-search/${keyMode}`"
+                >
+                    <v-icon>mdi-music-circle-outline</v-icon>
+                    <span class="mx-1">{{ keyMode }}</span>
+                </v-btn>
+            </div>
         </v-card-text>
         <v-card-text>
             <v-chip
@@ -67,49 +61,26 @@
                 {{ username }}
             </v-btn>
         </v-card-text>
-        <v-card-actions>
-            <v-row align="center">
-                <v-col cols="4" align="center">
-                    <v-btn
-                        fab
-                        large
-                        :color="playPauseColor"
-                        @click="playPause"
-                    >
-                        <v-icon>{{ playPauseIcon }}</v-icon>
-                    </v-btn>
-                </v-col>
-                <v-col cols="4" align="center">
-                    <v-btn
-                        fab
-                        large
-                        :color="repeatSample ? 'accent' : ''"
-                        @click="repeatSample = !repeatSample"
-                    >
-                        <v-icon>{{ repeatSampleIcon }}</v-icon>
-                    </v-btn>
-                </v-col>
-                <v-col cols="4" align="center">
-                    <v-btn
-                        fab
-                        large
-                        @click="downloadSample"
-                    >
-                        <v-icon>mdi-download-outline</v-icon>
-                    </v-btn>
-                </v-col>
-            </v-row>
-        </v-card-actions>
+        <v-card-text>
+            <SampleActions
+                ref="sampleActions"
+                @onClickPlayPause="playPause"
+                @onClickRepeat="toggleRepeat"
+                @onClickDownload="downloadSample"
+            />
+        </v-card-text>
     </v-card>
 </template>
 
 <script>
 import WaveForm from '~/components/WaveForm.vue'
+import SampleActions from '~/components/sample/SampleActions.vue'
 const fileDownload = process.client ? require('js-file-download') : undefined
 
 export default {
     components: {
-        WaveForm
+        WaveForm,
+        SampleActions
     },
 
     props: [
@@ -125,26 +96,17 @@ export default {
 
     data () {
         return {
-            isPlaying: false,
             repeatSample: false
         }
     },
 
     computed: {
-        mode () {
-            return this._mode == 'min' ? 'm' : this._mode == 'maj' ? 'M' : ''
-        },
+        keyMode () {
+            if (this._key || this._mode) {
+                return this._key + (this._mode == 'min' ? 'm' : this._mode == 'maj' ? 'M' : '')
+            }
 
-        playPauseIcon () {
-            return this.isPlaying ? 'mdi-pause' : 'mdi-play'
-        },
-
-        playPauseColor () {
-            return this.isPlaying ? 'primary' : ''
-        },
-
-        repeatSampleIcon () {
-            return this.repeatSample ? 'mdi-repeat' : 'mdi-repeat-off'
+            return '-'
         }
     },
 
@@ -153,13 +115,17 @@ export default {
             this.$refs.waveform.playPause()
         },
 
+        toggleRepeat () {
+            this.repeatSample = !this.repeatSample
+        },
+
         onPlay () {
-            this.isPlaying = true
+            this.$refs.sampleActions.setPlaying(true)
             this.$nuxt.$emit('samplePlay')
         },
 
         onPause () {
-            this.isPlaying = false
+            this.$refs.sampleActions.setPlaying(false)
             this.$nuxt.$emit('sampleStop')
         },
 
@@ -167,7 +133,7 @@ export default {
             if (this.repeatSample) {
                 this.$refs.waveform.play()
             } else {
-                this.isPlaying = false
+                this.$refs.sampleActions.setPlaying(false)
                 this.$nuxt.$emit('sampleStop')
             }
         },
