@@ -120,19 +120,28 @@ class SampleUpload(generics.CreateAPIView):
 
             # Adds the sample tags
             tags = re.escape(request.POST.get('tags', ''))
-            tags_list = [tag.strip() for tag in tags.split(',')]
-            for tag_name in tags_list:
-                tag = Tag.objects.get_or_create(name=tag_name)[0] # Returns a tuple
-                sample.tags.add(tag)
+            if tags:
+                tags_list = [tag.strip() for tag in tags.split(',')]
+                for tag_name in tags_list:
+                    tag = Tag.objects.get_or_create(name=tag_name)[0] # Returns a tuple
+                    sample.tags.add(tag)
 
-            # Adds the sample forks from
+            # Adds the sample forks from and to relations
             forks_from = re.escape(request.POST.get('forks_from', ''))
-            forks_from_list = [fork_from.strip() for fork_from in forks_from.split(',')]
-            for fork_from_id in forks_from_list:
-                SampleForkFrom.objects.get_or_create(
-                    sample=sample,
-                    sample_from=Sample.objects.get(pk=fork_from_id)
-                )
+            if forks_from:
+                forks_from_list = [fork_from.strip() for fork_from in forks_from.split(',')]
+                for fork_from_id in forks_from_list:
+                    fork_sample = Sample.objects.get(pk=fork_from_id)
+                    # Fork From
+                    SampleForkFrom.objects.get_or_create(
+                        sample=sample,
+                        sample_from=fork_sample
+                    )
+                    # Fork To
+                    SampleForkTo.objects.get_or_create(
+                        sample=fork_sample,
+                        sample_to=sample
+                    )
 
             # Automatically deducted sample properties
             sample.deduce_properties()
@@ -189,17 +198,21 @@ class SampleFile(APIView):
             return HttpResponseNotFound('No matching file found.')
 
 
-class SampleForkFrom(generics.ListAPIView):
-    lookup_field = 'sample'
-    queryset = SampleForkFrom.objects.all()
+class ListSampleForkFrom(generics.ListAPIView):
     serializer_class = SampleForkFromSerializer
 
+    def get_queryset(self):
+        # lookup_field only used in detail views
+        return SampleForkFrom.objects.filter(sample=self.kwargs['sample_id'])
+    
 
-class SampleForkTo(generics.ListAPIView):
-    lookup_field = 'sample'
-    queryset = SampleForkTo.objects.all()
+class ListSampleForkTo(generics.ListAPIView):
     serializer_class = SampleForkToSerializer
 
+    def get_queryset(self):
+        # lookup_field only used in detail views
+        return SampleForkTo.objects.filter(sample=self.kwargs['sample_id'])
+    
 
 class UserDownloads(APIView):
     authentication_classes = [TokenAuthentication]
