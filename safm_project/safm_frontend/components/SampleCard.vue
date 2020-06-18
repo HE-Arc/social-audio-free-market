@@ -64,9 +64,9 @@
         <v-card-text>
             <SampleActions
                 ref="sampleActions"
+                :sampleId="id"
                 @onClickPlayPause="playPause"
                 @onClickRepeat="toggleRepeat"
-                @onClickDownload="downloadSample"
             />
         </v-card-text>
     </v-card>
@@ -75,7 +75,6 @@
 <script>
 import WaveForm from '~/components/WaveForm.vue'
 import SampleActions from '~/components/sample/SampleActions.vue'
-const fileDownload = process.client ? require('js-file-download') : undefined
 
 export default {
     components: {
@@ -136,32 +135,6 @@ export default {
                 this.$refs.sampleActions.setPlaying(false)
                 this.$nuxt.$emit('sampleStop')
             }
-        },
-
-        downloadSample () {
-            this.$axios.get(`/sample_file/${this.id}/1`, {
-                responseType: 'blob'
-            })
-                .then((response) => {
-                    let contentDisposition = response.request.getResponseHeader('Content-Disposition')
-
-                    if (contentDisposition) {
-                        let filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
-                        let matches = filenameRegex.exec(contentDisposition)
-
-                        if (matches !== null && matches[1]) {
-                            let filename = matches[1].replace(/['"]/g, '')
-                            fileDownload(response.data, filename)
-                        }
-                    }
-                })
-                .catch((error) => {
-                    for (let e in error.response.data) {
-                        this.$toast.error(`${e}: ${error.response.data[e]}`, {
-                            duration: 5000
-                        })
-                    }
-                })
         }
     }
 }
