@@ -131,30 +131,10 @@
             </section>
             <section>
                 <h3 class="section-title">Fork</h3>
-                <v-row>
-                    <v-col cols="6">
-                        <v-card>
-                            <v-card-title>Created with</v-card-title>
-                                <p
-                                    v-for="(s, i) in forkFrom"
-                                    :key="i"
-                                >{{ s.sample_from.name }} {{ s.sample_from.id }}</p>
-                        </v-card>
-                    </v-col>
-                    <v-col cols="6">
-                        <v-card>
-                            <v-card-title>Used by</v-card-title>
-                                    <p
-                                    v-for="(s, i) in forkTo"
-                                    :key="i"
-                                >{{ s.sample_to.name }} {{ s.sample_to.id }}</p>
-                        </v-card>
-                    </v-col>
-                </v-row>
-            </section>
-            <section>
-                <h3 class="section-title">Comments</h3>
-                <Comments :comments="comments" />
+                <SampleForkContainer
+                    :forkFrom="forkFrom"
+                    :forkTo="forkTo"
+                />
             </section>
         </v-container>
     </div>
@@ -162,13 +142,13 @@
 
 <script>
 import WaveForm from '~/components/WaveForm.vue'
-import Comments from '~/components/Comments.vue'
+import SampleForkContainer from '~/components/SampleForkContainer.vue'
 const fileDownload = process.client ? require('js-file-download') : undefined
 
 export default {
     components: {
         WaveForm,
-        Comments
+        SampleForkContainer
     },
 
     data () {
@@ -179,8 +159,7 @@ export default {
             downloadLink: ``,
             likedSample: false,
             forkFrom: [],
-            forkTo: [],
-            comments: []
+            forkTo: []
         }
     },
 
@@ -215,20 +194,10 @@ export default {
             let sample = await $axios.$get(`/sample/${params.id}`)
             let forkFrom = await $axios.$get(`/fork_from/${params.id}`)
             let forkTo = await $axios.$get(`/fork_to/${params.id}`)
-
-            //TODO
-            // THIS IS TEMPORARY ; WILL BE DEVELOPED LATER
-            let comments = [
-                {
-                    id: 1,
-                    username: 'qtipee',
-                    text: 'Comments are not yet integrated.',
-                    datetime: '08.06.2020 12:15'
-                }
-            ]
-            return { sample, forkFrom, forkTo, comments }
+            
+            return { sample, forkFrom, forkTo }
         } catch (e) {
-            return { sample: {}, forkFrom: [], forkTo: [], comments: [] }
+            return { sample: {}, forkFrom: [], forkTo: [] }
         }
     },
 
