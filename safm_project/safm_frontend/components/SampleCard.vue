@@ -87,12 +87,6 @@ export default {
         'username'
     ],
 
-    data () {
-        return {
-            repeatSample: false
-        }
-    },
-
     computed: {
         keyMode () {
             if (this._key || this._mode) {
@@ -100,12 +94,6 @@ export default {
             }
 
             return '-'
-        }
-    },
-
-    methods: {
-        toggleRepeat () {
-            this.repeatSample = !this.repeatSample
         }
     }
 }

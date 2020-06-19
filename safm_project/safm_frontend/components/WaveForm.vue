@@ -14,7 +14,8 @@ export default {
 
     data () {
         return {
-            wavesurfer: null
+            wavesurfer: null,
+            repeat: false
         }
     },
 
@@ -25,6 +26,13 @@ export default {
         this.$nuxt.$on('samplePlayPause', (sampleId) => {
             if (this.id == sampleId) {
                 this.wavesurfer.playPause()
+            }
+        })
+
+        // On Sample Repeat event
+        this.$nuxt.$on('sampleRepeat', (sampleId) => {
+            if (this.id == sampleId) {
+                this.repeat = !this.repeat
             }
         })
 
@@ -61,7 +69,9 @@ export default {
 
             // On finish event
             this.wavesurfer.on('finish', () => {
-                this.$nuxt.$emit('sampleFinish', this.id)
+                if (this.repeat) {
+                    this.wavesurfer.play()
+                }
             })
         }
     }

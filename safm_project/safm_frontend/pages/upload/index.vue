@@ -77,17 +77,12 @@
                             :value="downloaded.sample.id"
                         >
                             <template v-slot:label>
-                                <v-card>
-                                    <v-card-title class="headline">
-                                        <nuxt-link :to="`/samples/${downloaded.sample.id}`">{{ downloaded.sample.name }}</nuxt-link>
-                                    </v-card-title>
-                                    <v-card-text>
-                                        By <nuxt-link :to="`/profiles/${downloaded.sample.user.username}`">{{ downloaded.sample.user.username }}</nuxt-link>
-                                    </v-card-text>
-                                    <v-card-text>
-                                        Downloaded on {{ downloaded.datetime_download }}
-                                    </v-card-text>
-                                </v-card>
+                                <SampleFork
+                                    :id="downloaded.sample.id"
+                                    :name="downloaded.sample.name"
+                                    :username="downloaded.sample.user.username"
+                                    :downloaded_datetime="downloaded.datetime_download"
+                                />
                             </template>
                         </v-checkbox>
                     </v-col>
@@ -110,6 +105,7 @@
 <script>
 import { validationMixin } from 'vuelidate'
 import { required } from 'vuelidate/lib/validators'
+import SampleFork from '~/components/SampleFork.vue'
 
 export default {
     middleware: 'authenticated',
@@ -119,6 +115,10 @@ export default {
     validations: {
         file: { required },
         name: { required }
+    },
+
+    components: {
+        SampleFork
     },
     
     data () {

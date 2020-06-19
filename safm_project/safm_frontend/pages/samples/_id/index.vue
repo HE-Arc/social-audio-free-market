@@ -9,7 +9,7 @@
                 />
             </section>
             <v-card>
-                <v-card-actions>
+                <v-card-text>
                     <SampleActions :sampleId="sample.id" />
                     <v-spacer></v-spacer>
                     <v-btn
@@ -20,7 +20,7 @@
                     >
                         <v-icon>{{ likeSampleIcon }}</v-icon>
                     </v-btn>
-                </v-card-actions>
+                </v-card-text>
             </v-card>
             <section>
                 <v-row>
@@ -128,7 +128,6 @@ export default {
         return {
             sample: {},
             username: '',
-            repeatSample: false,
             likedSample: false,
             forkFrom: [],
             forkTo: []
