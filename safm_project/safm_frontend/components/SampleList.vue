@@ -65,14 +65,14 @@ export default {
             ++this.numberPlaying
         })
 
-        this.$nuxt.$on('sampleStop', () => {
+        this.$nuxt.$on('samplePause', () => {
             --this.numberPlaying
         })
     },
 
     methods: {
         stopAll() {
-            this.$nuxt.$emit('stopAll')
+            this.$nuxt.$emit('sampleStopAll')
         }
     }
 }

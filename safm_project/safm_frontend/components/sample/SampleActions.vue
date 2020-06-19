@@ -1,12 +1,6 @@
 <template>
     <div class="d-flex justify-space-between">
-        <v-btn
-            large
-            :color="playPauseColor"
-            @click="togglePlayPause"
-        >
-            <v-icon>{{ playPauseIcon }}</v-icon>
-        </v-btn>
+        <BtnPlayPause :sampleId="sampleId" />
         <v-btn
             large
             :color="repeat ? 'accent' : ''"
@@ -24,40 +18,31 @@
 </template>
 
 <script>
+import BtnPlayPause from '~/components/sample/BtnPlayPause'
 const fileDownload = process.client ? require('js-file-download') : undefined
 
 export default {
+    components: {
+        BtnPlayPause
+    },
+
     props: [
         'sampleId'
     ],
 
     data () {
         return {
-            isPlaying: false,
             repeat: false
         }
     },
 
     computed: {
-        playPauseColor () {
-            return this.isPlaying ? 'primary' : ''
-        },
-
-        playPauseIcon () {
-            return this.isPlaying ? 'mdi-pause' : 'mdi-play'
-        },
-
         repeatIcon () {
             return this.repeat ? 'mdi-repeat' : 'mdi-repeat-off'
         }
     },
 
     methods: {
-        togglePlayPause () {
-            this.isPlaying = !this.isPlaying
-            this.$emit('onClickPlayPause')
-        },
-
         toggleRepeat () {
             this.repeat = !this.repeat
             this.$emit('onClickRepeat')
@@ -87,10 +72,6 @@ export default {
                         })
                     }
                 })
-        },
-
-        setPlaying (isPlaying) {
-            this.isPlaying = isPlaying
         }
     }
 }

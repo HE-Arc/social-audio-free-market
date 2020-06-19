@@ -6,39 +6,11 @@
                 <WaveForm
                     ref="waveform"
                     :id="sample.id"
-                    @onPlay="onPlay"
-                    @onPause="onPause"
-                    @onFinish="onFinish"
                 />
             </section>
             <v-card>
                 <v-card-actions>
-                    <v-btn
-                        fab
-                        x-large
-                        :color="playPauseColor"
-                        @click="playPause"
-                        class="mx-2"
-                    >
-                        <v-icon>{{ playPauseIcon }}</v-icon>
-                    </v-btn>
-                    <v-btn
-                        fab
-                        x-large
-                        :color="repeatSample ? 'accent' : ''"
-                        @click="repeatSample = !repeatSample"
-                        class="mx-2"
-                    >
-                        <v-icon>{{ repeatSampleIcon }}</v-icon>
-                    </v-btn>
-                    <v-btn
-                        fab
-                        x-large
-                        @click="downloadSample"
-                        class="mx-2"
-                    >
-                        <v-icon>mdi-download-outline</v-icon>
-                    </v-btn>
+                    <SampleActions :sampleId="sample.id" />
                     <v-spacer></v-spacer>
                     <v-btn
                         fab
@@ -54,7 +26,7 @@
                 <v-row>
                     <v-col cols="2" lg="2" md="3" sm=12>
                         <v-card class="text-center">
-                            <nuxt-link :to="`/profiles/${sample.user.username}`">
+                            <nuxt-link :to="`/profiles/${username}`">
                                 <v-img
                                     src="https://image.flaticon.com/icons/svg/17/17004.svg"
                                     width="100"
@@ -62,7 +34,7 @@
                                     color="white"
                                 ></v-img>
                                 <v-card-title class="justify-center">
-                                    {{ sample.user.username }}
+                                    {{ username }}
                                 </v-card-title>
                             </nuxt-link>
                             <v-card-actions>
@@ -142,21 +114,21 @@
 
 <script>
 import WaveForm from '~/components/WaveForm.vue'
+import SampleActions from '~/components/sample/SampleActions.vue'
 import SampleForkContainer from '~/components/SampleForkContainer.vue'
-const fileDownload = process.client ? require('js-file-download') : undefined
 
 export default {
     components: {
         WaveForm,
+        SampleActions,
         SampleForkContainer
     },
 
     data () {
         return {
             sample: {},
-            isPlaying: false,
+            username: '',
             repeatSample: false,
-            downloadLink: ``,
             likedSample: false,
             forkFrom: [],
             forkTo: []
@@ -164,18 +136,6 @@ export default {
     },
 
     computed: {
-        playPauseIcon () {
-            return this.isPlaying ? 'mdi-pause' : 'mdi-play'
-        },
-
-        playPauseColor () {
-            return this.isPlaying ? 'primary' : ''
-        },
-
-        repeatSampleIcon () {
-            return this.repeatSample ? 'mdi-repeat' : 'mdi-repeat-off'
-        },
-
         likeSampleIcon () {
             return this.likedSample ? 'mdi-heart' : 'mdi-heart-outline'
         },
@@ -190,62 +150,15 @@ export default {
     },
 
     async asyncData({ $axios, params }) {
-        try {
-            let sample = await $axios.$get(`/sample/${params.id}`)
-            let forkFrom = await $axios.$get(`/fork_from/${params.id}`)
-            let forkTo = await $axios.$get(`/fork_to/${params.id}`)
-            
-            return { sample, forkFrom, forkTo }
-        } catch (e) {
-            return { sample: {}, forkFrom: [], forkTo: [] }
-        }
-    },
+        const sample = await $axios.$get(`/sample/${params.id}`)
+        const forkFrom = await $axios.$get(`/fork_from/${params.id}`)
+        const forkTo = await $axios.$get(`/fork_to/${params.id}`)
 
-    methods: {
-        playPause () {
-            this.$refs.waveform.playPause()
-        },
-
-        onPlay () {
-            this.isPlaying = true
-        },
-
-        onPause () {
-            this.isPlaying = false
-        },
-
-        onFinish () {
-            if (this.repeatSample) {
-                this.$refs.waveform.play()
-            } else {
-                this.isPlaying = false
-            }
-        },
-
-        downloadSample () {
-            this.$axios.get(`/sample_file/${this.sample.id}/1`, {
-                responseType: 'blob'
-            })
-                .then((response) => {
-                    let contentDisposition = response.request.getResponseHeader('Content-Disposition')
-
-                    if (contentDisposition) {
-                        let filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
-                        let matches = filenameRegex.exec(contentDisposition)
-
-                        if (matches !== null && matches[1]) {
-                            let filename = matches[1].replace(/['"]/g, '')
-                            fileDownload(response.data, filename)
-                        }
-                    }
-                })
-                .catch((error) => {
-                    for (let e in error.response.data) {
-                        this.$toast.error(`${e}: ${error.response.data[e]}`, {
-                            duration: 5000
-                        })
-                    }
-                })
+        return {
+            sample: sample,
+            username: sample.user.username,
+            forkFrom: forkFrom,
+            forkTo: forkTo
         }
     }
 }

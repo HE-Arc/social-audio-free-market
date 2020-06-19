@@ -21,8 +21,15 @@ export default {
     mounted () {
         this.initWaveSurfer()
 
+        // On Play Pause Click event
+        this.$nuxt.$on('samplePlayPause', (sampleId) => {
+            if (this.id == sampleId) {
+                this.wavesurfer.playPause()
+            }
+        })
+
         // On Stop All event
-        this.$nuxt.$on('stopAll', () => {
+        this.$nuxt.$on('sampleStopAll', () => {
             this.wavesurfer.pause()
         })
     },
@@ -44,26 +51,18 @@ export default {
 
             // On play event
             this.wavesurfer.on('play', () => {
-                this.$emit('onPlay')
+                this.$nuxt.$emit('samplePlay', this.id)
             })
 
             // On pause event
             this.wavesurfer.on('pause', () => {
-                this.$emit('onPause')
+                this.$nuxt.$emit('samplePause', this.id)
             })
 
             // On finish event
             this.wavesurfer.on('finish', () => {
-                this.$emit('onFinish')
+                this.$nuxt.$emit('sampleFinish', this.id)
             })
-        },
-
-        play () {
-            this.wavesurfer.play()
-        },
-
-        playPause () {
-            this.wavesurfer.playPause()
         }
     }
 }

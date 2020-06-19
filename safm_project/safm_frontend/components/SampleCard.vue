@@ -6,9 +6,6 @@
         <WaveForm
             ref="waveform"
             :id="id"
-            @onPlay="onPlay"
-            @onPause="onPause"
-            @onFinish="onFinish"
         />
         <v-card-text>
             <div class="d-flex justify-space-around">
@@ -63,10 +60,7 @@
         </v-card-text>
         <v-card-text>
             <SampleActions
-                ref="sampleActions"
                 :sampleId="id"
-                @onClickPlayPause="playPause"
-                @onClickRepeat="toggleRepeat"
             />
         </v-card-text>
     </v-card>
@@ -110,31 +104,8 @@ export default {
     },
 
     methods: {
-        playPause () {
-            this.$refs.waveform.playPause()
-        },
-
         toggleRepeat () {
             this.repeatSample = !this.repeatSample
-        },
-
-        onPlay () {
-            this.$refs.sampleActions.setPlaying(true)
-            this.$nuxt.$emit('samplePlay')
-        },
-
-        onPause () {
-            this.$refs.sampleActions.setPlaying(false)
-            this.$nuxt.$emit('sampleStop')
-        },
-
-        onFinish () {
-            if (this.repeatSample) {
-                this.$refs.waveform.play()
-            } else {
-                this.$refs.sampleActions.setPlaying(false)
-                this.$nuxt.$emit('sampleStop')
-            }
         }
     }
 }
