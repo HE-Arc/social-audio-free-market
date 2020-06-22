@@ -249,7 +249,7 @@ class UploadSampleTest(TestCase):
         correctly uploaded and that the automatically deducted properties
         are also correct.
         '''
-         # Login
+        # Login
         loginResponse = self.client.post('/api/login', { 'username': self.username, 'password': self.password })
         self.assertEqual(200, loginResponse.status_code)
         token = json.loads(loginResponse.content)['token']
@@ -293,6 +293,52 @@ class UploadSampleTest(TestCase):
         # Automatically deducted properties
         self.assertEqual(float(sample['duration']), 7.4)
         self.assertEqual(sample['tempo'], 130)
+
+    @tag('sample_upload_fork')
+    def test_sample_upload_fork(self):
+        # Login
+        loginResponse = self.client.post('/api/login', { 'username': self.username, 'password': self.password })
+        self.assertEqual(200, loginResponse.status_code)
+        token = json.loads(loginResponse.content)['token']
+
+        headers = {
+            'HTTP_AUTHORIZATION': 'Token ' + token
+        }
+
+        # First Sample
+        sample01_id = -1
+        sample_name = 'Test Sample Fork #1'
+        with open(self.test_file, 'rb') as f:    
+            response = self.client.post('/api/upload_sample', {
+                'name': sample_name,
+                'file': f
+            }, **headers)
+            self.assertEqual(201, response.status_code)
+            sample01_id = json.loads(response.content)['id']
+            self.assertTrue(sample01_id > 0)
+
+        # Second Sample
+        sample02_id = -1
+        sample_name = 'Test Sample Fork #2'
+        with open(self.test_file, 'rb') as f:    
+            response = self.client.post('/api/upload_sample', {
+                'name': sample_name,
+                'file': f,
+                'forks_from': sample01_id
+            }, **headers)
+            self.assertEqual(201, response.status_code)
+            sample02_id = json.loads(response.content)['id']
+            self.assertTrue(sample02_id > 0)
+
+        # Second Sample is from the first one
+        sample_fork_from = SampleForkFrom.objects.get(pk=1)
+        self.assertEqual(sample_fork_from.sample.id, sample02_id)
+        self.assertEqual(sample_fork_from.sample_from.id, sample01_id)
+
+        # First Sample is to the second one
+        sample_fork_to = SampleForkTo.objects.get(pk=1)
+        self.assertEqual(sample_fork_to.sample.id, sample01_id)
+        self.assertEqual(sample_fork_to.sample_to.id, sample02_id)
 
 
 class UserProfileTest(TestCase):
