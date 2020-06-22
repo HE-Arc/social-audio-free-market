@@ -296,6 +296,10 @@ class UploadSampleTest(TestCase):
 
     @tag('sample_upload_fork')
     def test_sample_upload_fork(self):
+        '''
+        Checks that the SampleForkFrom/To models are correctly created when
+        there is a sample from at a Sample upload.
+        '''
         # Login
         loginResponse = self.client.post('/api/login', { 'username': self.username, 'password': self.password })
         self.assertEqual(200, loginResponse.status_code)
@@ -341,6 +345,78 @@ class UploadSampleTest(TestCase):
         self.assertEqual(sample_fork_to.sample_to.id, sample02_id)
 
 
+class DownloadSampleTest(TestCase):
+    '''
+    Download Samples unit testing
+    '''
+    fixtures = ['users.json', 'tags.json', 'samples.json']
+
+    def setUp(self):
+        # Reads the samples fixture file
+        with open('./safm/fixtures/samples.json') as json_samples:
+            self.samples = json.load(json_samples)
+
+        self.client = Client()
+
+        self.username = 'test'
+        self.email = 'test@safmarket.com'
+        self.password = 'foo'
+
+        self.user = User.objects.create(
+            username=self.username,
+            email=self.email,
+        )
+        self.user.set_password(self.password)
+        self.user.save()
+
+    @tag('download_sample_count')
+    def test_download_sample_count(self):
+        '''
+        Checks that the Sample number of downloads property is correctly
+        incremented when the Sample is downloaded.
+        '''
+        sample_id = 1
+        count = 5
+        for i in range(0, count):
+            # Increments the number of downloads property
+            self.client.get('/api/sample_file/{0}/1'.format(sample_id))
+            # Does not increment the number of downloads property
+            self.client.get('/api/sample_file/{0}/0'.format(sample_id))
+
+        sample = Sample.objects.get(pk=sample_id)
+        self.assertEqual(sample.number_downloads, count)
+
+    @tag('download_sample_authenticated')
+    def test_download_sample_authenticated(self):
+        '''
+        Checks that the UserSampleDownload model is correctly created when
+        an authenticated user downloads a Sample.
+        '''
+        # Login
+        loginResponse = self.client.post('/api/login', { 'username': self.username, 'password': self.password })
+        self.assertEqual(200, loginResponse.status_code)
+        token = json.loads(loginResponse.content)['token']
+
+        headers = {
+            'HTTP_AUTHORIZATION': 'Token ' + token
+        }
+
+        # Creates a UserSampleDownload model if the user is authenticated
+        # when downloading a sample file
+        for sample in self.samples:
+            sample_id = sample['pk']
+            self.client.get('/api/sample_file/{0}/1'.format(sample_id), **headers)
+
+        user_downloads = UserSampleDownload.objects.all()
+        self.assertEqual(len(user_downloads), len(self.samples))
+
+        # Does not create a UserSampleDownload model if not authenticated
+        self.client.get('/api/sample_file/{0}/1'.format(sample_id))
+        user_downloads = UserSampleDownload.objects.all()
+        # There are still len(self.samples) UserSampleDownload models
+        self.assertEqual(len(user_downloads), len(self.samples))
+
+
 class UserProfileTest(TestCase):
     '''
     UserProfile model unit testing
@@ -348,8 +424,6 @@ class UserProfileTest(TestCase):
     fixtures = ['users.json']
 
     def setUp(self):
-        import json
-
         # Reads the users fixture file
         with open('./safm/fixtures/users.json') as json_users:
             self.users = json.load(json_users)
