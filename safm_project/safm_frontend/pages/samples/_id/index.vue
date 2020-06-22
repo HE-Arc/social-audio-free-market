@@ -6,39 +6,11 @@
                 <WaveForm
                     ref="waveform"
                     :id="sample.id"
-                    @onPlay="onPlay"
-                    @onPause="onPause"
-                    @onFinish="onFinish"
                 />
             </section>
             <v-card>
-                <v-card-actions>
-                    <v-btn
-                        fab
-                        x-large
-                        :color="playPauseColor"
-                        @click="playPause"
-                        class="mx-2"
-                    >
-                        <v-icon>{{ playPauseIcon }}</v-icon>
-                    </v-btn>
-                    <v-btn
-                        fab
-                        x-large
-                        :color="repeatSample ? 'accent' : ''"
-                        @click="repeatSample = !repeatSample"
-                        class="mx-2"
-                    >
-                        <v-icon>{{ repeatSampleIcon }}</v-icon>
-                    </v-btn>
-                    <v-btn
-                        fab
-                        x-large
-                        :href="`${$axios.defaults.baseURL}/sample_file/${sample.id}`"
-                        class="mx-2"
-                    >
-                        <v-icon>mdi-download-outline</v-icon>
-                    </v-btn>
+                <v-card-text>
+                    <SampleActions :sampleId="sample.id" />
                     <v-spacer></v-spacer>
                     <v-btn
                         fab
@@ -48,13 +20,13 @@
                     >
                         <v-icon>{{ likeSampleIcon }}</v-icon>
                     </v-btn>
-                </v-card-actions>
+                </v-card-text>
             </v-card>
             <section>
                 <v-row>
                     <v-col cols="2" lg="2" md="3" sm=12>
                         <v-card class="text-center">
-                            <nuxt-link :to="`/profiles/${sample.user.username}`">
+                            <nuxt-link :to="`/profiles/${username}`">
                                 <v-img
                                     src="https://image.flaticon.com/icons/svg/17/17004.svg"
                                     width="100"
@@ -62,7 +34,7 @@
                                     color="white"
                                 ></v-img>
                                 <v-card-title class="justify-center">
-                                    {{ sample.user.username }}
+                                    {{ username }}
                                 </v-card-title>
                             </nuxt-link>
                             <v-card-actions>
@@ -131,11 +103,10 @@
             </section>
             <section>
                 <h3 class="section-title">Fork</h3>
-                To be integrated...
-            </section>
-            <section>
-                <h3 class="section-title">Comments</h3>
-                <Comments :comments="comments" />
+                <SampleForkContainer
+                    :forkFrom="forkFrom"
+                    :forkTo="forkTo"
+                />
             </section>
         </v-container>
     </div>
@@ -143,38 +114,27 @@
 
 <script>
 import WaveForm from '~/components/WaveForm.vue'
-import Comments from '~/components/Comments.vue'
+import SampleActions from '~/components/sample/SampleActions.vue'
+import SampleForkContainer from '~/components/SampleForkContainer.vue'
 
 export default {
     components: {
         WaveForm,
-        Comments
+        SampleActions,
+        SampleForkContainer
     },
 
     data () {
         return {
             sample: {},
-            isPlaying: false,
-            repeatSample: false,
-            downloadLink: ``,
+            username: '',
             likedSample: false,
-            comments: []
+            forkFrom: [],
+            forkTo: []
         }
     },
 
     computed: {
-        playPauseIcon () {
-            return this.isPlaying ? 'mdi-pause' : 'mdi-play'
-        },
-
-        playPauseColor () {
-            return this.isPlaying ? 'primary' : ''
-        },
-
-        repeatSampleIcon () {
-            return this.repeatSample ? 'mdi-repeat' : 'mdi-repeat-off'
-        },
-
         likeSampleIcon () {
             return this.likedSample ? 'mdi-heart' : 'mdi-heart-outline'
         },
@@ -189,43 +149,15 @@ export default {
     },
 
     async asyncData({ $axios, params }) {
-        try {
-            let sample = await $axios.$get(`/sample/${params.id}`)
+        const sample = await $axios.$get(`/sample/${params.id}`)
+        const forkFrom = await $axios.$get(`/fork_from/${params.id}`)
+        const forkTo = await $axios.$get(`/fork_to/${params.id}`)
 
-            // THIS IS TEMPORARY ; WILL BE DEVELOPED LATER
-            let comments = [
-                {
-                    id: 1,
-                    username: 'qtipee',
-                    text: 'Comments are not yet integrated.',
-                    datetime: '08.06.2020 12:15'
-                }
-            ]
-            return { sample, comments }
-        } catch (e) {
-            return { sample: {}, comments: [] }
-        }
-    },
-
-    methods: {
-        playPause () {
-            this.$refs.waveform.playPause()
-        },
-
-        onPlay () {
-            this.isPlaying = true
-        },
-
-        onPause () {
-            this.isPlaying = false
-        },
-
-        onFinish () {
-            if (this.repeatSample) {
-                this.$refs.waveform.play()
-            } else {
-                this.isPlaying = false
-            }
+        return {
+            sample: sample,
+            username: sample.user.username,
+            forkFrom: forkFrom,
+            forkTo: forkTo
         }
     }
 }

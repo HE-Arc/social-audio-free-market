@@ -287,7 +287,7 @@ class UploadSampleTest(TestCase):
         self.assertEqual(sample['description'], sample_description)
         self.assertEqual(sample['key'], sample_key)
         self.assertEqual(sample['mode'], sample_mode)
-        self.assertEqual(sample['nb_dl_unauthenticated'], 0)
+        self.assertEqual(sample['number_downloads'], 0)
         self.assertEqual(len(sample['tags']), 3)
 
         # Automatically deducted properties

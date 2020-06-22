@@ -120,14 +120,33 @@ class SampleUpload(generics.CreateAPIView):
 
             # Adds the sample tags
             tags = re.escape(request.POST.get('tags', ''))
-            tags_list = [tag.strip() for tag in tags.split(',')]
-            for tag_name in tags_list:
-                tag = Tag.objects.get_or_create(name=tag_name)[0] # Returns a tuple
-                sample.tags.add(tag)
+            if tags:
+                tags_list = [tag.strip() for tag in tags.split(',')]
+                for tag_name in tags_list:
+                    tag = Tag.objects.get_or_create(name=tag_name)[0] # Returns a tuple
+                    sample.tags.add(tag)
+
+            # Adds the sample forks from and to relations
+            forks_from = re.escape(request.POST.get('forks_from', ''))
+            if forks_from:
+                forks_from_list = [fork_from.strip() for fork_from in forks_from.split(',')]
+                for fork_from_id in forks_from_list:
+                    fork_sample = Sample.objects.get(pk=fork_from_id)
+                    # Fork From
+                    SampleForkFrom.objects.get_or_create(
+                        sample=sample,
+                        sample_from=fork_sample
+                    )
+                    # Fork To
+                    SampleForkTo.objects.get_or_create(
+                        sample=fork_sample,
+                        sample_to=sample
+                    )
 
             # Automatically deducted sample properties
             sample.deduce_properties()
 
+            # Updates the Sample model
             sample.save()
         
             return JsonResponse({'id': sample.id}, status=status.HTTP_201_CREATED)
@@ -148,21 +167,64 @@ class SampleUpload(generics.CreateAPIView):
 
 class SampleFile(APIView):
     
-    def get(self, request, sample_id):
-        file = Sample.objects.filter(id=sample_id).values('file').get()
+    def get(self, request, sample_id, download):
+        sample = Sample.objects.get(pk=sample_id)
+        sample_file = sample.file
 
-        if file:
-            path_to_file = os.path.join(settings.MEDIA_ROOT, file['file'])
-            with open(path_to_file, 'rb') as sample_file:
-                mime_type = mimetypes.MimeTypes().guess_type(file['file'][0])
-                response = HttpResponse(sample_file, content_type=mime_type)
-                filename = file['file'].split('/')[-1]
+        if sample:
+            if download == 1:
+                if request.auth:
+                    # If the user is authenticated, adds this sample to its downloads
+                    UserSampleDownload.objects.get_or_create(
+                        user=request.user,
+                        sample=sample
+                    )
+
+                # Increments the sample number of downloads
+                sample.number_downloads += 1
+                sample.save()
+                
+            # Returns the audio file as a file attachment
+            path_to_file = os.path.join(settings.MEDIA_ROOT, sample_file.name)
+            with open(path_to_file, 'rb') as f:
+                mime_type = mimetypes.MimeTypes().guess_type(sample_file.name)
+                response = HttpResponse(f, content_type=mime_type)
+                filename = sample_file.name.split('/')[-1]
                 response['Content-Disposition'] = f'attachement; filename="{filename}"'
+                response['Access-Control-Expose-Headers'] = 'Content-Disposition' # To allow the client to read it
 
             return response
         else:
             return HttpResponseNotFound('No matching file found.')
-        
+
+
+class ListSampleForkFrom(generics.ListAPIView):
+    serializer_class = SampleForkFromSerializer
+
+    def get_queryset(self):
+        # lookup_field only used in detail views
+        return SampleForkFrom.objects.filter(sample=self.kwargs['sample_id'])
+    
+
+class ListSampleForkTo(generics.ListAPIView):
+    serializer_class = SampleForkToSerializer
+
+    def get_queryset(self):
+        # lookup_field only used in detail views
+        return SampleForkTo.objects.filter(sample=self.kwargs['sample_id'])
+    
+
+class UserDownloads(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        user_downloads = UserSampleDownload.objects.filter(user=user).order_by('-datetime_download')
+        user_downloads_serializer = UserDownloadSerializer(user_downloads, many=True)
+
+        return JsonResponse(user_downloads_serializer.data, safe=False)
+
 
 class UserProfilePage(APIView):
 

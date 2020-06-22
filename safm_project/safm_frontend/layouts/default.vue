@@ -128,6 +128,8 @@ export default {
                     this.$store.commit('setAuth', null)
                     Cookie.remove('auth')
                     Cookie.remove('username')
+
+                    this.$axios.setHeader('Authorization', '')
                     
                     this.$toast.success('Successfully logged out !', {
                         duration: 3000

@@ -70,6 +70,23 @@
                         </v-chip-group>
                     </v-col>
                     <v-col cols="12">
+                        <v-checkbox
+                            v-model="selectedForkFrom"
+                            v-for="(downloaded, i) in downloadedSamples"
+                            :key="i"
+                            :value="downloaded.sample.id"
+                        >
+                            <template v-slot:label>
+                                <SampleFork
+                                    :id="downloaded.sample.id"
+                                    :name="downloaded.sample.name"
+                                    :username="downloaded.sample.user.username"
+                                    :downloaded_datetime="downloaded.datetime_download"
+                                />
+                            </template>
+                        </v-checkbox>
+                    </v-col>
+                    <v-col cols="12">
                         <v-btn
                             block
                             x-large
@@ -88,6 +105,7 @@
 <script>
 import { validationMixin } from 'vuelidate'
 import { required } from 'vuelidate/lib/validators'
+import SampleFork from '~/components/SampleFork.vue'
 
 export default {
     middleware: 'authenticated',
@@ -97,6 +115,10 @@ export default {
     validations: {
         file: { required },
         name: { required }
+    },
+
+    components: {
+        SampleFork
     },
     
     data () {
@@ -122,7 +144,9 @@ export default {
                 }
             ],
             tagInput: '',
-            tags: []
+            tags: [],
+            selectedForkFrom: [],
+            downloadedSamples: []
         }
     },
 
@@ -148,6 +172,16 @@ export default {
         }
     },
 
+    async asyncData ({ $axios }) {
+        try {
+            let downloadedSamples = await $axios.$get('/user_downloads')
+
+            return { downloadedSamples }
+        } catch (e) {
+            return { downloadedSamples: [] }
+        }
+    },
+
     methods: {
         async upload () {
             let body = new FormData()
@@ -157,12 +191,9 @@ export default {
             body.set('key', this.key)
             body.set('mode', this.mode)
             body.set('tags', this.tags)
+            body.append('forks_from', this.selectedForkFrom)
 
-            const sampleId = await this.$axios.post('/upload_sample', body, {
-                headers: {
-                    'Authorization': `Token ${this.$store.state.auth}`
-                }
-            })
+            const sampleId = await this.$axios.post('/upload_sample', body)
                 .then((response) => {
                     return response.data.id
                 })
