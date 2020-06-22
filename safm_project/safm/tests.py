@@ -379,49 +379,20 @@ class DownloadSampleTest(TestCase):
         self.user.set_password(self.password)
         self.user.save()
 
-        self.count = 5
-
-    def _create_sample_test_files(self):
-        '''
-        Creates some Sample models in order to create a file to download for the
-        following tests.
-        '''
-        for i in range(0, self.count):
-            file = SimpleUploadedFile('test{0}.wav'.format(i), b'This is the file content.')
-            sample = Sample(
-                user=self.user,
-                name='Sample_{0}'.format(i),
-                file=file
-            )
-            sample.save()
-
     @tag('download_sample_count')
     def test_download_sample_count(self):
-        '''
-        Checks that the Sample number of downloads property is correctly
-        incremented when the Sample is downloaded.
-        '''
-        self._create_sample_test_files()
-
-        sample_id = 1
-        for i in range(0, self.count):
-            # Increments the number of downloads property
-            self.client.get('/api/sample_file/{0}/1'.format(sample_id))
-            # Does not increment the number of downloads property
-            self.client.get('/api/sample_file/{0}/0'.format(sample_id))
-
-        sample = Sample.objects.get(pk=sample_id)
-        self.assertEqual(sample.number_downloads, self.count)
-
-        clear_test_folder()
-
-    @tag('download_sample_authenticated')
-    def test_download_sample_authenticated(self):
         '''
         Checks that the UserSampleDownload model is correctly created when
         an authenticated user downloads a Sample.
         '''
-        self._create_sample_test_files()
+        # Creates a Sample model (in order to create a file in the media directory)
+        file = SimpleUploadedFile('test.wav', b'This is the file content.')
+        sample = Sample(
+            user=self.user,
+            name='Sample_Test',
+            file=file
+        )
+        sample.save()
 
         # Login
         loginResponse = self.client.post('/api/login', { 'username': self.username, 'password': self.password })
@@ -434,17 +405,15 @@ class DownloadSampleTest(TestCase):
 
         # Creates a UserSampleDownload model if the user is authenticated
         # when downloading a sample file
-        for i in range(1, self.count + 1):
-            self.client.get('/api/sample_file/{0}/1'.format(i), **headers)
-
+        self.client.get('/api/sample_file/1/1', **headers)
         user_downloads = UserSampleDownload.objects.all()
-        self.assertEqual(len(user_downloads), self.count)
+        self.assertEqual(len(user_downloads), 1)
 
         # Does not create a UserSampleDownload model if not authenticated
         self.client.get('/api/sample_file/1/1')
         user_downloads = UserSampleDownload.objects.all()
         # There are still len(self.samples) UserSampleDownload models
-        self.assertEqual(len(user_downloads), self.count)
+        self.assertEqual(len(user_downloads), 1)
 
         clear_test_folder()
 
