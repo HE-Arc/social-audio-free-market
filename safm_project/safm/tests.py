@@ -11,6 +11,15 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth.models import User
 from .models import *
 
+def clear_test_folder():
+    '''
+    Removes the test folder content.
+    '''
+    test_folder = os.path.join(settings.MEDIA_ROOT, 'samples/test/')
+    for filename in os.listdir(test_folder):
+        file_path = os.path.join(test_folder, filename)
+        os.remove(file_path)
+
 # Create your tests here.
 
 class AuthTest(TestCase):
@@ -242,6 +251,8 @@ class UploadSampleTest(TestCase):
             jsonResponse = json.loads(response.content)
             self.assertIn('id', jsonResponse)
 
+        clear_test_folder()
+
     @tag('sample_upload_properties')
     def test_sample_upload_properties(self):
         '''
@@ -294,6 +305,8 @@ class UploadSampleTest(TestCase):
         self.assertEqual(float(sample['duration']), 7.4)
         self.assertEqual(sample['tempo'], 130)
 
+        clear_test_folder()
+
     @tag('sample_upload_fork')
     def test_sample_upload_fork(self):
         '''
@@ -344,18 +357,15 @@ class UploadSampleTest(TestCase):
         self.assertEqual(sample_fork_to.sample.id, sample01_id)
         self.assertEqual(sample_fork_to.sample_to.id, sample02_id)
 
+        clear_test_folder()
+
 
 class DownloadSampleTest(TestCase):
     '''
     Download Samples unit testing
     '''
-    fixtures = ['users.json', 'tags.json', 'samples.json']
 
     def setUp(self):
-        # Reads the samples fixture file
-        with open('./safm/fixtures/samples.json') as json_samples:
-            self.samples = json.load(json_samples)
-
         self.client = Client()
 
         self.username = 'test'
@@ -369,22 +379,41 @@ class DownloadSampleTest(TestCase):
         self.user.set_password(self.password)
         self.user.save()
 
+        self.count = 5
+
+    def _create_sample_test_files(self):
+        '''
+        Creates some Sample models in order to create a file to download for the
+        following tests.
+        '''
+        for i in range(0, self.count):
+            file = SimpleUploadedFile('test{0}.wav'.format(i), b'This is the file content.')
+            sample = Sample(
+                user=self.user,
+                name='Sample_{0}'.format(i),
+                file=file
+            )
+            sample.save()
+
     @tag('download_sample_count')
     def test_download_sample_count(self):
         '''
         Checks that the Sample number of downloads property is correctly
         incremented when the Sample is downloaded.
         '''
+        self._create_sample_test_files()
+
         sample_id = 1
-        count = 5
-        for i in range(0, count):
+        for i in range(0, self.count):
             # Increments the number of downloads property
             self.client.get('/api/sample_file/{0}/1'.format(sample_id))
             # Does not increment the number of downloads property
             self.client.get('/api/sample_file/{0}/0'.format(sample_id))
 
         sample = Sample.objects.get(pk=sample_id)
-        self.assertEqual(sample.number_downloads, count)
+        self.assertEqual(sample.number_downloads, self.count)
+
+        clear_test_folder()
 
     @tag('download_sample_authenticated')
     def test_download_sample_authenticated(self):
@@ -392,6 +421,8 @@ class DownloadSampleTest(TestCase):
         Checks that the UserSampleDownload model is correctly created when
         an authenticated user downloads a Sample.
         '''
+        self._create_sample_test_files()
+
         # Login
         loginResponse = self.client.post('/api/login', { 'username': self.username, 'password': self.password })
         self.assertEqual(200, loginResponse.status_code)
@@ -403,18 +434,19 @@ class DownloadSampleTest(TestCase):
 
         # Creates a UserSampleDownload model if the user is authenticated
         # when downloading a sample file
-        for sample in self.samples:
-            sample_id = sample['pk']
-            self.client.get('/api/sample_file/{0}/1'.format(sample_id), **headers)
+        for i in range(1, self.count + 1):
+            self.client.get('/api/sample_file/{0}/1'.format(i), **headers)
 
         user_downloads = UserSampleDownload.objects.all()
-        self.assertEqual(len(user_downloads), len(self.samples))
+        self.assertEqual(len(user_downloads), self.count)
 
         # Does not create a UserSampleDownload model if not authenticated
-        self.client.get('/api/sample_file/{0}/1'.format(sample_id))
+        self.client.get('/api/sample_file/1/1')
         user_downloads = UserSampleDownload.objects.all()
         # There are still len(self.samples) UserSampleDownload models
-        self.assertEqual(len(user_downloads), len(self.samples))
+        self.assertEqual(len(user_downloads), self.count)
+
+        clear_test_folder()
 
 
 class UserProfileTest(TestCase):
