@@ -11,6 +11,15 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth.models import User
 from .models import *
 
+def clear_test_folder():
+    '''
+    Removes the test folder content.
+    '''
+    test_folder = os.path.join(settings.MEDIA_ROOT, 'samples/test/')
+    for filename in os.listdir(test_folder):
+        file_path = os.path.join(test_folder, filename)
+        os.remove(file_path)
+
 # Create your tests here.
 
 class AuthTest(TestCase):
@@ -242,6 +251,8 @@ class UploadSampleTest(TestCase):
             jsonResponse = json.loads(response.content)
             self.assertIn('id', jsonResponse)
 
+        clear_test_folder()
+
     @tag('sample_upload_properties')
     def test_sample_upload_properties(self):
         '''
@@ -249,7 +260,7 @@ class UploadSampleTest(TestCase):
         correctly uploaded and that the automatically deducted properties
         are also correct.
         '''
-         # Login
+        # Login
         loginResponse = self.client.post('/api/login', { 'username': self.username, 'password': self.password })
         self.assertEqual(200, loginResponse.status_code)
         token = json.loads(loginResponse.content)['token']
@@ -294,6 +305,124 @@ class UploadSampleTest(TestCase):
         self.assertEqual(float(sample['duration']), 7.4)
         self.assertEqual(sample['tempo'], 130)
 
+        clear_test_folder()
+
+    @tag('sample_upload_fork')
+    def test_sample_upload_fork(self):
+        '''
+        Checks that the SampleForkFrom/To models are correctly created when
+        there is a sample from at a Sample upload.
+        '''
+        # Login
+        loginResponse = self.client.post('/api/login', { 'username': self.username, 'password': self.password })
+        self.assertEqual(200, loginResponse.status_code)
+        token = json.loads(loginResponse.content)['token']
+
+        headers = {
+            'HTTP_AUTHORIZATION': 'Token ' + token
+        }
+
+        # First Sample
+        sample01_id = -1
+        sample_name = 'Test Sample Fork #1'
+        with open(self.test_file, 'rb') as f:    
+            response = self.client.post('/api/upload_sample', {
+                'name': sample_name,
+                'file': f
+            }, **headers)
+            self.assertEqual(201, response.status_code)
+            sample01_id = json.loads(response.content)['id']
+            self.assertTrue(sample01_id > 0)
+
+        # Second Sample
+        sample02_id = -1
+        sample_name = 'Test Sample Fork #2'
+        with open(self.test_file, 'rb') as f:    
+            response = self.client.post('/api/upload_sample', {
+                'name': sample_name,
+                'file': f,
+                'forks_from': sample01_id
+            }, **headers)
+            self.assertEqual(201, response.status_code)
+            sample02_id = json.loads(response.content)['id']
+            self.assertTrue(sample02_id > 0)
+
+        # Second Sample is from the first one
+        sample_fork_from = SampleForkFrom.objects.get(pk=1)
+        self.assertEqual(sample_fork_from.sample.id, sample02_id)
+        self.assertEqual(sample_fork_from.sample_from.id, sample01_id)
+
+        # First Sample is to the second one
+        sample_fork_to = SampleForkTo.objects.get(pk=1)
+        self.assertEqual(sample_fork_to.sample.id, sample01_id)
+        self.assertEqual(sample_fork_to.sample_to.id, sample02_id)
+
+        clear_test_folder()
+
+
+class DownloadSampleTest(TestCase):
+    '''
+    Download Samples unit testing
+    '''
+
+    def setUp(self):
+        self.client = Client()
+
+        self.username = 'test'
+        self.email = 'test@safmarket.com'
+        self.password = 'foo'
+
+        self.user = User.objects.create(
+            username=self.username,
+            email=self.email,
+        )
+        self.user.set_password(self.password)
+        self.user.save()
+
+    @tag('download_sample_count')
+    def test_download_sample_count(self):
+        '''
+        Checks that the UserSampleDownload model is correctly created when
+        an authenticated user downloads a Sample.
+        '''
+        # Creates a Sample model (in order to create a file in the media directory)
+        file = SimpleUploadedFile('test.wav', b'This is the file content.')
+        sample = Sample(
+            user=self.user,
+            name='Sample_Test',
+            file=file
+        )
+        sample.save()
+
+        # Login
+        loginResponse = self.client.post('/api/login', { 'username': self.username, 'password': self.password })
+        self.assertEqual(200, loginResponse.status_code)
+        token = json.loads(loginResponse.content)['token']
+
+        headers = {
+            'HTTP_AUTHORIZATION': 'Token ' + token
+        }
+
+
+        # TODO: problem with the /api/sample_file API route
+        
+
+        # Creates a UserSampleDownload model if the user is authenticated
+        # when downloading a sample file
+        '''
+        self.client.get('/api/sample_file/1/1', **headers)
+        user_downloads = UserSampleDownload.objects.all()
+        self.assertEqual(len(user_downloads), 1)
+
+        # Does not create a UserSampleDownload model if not authenticated
+        self.client.get('/api/sample_file/1/1')
+        user_downloads = UserSampleDownload.objects.all()
+        # There are still len(self.samples) UserSampleDownload models
+        self.assertEqual(len(user_downloads), 1)
+        '''
+
+        clear_test_folder()
+
 
 class UserProfileTest(TestCase):
     '''
@@ -302,8 +431,6 @@ class UserProfileTest(TestCase):
     fixtures = ['users.json']
 
     def setUp(self):
-        import json
-
         # Reads the users fixture file
         with open('./safm/fixtures/users.json') as json_users:
             self.users = json.load(json_users)
