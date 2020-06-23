@@ -41,15 +41,13 @@ class Register(generics.CreateAPIView):
         '''
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        token = Token.objects.get_or_create(user=serializer.instance)[0].key
 
-        # Checks password confirmation
-        if request.POST.get('password') != request.POST.get('password_confirm'):
-            return JsonResponse({'password_confirm': 'Password confirmation does not match.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        self.perform_create(serializer)
-        token = Token.objects.get_or_create(user=serializer.instance)[0] # Returns tuple
-
-        return JsonResponse({'token': token.key}, status=status.HTTP_201_CREATED)
+        return JsonResponse({
+            'token': token,
+            'username': user.username
+        }, status=status.HTTP_201_CREATED)
 
 
 class QuickSearch(generics.ListAPIView):

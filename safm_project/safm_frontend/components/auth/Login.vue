@@ -132,15 +132,10 @@ export default {
             body.set('username', this.username)
             body.set('password', this.password)
 
-            const authToken = await this.$axios.post('/login', body)
-                .then((response) => {
-                    return response.data.token
-                })
-                .catch(() => {
-                    return null
-                })
+            try {
+                const response = await this.$axios.post('/login', body)
+                const authToken = response.data.token
 
-            if (authToken) {
                 this.$store.commit('setAuth', authToken)
                 Cookie.set('auth', authToken)
 
@@ -153,7 +148,7 @@ export default {
                 this.$toast.success('Successfully logged in !', {
                     duration: 3000
                 })
-            } else {
+            } catch (error) {
                 this.$toast.error('Invalid login', {
                     duration: 3000
                 })
