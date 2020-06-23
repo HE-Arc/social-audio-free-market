@@ -1,6 +1,7 @@
 import os
 import re
 import json
+import tempfile
 from rest_framework import status
 from django.test import TestCase
 from django.test import Client
@@ -11,14 +12,23 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth.models import User
 from .models import *
 
-def clear_test_folder():
+# Test user properties
+USERNAME = 'test'
+EMAIL = 'test@test.com'
+PASSWORD = 'foobar2020'
+
+def _create_test_user():
     '''
-    Removes the test folder content.
+    Creates a test user.
     '''
-    test_folder = os.path.join(settings.MEDIA_ROOT, 'samples/test/')
-    for filename in os.listdir(test_folder):
-        file_path = os.path.join(test_folder, filename)
-        os.remove(file_path)
+    user = User.objects.create(
+        username=USERNAME,
+        email=EMAIL
+    )
+    user.set_password(PASSWORD)
+    user.save()
+
+    return user
 
 # Create your tests here.
 
@@ -29,42 +39,33 @@ class AuthTest(TestCase):
     def setUp(self):
         self.client = Client()
 
-        self.username = 'test'
-        self.email = 'test@safmarket.com'
-        self.password = 'foobar2020'
-
-        self.user = User.objects.create(
-            username=self.username,
-            email=self.email,
-        )
-        self.user.set_password(self.password)
-        self.user.save()
+        self.user = _create_test_user()
 
     @tag('login')
     def test_login(self):
         # Login with username
-        response = self.client.post('/api/login', { 'username': self.username, 'password': self.password })
+        response = self.client.post('/api/login', { 'username': USERNAME, 'password': PASSWORD })
         self.assertEqual(200, response.status_code)
         # Successful login returns an authentication token and the username
         jsonResponse = json.loads(response.content)
         self.assertIn('token', jsonResponse)
-        self.assertEqual(jsonResponse['username'], self.username)
+        self.assertEqual(jsonResponse['username'], USERNAME)
 
         # Login with email address
-        response = self.client.post('/api/login', { 'email': self.email, 'password': self.password })
+        response = self.client.post('/api/login', { 'email': EMAIL, 'password': PASSWORD })
         self.assertEqual(200, response.status_code)
         # Successful login returns an authentication token and the username
         jsonResponse = json.loads(response.content)
         self.assertIn('token', jsonResponse)
-        self.assertEqual(jsonResponse['username'], self.username)
+        self.assertEqual(jsonResponse['username'], USERNAME)
 
         # Wrong credentials
-        response = self.client.post('/api/login', { 'username': self.username, 'password': 'password' })
+        response = self.client.post('/api/login', { 'username': USERNAME, 'password': 'password' })
         self.assertEqual(400, response.status_code)
 
     @tag('logout')
     def test_logout(self):
-        response = self.client.post('/api/login', { 'username': self.username, 'password': self.password })
+        response = self.client.post('/api/login', { 'username': USERNAME, 'password': PASSWORD })
         token = json.loads(response.content)['token']
         
         headers = {
@@ -78,8 +79,8 @@ class AuthTest(TestCase):
         response = self.client.post('/api/register', {
             'username': 'foo',
             'email': 'foobar@safmarket.com',
-            'password': self.password,
-            'password_confirm': self.password
+            'password': PASSWORD,
+            'password_confirm': PASSWORD
         })
         self.assertEqual(201, response.status_code)
 
@@ -92,18 +93,18 @@ class AuthTest(TestCase):
         response = self.client.post('/api/register', {
             'username': 'not valid',
             'email': 'foobar@safmarket.com',
-            'password': self.password,
-            'password_confirm': self.password
+            'password': PASSWORD,
+            'password_confirm': PASSWORD
         })
         self.assertEqual(400, response.status_code)
 
     @tag('registration_unique_username')
     def test_registration_unique_username(self):
         response = self.client.post('/api/register', {
-            'username': self.username,
+            'username': USERNAME,
             'email': 'foobar@safmarket.com',
-            'password': self.password,
-            'password_confirm': self.password
+            'password': PASSWORD,
+            'password_confirm': PASSWORD
         })
         self.assertEqual(400, response.status_code)
 
@@ -111,9 +112,9 @@ class AuthTest(TestCase):
     def test_registration_unique_email(self):
         response = self.client.post('/api/register', {
             'username': 'foo',
-            'email': self.email,
-            'password': self.password,
-            'password_confirm': self.password
+            'email': EMAIL,
+            'password': PASSWORD,
+            'password_confirm': PASSWORD
         })
         self.assertEqual(400, response.status_code)
 
@@ -132,8 +133,8 @@ class AuthTest(TestCase):
         response = self.client.post('/api/register', {
             'username': 'foo',
             'email': 'foobar@safmarket.com',
-            'password': self.password,
-            'password_confirm': self.password + self.password
+            'password': PASSWORD,
+            'password_confirm': PASSWORD + PASSWORD
         })
         self.assertEqual(400, response.status_code)
 
@@ -142,71 +143,31 @@ class SampleTest(TestCase):
     '''
     Sample model unit testing
     '''
-    fixtures = ['users.json', 'samples.json', 'tags.json']
-
     def setUp(self):
-        # Reads the users fixture file
-        with open('./safm/fixtures/users.json') as json_users:
-            self.users = json.load(json_users)
+        settings.MEDIA_ROOT = tempfile.mkdtemp()
 
-        # Reads the samples fixture file
-        with open('./safm/fixtures/samples.json') as json_samples:
-            self.samples = json.load(json_samples)
-
-    @tag('data_len')
-    def test_data_len(self):
-        '''
-        Makes sure that the fixtures format is correct.
-        '''
-        users = User.objects.all()
-        self.assertEqual(len(users), len(self.users))
-
-        samples = Sample.objects.all()
-        self.assertEqual(len(samples), len(self.samples))
-
-    @tag('samples_per_user')
-    def test_samples_per_user(self):
-        '''
-        Checks that the number of samples per user is correct.
-        '''
-        for user in self.users:
-            user_id = user['pk']
-            user_samples = Sample.objects.filter(user = user_id)
-            
-            count = 0
-            for sample in self.samples:
-                if sample['fields']['user'] == user_id:
-                    count += 1
-
-            self.assertEqual(count, len(user_samples))
-
+        self.user = _create_test_user()
+       
     @tag('sample_filename')
     def test_sample_filename(self):
         '''
         Checks that the filename of an uploaded sample is correctly converted.
         '''
+        filename = self.user.username
+        file = SimpleUploadedFile('test.wav', b'This is the file content.')
 
-        for user in User.objects.all():
-            # Could generate a random string here
-            filename = user.username
-            file = SimpleUploadedFile('test.wav', b'This is the file content.')
-
-            sample = Sample(
-                user=user,
-                name=filename,
-                file=file,
-                key=Sample.Key.A,
-                mode=Sample.Mode.MAJOR
-            )
-            sample.save()
-            
-            sample = Sample.objects.get(name=filename)
-            expected_filename = 'samples/{0}/{1}.wav'.format(user.username, filename)
-            self.assertEqual(sample.file, expected_filename)
-            
-            # Removes the test file in order to avoid future errors
-            file_path = os.path.join(settings.MEDIA_ROOT, expected_filename)
-            os.remove(file_path)
+        sample = Sample(
+            user=self.user,
+            name=filename,
+            file=file,
+            key=Sample.Key.A,
+            mode=Sample.Mode.MAJOR
+        )
+        sample.save()
+        
+        sample = Sample.objects.get(name=filename)
+        expected_filename = 'samples/{0}/{1}.wav'.format(self.user.id, filename)
+        self.assertEqual(sample.file, expected_filename)
 
     @tag('sample_null_user_delete')
     def test_sample_null_user_delete(self):
@@ -214,30 +175,30 @@ class SampleTest(TestCase):
         Checks that the user_id field of a sample equals None (SET_NULL) when the
         associated user is deleted.
         '''
-        for user in User.objects.all():
-            user.delete()
+        name = 'Test'
+        file = SimpleUploadedFile('test.wav', b'This is the file content.')
+        sample = Sample(
+            user=self.user,
+            name=name,
+            file=file
+        )
+        sample.save()
 
-        for sample in Sample.objects.all():
-            self.assertTrue(sample.user == None)
-
+        self.user.delete()
+        sample = Sample.objects.get(name=name)
+        self.assertTrue(sample.user == None)
+            
 
 class UploadSampleTest(TestCase):
     '''
     Upload sample unit testing
     '''
     def setUp(self):
+        settings.MEDIA_ROOT = tempfile.mkdtemp()
+
         self.client = Client()
 
-        self.username = 'test'
-        self.email = 'test@safmarket.com'
-        self.password = 'foo'
-
-        self.user = User.objects.create(
-            username=self.username,
-            email=self.email,
-        )
-        self.user.set_password(self.password)
-        self.user.save()
+        self.user = _create_test_user()
 
         self.test_file = './safm/test/Test_Sample.wav'
 
@@ -261,7 +222,7 @@ class UploadSampleTest(TestCase):
         it creates a new Sample model and returns its ID.
         '''
          # Login
-        loginResponse = self.client.post('/api/login', { 'username': self.username, 'password': self.password })
+        loginResponse = self.client.post('/api/login', { 'username': USERNAME, 'password': PASSWORD })
         self.assertEqual(200, loginResponse.status_code)
         token = json.loads(loginResponse.content)['token']
         
@@ -280,8 +241,6 @@ class UploadSampleTest(TestCase):
             jsonResponse = json.loads(response.content)
             self.assertIn('id', jsonResponse)
 
-        clear_test_folder()
-
     @tag('sample_upload_properties')
     def test_sample_upload_properties(self):
         '''
@@ -290,7 +249,7 @@ class UploadSampleTest(TestCase):
         are also correct.
         '''
         # Login
-        loginResponse = self.client.post('/api/login', { 'username': self.username, 'password': self.password })
+        loginResponse = self.client.post('/api/login', { 'username': USERNAME, 'password': PASSWORD })
         self.assertEqual(200, loginResponse.status_code)
         token = json.loads(loginResponse.content)['token']
         
@@ -322,7 +281,7 @@ class UploadSampleTest(TestCase):
         sampleJson = self.client.get('/api/sample/{0}'.format(sample_id))
         sample = json.loads(sampleJson.content)
         
-        self.assertEqual(sample['user']['username'], self.username)
+        self.assertEqual(sample['user']['username'], USERNAME)
         self.assertEqual(sample['name'], sample_name)
         self.assertEqual(sample['description'], sample_description)
         self.assertEqual(sample['key'], sample_key)
@@ -334,8 +293,6 @@ class UploadSampleTest(TestCase):
         self.assertEqual(float(sample['duration']), 7.4)
         self.assertEqual(sample['tempo'], 130)
 
-        clear_test_folder()
-
     @tag('sample_upload_fork')
     def test_sample_upload_fork(self):
         '''
@@ -343,7 +300,7 @@ class UploadSampleTest(TestCase):
         there is a sample from at a Sample upload.
         '''
         # Login
-        loginResponse = self.client.post('/api/login', { 'username': self.username, 'password': self.password })
+        loginResponse = self.client.post('/api/login', { 'username': USERNAME, 'password': PASSWORD })
         self.assertEqual(200, loginResponse.status_code)
         token = json.loads(loginResponse.content)['token']
 
@@ -386,8 +343,6 @@ class UploadSampleTest(TestCase):
         self.assertEqual(sample_fork_to.sample.id, sample01_id)
         self.assertEqual(sample_fork_to.sample_to.id, sample02_id)
 
-        clear_test_folder()
-
 
 class DownloadSampleTest(TestCase):
     '''
@@ -395,18 +350,11 @@ class DownloadSampleTest(TestCase):
     '''
 
     def setUp(self):
+        settings.MEDIA_ROOT = tempfile.mkdtemp()
+
         self.client = Client()
 
-        self.username = 'test'
-        self.email = 'test@safmarket.com'
-        self.password = 'foo'
-
-        self.user = User.objects.create(
-            username=self.username,
-            email=self.email,
-        )
-        self.user.set_password(self.password)
-        self.user.save()
+        self.user = _create_test_user()
 
     @tag('download_sample_count')
     def test_download_sample_count(self):
@@ -424,7 +372,7 @@ class DownloadSampleTest(TestCase):
         sample.save()
 
         # Login
-        loginResponse = self.client.post('/api/login', { 'username': self.username, 'password': self.password })
+        loginResponse = self.client.post('/api/login', { 'username': USERNAME, 'password': PASSWORD })
         self.assertEqual(200, loginResponse.status_code)
         token = json.loads(loginResponse.content)['token']
 
@@ -450,43 +398,34 @@ class DownloadSampleTest(TestCase):
         self.assertEqual(len(user_downloads), 1)
         '''
 
-        clear_test_folder()
-
 
 class UserProfileTest(TestCase):
     '''
     UserProfile model unit testing
     '''
-    fixtures = ['users.json']
-
     def setUp(self):
-        # Reads the users fixture file
-        with open('./safm/fixtures/users.json') as json_users:
-            self.users = json.load(json_users)
+        settings.MEDIA_ROOT = tempfile.mkdtemp()
+
+        self.user = _create_test_user()
 
     @tag('user_profile_creation')
     def test_user_profile_creation(self):
         '''
         Checks that the filename of an uploaded profile picture is correctly converted.
         '''
-        for user in User.objects.all():
-            file = SimpleUploadedFile('test.jpg', b'This is the file content.')
+        file = SimpleUploadedFile('test.jpg', b'This is the file content.')
 
-            user_profile = UserProfile(
-                user=user,
-                description='This is a random description.',
-                profile_picture=file,
-                email_public=True
-            )
-            user_profile.save()
+        user_profile = UserProfile(
+            user=self.user,
+            description='This is a random description.',
+            profile_picture=file,
+            email_public=True
+        )
+        user_profile.save()
 
-            user_profile = UserProfile.objects.get(user=user)
-            expected_filename = 'users/{0}/pp.jpg'.format(user.id)
-            self.assertEqual(user_profile.profile_picture, expected_filename)
-
-            # Removes the test file in order to avoid future errors
-            file_path = os.path.join(settings.MEDIA_ROOT, expected_filename)
-            os.remove(file_path)
+        user_profile = UserProfile.objects.get(user=self.user)
+        expected_filename = 'users/{0}/pp.jpg'.format(self.user.id)
+        self.assertEqual(user_profile.profile_picture, expected_filename)
             
 
 class QuickSearchTest(TestCase):
@@ -496,6 +435,8 @@ class QuickSearchTest(TestCase):
     fixtures = ['users.json', 'samples.json', 'tags.json']
 
     def setUp(self):
+        settings.MEDIA_ROOT = tempfile.mkdtemp()
+
         self.client = Client()
 
         # Reads the users fixture file
@@ -512,9 +453,6 @@ class QuickSearchTest(TestCase):
 
     @tag('quick_search_returns_correct_results_length')
     def test_quick_search_returns_correct_results_length(self):
-        '''
-        Checks that the quick search returns the correct number of samples.
-        '''
 
         def results_len_from_fixtures(search_query):
             '''
@@ -529,7 +467,7 @@ class QuickSearchTest(TestCase):
                     if user['pk'] == sample['fields']['user']:
                         username = user['fields']['username']
                         break
-
+                    
                 # Checks wether the search_query is contained in the sample properties
                 # Continue avoids duplicated content
                 if search_query in username:
@@ -558,7 +496,7 @@ class QuickSearchTest(TestCase):
 
             return count
 
-        for search_query in ['qtipee', '130', 'techno']:
+        for search_query in [USERNAME, '130', 'techno']:
             response = self.client.get('/api/quick?search=' + search_query)
             jsonResponse = json.loads(response.content)
 
@@ -576,7 +514,6 @@ class QuickSearchTest(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(jsonResponse), 0)
-
 
 class AdvancedSearchTest(TestCase):
     '''
