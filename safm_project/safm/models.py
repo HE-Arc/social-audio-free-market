@@ -33,7 +33,7 @@ class Sample(models.Model):
     def user_directory_path(instance, filename):
         # File will be uploaded to MEDIA_ROOT/samples/<username>/<sample_name>
         ext = os.path.splitext(filename)[1]
-        return 'samples/{0}/{1}{2}'.format(instance.user.username, instance.name, ext)
+        return 'samples/{0}/{1}{2}'.format(instance.user.id, instance.name, ext)
 
     # Table columns
     user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
