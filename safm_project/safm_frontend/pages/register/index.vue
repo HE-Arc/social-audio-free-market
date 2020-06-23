@@ -131,23 +131,18 @@ export default {
             body.set('password', this.password)
             body.set('password_confirm', this.password_confirm)
 
-            const authToken = await this.$axios.post('/register', body)
-                .then((response) => {
-                    return response.data.token
-                })
-                .catch((error) => {
-                    for (let e in error.response.data) {
-                        this.$toast.error(`${e}: ${error.response.data[e]}`, {
-                            duration: 5000
-                        })
-                    }
+            try {
+                const response = await this.$axios.post('/register', body)
+                const authToken = response.data.token
+                const username = response.data.username
 
-                    return null
-                })
-
-            if (authToken) {
                 this.$store.commit('setAuth', authToken)
                 Cookie.set('auth', authToken)
+
+                this.$store.commit('setUsername', username)
+                Cookie.set('username', username)
+
+                this.$axios.setHeader('Authorization', `Token ${authToken}`)
 
                 this.dialog = false
                 this.$toast.success('Successful registration !', {
@@ -155,6 +150,12 @@ export default {
                 })
 
                 this.$router.push('/')
+            } catch (error) {
+                for (let e in error.response.data) {
+                    this.$toast.error(`${e}: ${error.response.data[e]}`, {
+                        duration: 5000
+                    })
+                }
             }
         }
     }

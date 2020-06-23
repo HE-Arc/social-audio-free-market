@@ -20,6 +20,21 @@ from .serializers import *
 
 # Create your views here.
 
+class Login(generics.GenericAPIView):
+    serializer_class = LoginSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data
+        token = Token.objects.get_or_create(user=user)[0].key
+
+        return JsonResponse({
+            'token': token,
+            'username': user.username
+        }, status=status.HTTP_200_OK)
+
+
 class Logout(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -41,15 +56,13 @@ class Register(generics.CreateAPIView):
         '''
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        token = Token.objects.get_or_create(user=user)[0].key
 
-        # Checks password confirmation
-        if request.POST.get('password') != request.POST.get('password_confirm'):
-            return JsonResponse({'password_confirm': 'Password confirmation does not match.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        self.perform_create(serializer)
-        token = Token.objects.get_or_create(user=serializer.instance)[0] # Returns tuple
-
-        return JsonResponse({'token': token.key}, status=status.HTTP_201_CREATED)
+        return JsonResponse({
+            'token': token,
+            'username': user.username
+        }, status=status.HTTP_201_CREATED)
 
 
 class QuickSearch(generics.ListAPIView):
