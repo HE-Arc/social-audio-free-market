@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
 from .models import *
 
 class UserSerializer(serializers.ModelSerializer):
@@ -31,6 +32,29 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'password', 'password_confirm']
+
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField(required=False)
+    email = serializers.EmailField(required=False)
+    password = serializers.CharField()
+        
+    def validate(self, data):
+        username = ''
+        if 'username' in data:
+            username = data['username']
+        elif 'email' in data:
+            try:
+                username = User.objects.get(email=data['email']).username
+            except User.DoesNotExist:
+                username = ''
+
+        user = authenticate(username=username, password=data['password'])
+
+        if user:
+            return user
+
+        raise serializers.ValidationError('Wrong credentials')
 
 
 class TagSerializer(serializers.ModelSerializer):

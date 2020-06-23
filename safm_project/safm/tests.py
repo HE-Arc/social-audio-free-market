@@ -31,7 +31,7 @@ class AuthTest(TestCase):
 
         self.username = 'test'
         self.email = 'test@safmarket.com'
-        self.password = 'foo'
+        self.password = 'foobar2020'
 
         self.user = User.objects.create(
             username=self.username,
@@ -42,12 +42,21 @@ class AuthTest(TestCase):
 
     @tag('login')
     def test_login(self):
+        # Login with username
         response = self.client.post('/api/login', { 'username': self.username, 'password': self.password })
         self.assertEqual(200, response.status_code)
-        
-        # Successful login returns an authentication token
+        # Successful login returns an authentication token and the username
         jsonResponse = json.loads(response.content)
         self.assertIn('token', jsonResponse)
+        self.assertEqual(jsonResponse['username'], self.username)
+
+        # Login with email address
+        response = self.client.post('/api/login', { 'email': self.email, 'password': self.password })
+        self.assertEqual(200, response.status_code)
+        # Successful login returns an authentication token and the username
+        jsonResponse = json.loads(response.content)
+        self.assertIn('token', jsonResponse)
+        self.assertEqual(jsonResponse['username'], self.username)
 
         # Wrong credentials
         response = self.client.post('/api/login', { 'username': self.username, 'password': 'password' })
@@ -69,14 +78,24 @@ class AuthTest(TestCase):
         response = self.client.post('/api/register', {
             'username': 'foo',
             'email': 'foobar@safmarket.com',
-            'password': 'bar',
-            'password_confirm': 'bar'
+            'password': self.password,
+            'password_confirm': self.password
         })
         self.assertEqual(201, response.status_code)
 
         # Successful registration returns an authentication token
         jsonResponse = json.loads(response.content)
         self.assertIn('token', jsonResponse)
+
+    @tag('registration_valid_username')
+    def test_registration_valid_username(self):
+        response = self.client.post('/api/register', {
+            'username': 'not valid',
+            'email': 'foobar@safmarket.com',
+            'password': self.password,
+            'password_confirm': self.password
+        })
+        self.assertEqual(400, response.status_code)
 
     @tag('registration_unique_username')
     def test_registration_unique_username(self):
@@ -95,6 +114,16 @@ class AuthTest(TestCase):
             'email': self.email,
             'password': self.password,
             'password_confirm': self.password
+        })
+        self.assertEqual(400, response.status_code)
+
+    @tag('registration_password_min_length')
+    def test_registration_password_min_length(self):
+        response = self.client.post('/api/register', {
+            'username': 'foo',
+            'email': 'foobar@safmarket.com',
+            'password': 'foo',
+            'password_confirm': 'foo'
         })
         self.assertEqual(400, response.status_code)
 

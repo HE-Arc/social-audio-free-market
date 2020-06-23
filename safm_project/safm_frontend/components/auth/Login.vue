@@ -27,12 +27,12 @@
                                 <v-row align="center">
                                     <v-col cols="12">
                                         <v-text-field
-                                            v-model="username"
-                                            label="Username"
+                                            v-model="usernameEmail"
+                                            label="Username / Email"
                                             required
                                             autofocus
-                                            :error-messages="usernameErrors"
-                                            @blur="$v.username.$touch()"
+                                            :error-messages="usernameEmailErrors"
+                                            @blur="$v.usernameEmail.$touch()"
                                             @keypress.enter="login"
                                         ></v-text-field>
                                     </v-col>
@@ -96,23 +96,23 @@ export default {
     mixins: [validationMixin],
 
     validations: {
-        username: { required },
+        usernameEmail: { required },
         password: { required },
     },
 
     data () {
         return {
             dialog: false,
-            username: '',
+            usernameEmail: '',
             password: ''
         }
     },
 
     computed: {
-        usernameErrors () {
+        usernameEmailErrors () {
             const errors = []
-            if (!this.$v.username.$dirty) return errors
-            !this.$v.username.required && errors.push('Username is required')
+            if (!this.$v.usernameEmail.$dirty) return errors
+            !this.$v.usernameEmail.required && errors.push('Username / Email is required')
 
             return errors
         },
@@ -129,18 +129,27 @@ export default {
     methods: {
         async login () {
             let body = new FormData()
-            body.set('username', this.username)
+
+            // Checks wether the usernameEmail field is an email address
+            const re = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/
+            if (re.test(this.usernameEmail)) {
+                body.set('email', this.usernameEmail)
+            } else {
+                body.set('username', this.usernameEmail)
+            }
+
             body.set('password', this.password)
 
             try {
                 const response = await this.$axios.post('/login', body)
                 const authToken = response.data.token
+                const username = response.data.username
 
                 this.$store.commit('setAuth', authToken)
                 Cookie.set('auth', authToken)
 
-                this.$store.commit('setUsername', this.username)
-                Cookie.set('username', this.username)
+                this.$store.commit('setUsername', username)
+                Cookie.set('username', username)
 
                 this.$axios.setHeader('Authorization', `Token ${authToken}`)
 

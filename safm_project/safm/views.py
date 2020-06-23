@@ -20,6 +20,21 @@ from .serializers import *
 
 # Create your views here.
 
+class Login(generics.GenericAPIView):
+    serializer_class = LoginSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data
+        token = Token.objects.get_or_create(user=user)[0].key
+
+        return JsonResponse({
+            'token': token,
+            'username': user.username
+        }, status=status.HTTP_200_OK)
+
+
 class Logout(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -42,7 +57,7 @@ class Register(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        token = Token.objects.get_or_create(user=serializer.instance)[0].key
+        token = Token.objects.get_or_create(user=user)[0].key
 
         return JsonResponse({
             'token': token,
