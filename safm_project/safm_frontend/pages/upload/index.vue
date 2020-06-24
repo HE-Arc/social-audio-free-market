@@ -187,32 +187,42 @@ export default {
             let body = new FormData()
             body.append('file', this.file)
             body.set('name', this.name)
-            body.set('description', this.description)
-            body.set('key', this.key)
-            body.set('mode', this.mode)
-            body.set('tags', this.tags)
-            body.append('forks_from', this.selectedForkFrom)
+            
+            if (this.description) {
+                body.set('description', this.description)
+            }
+            
+            if (this.key) {
+                body.set('key', this.key)
+            }
 
-            const sampleId = await this.$axios.post('/upload_sample', body)
-                .then((response) => {
-                    return response.data.id
-                })
-                .catch((error) => {
-                    for (let e in error.response.data) {
-                        this.$toast.error(error.response.data[e], {
-                            duration: 5000
-                        })
-                    }
+            if (this.mode) {
+                body.set('mode', this.mode)
+            }
+            
+            if (this.tags) {
+                body.set('tags', this.tags)
+            }
+            
+            if (this.selectedForkFrom) {
+                body.append('forks_from', this.selectedForkFrom)
+            }
+            
+            try {
+                const response = await this.$axios.post('/upload_sample', body)
+                const sampleId = response.data.id
 
-                    return null
-                })
-
-            // Redirects to the uploaded sample page
-            if (sampleId) {
                 this.$toast.success('Sample uploaded !', {
                     duration: 5000
                 })
+                // Redirects to the uploaded sample page
                 this.$router.push(`/samples/${sampleId}`)
+            } catch (error) {
+                for (let e in error.response.data) {
+                    this.$toast.error(error.response.data[e], {
+                        duration: 5000
+                    })
+                }
             }
         },
 
