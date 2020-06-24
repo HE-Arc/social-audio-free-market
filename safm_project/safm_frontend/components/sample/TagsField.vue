@@ -3,6 +3,7 @@
         <v-text-field
             v-model="tagInput"
             label="Add a tag"
+            :error-messages="tagInputErrors"
             @keypress.enter="addTag"
         >
             <template v-slot:append>
@@ -29,7 +30,8 @@ export default {
     data () {
         return {
             tagsList: this.tags ? this.tags : [],
-            tagInput: ''
+            tagInput: '',
+            tagInputErrors: ''
         }
     },
 
@@ -41,13 +43,20 @@ export default {
 
     methods: {
         addTag () {
-            if (this.tagInput.length > 0) {
-                if (! this.tagsList.includes(this.tagInput)) {
+            this.tagInput = this.tagInput.toLowerCase()
+            
+            if (/^[a-z]+[a-z0-9]+$/.test(this.tagInput)) {
+                if (!this.tagsList.includes(this.tagInput)) {
                     // Inserts tag at beginning of array
                     this.tagsList.splice(0, 0, this.tagInput)
                     this.tagInput = ''
                     this.$nuxt.$emit('updateTagsField', this.tagsList)
+                    this.tagInputErrors = ''
+                } else {
+                    this.tagInputErrors = 'Tag already added'
                 }
+            } else {
+                this.tagInputErrors = 'Invalid tag: only letters and numbers, at least two characters and must begin with a letter'
             }
         },
 
