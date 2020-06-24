@@ -52,25 +52,7 @@
                 ></v-select>
             </v-col>
             <v-col cols="12">
-                <v-text-field
-                    v-model="tagInput"
-                    label="Add a tag"
-                    @keypress.enter="addTag"
-                >
-                    <template v-slot:append>
-                        <v-icon @click="addTag">{{ addTagIcon }}</v-icon>
-                    </template>
-                </v-text-field>
-                <v-chip-group>
-                    <v-chip
-                        v-for="(tag, i) in params.tags__name__icontains"
-                        :key="tag"
-                        close
-                        @click:close="removeTag(i)"
-                    >
-                        {{ tag }}
-                    </v-chip>
-                </v-chip-group>
+                <TagsField :tags="params.tags__name__icontains" />
             </v-col>
             <v-col cols="6">
                 <v-select
@@ -88,8 +70,8 @@
             <v-col cols="12">
                 <v-btn
                     block
-                    large
-                    color="primary"
+                    x-large
+                    color="accent"
                     @click="advancedSearch"
                 >
                     Search
@@ -100,7 +82,13 @@
 </template>
 
 <script>
+import TagsField from '~/components/sample/TagsField'
+
 export default {
+    components: {
+        TagsField
+    },
+
     data () {
         return {
             // Advanced Search GET request params
@@ -136,7 +124,6 @@ export default {
                     value: 'maj'
                 }
             ],
-            tagInput: '',
             ordering: '',
             orderingItems: [
                 {
@@ -164,10 +151,11 @@ export default {
         }
     },
 
-    computed: {
-        addTagIcon () {
-            return this.tagInput.length > 0 ? 'mdi-plus-circle-outline' : ''
-        }
+    mounted () {
+        // On Tags Field update
+        this.$nuxt.$on('updateTagsField', (tagsList) => {
+            this.params.tags__name__icontains = tagsList
+        })
     },
 
     methods: {
@@ -179,23 +167,7 @@ export default {
         tempoRangeOnChange () {
             this.params.tempo__gte = this.tempoRange[0]
             this.params.tempo__lte = this.tempoRange[1]
-        },
-
-        addTag () {
-            if (this.tagInput.length > 0) {
-                if (! this.params.tags__name__icontains.includes(this.tagInput)) {
-                    // Inserts tag at beginning of array
-                    this.params.tags__name__icontains.splice(0, 0, this.tagInput)
-                    this.tagInput = ''
-                }
-            } else {
-                this.advancedSearch()
-            }
-        },
-
-        removeTag (index) {
-            this.params.tags__name__icontains.splice(index, 1)
-        },
+        },  
 
         advancedSearch () {
             let params = ''

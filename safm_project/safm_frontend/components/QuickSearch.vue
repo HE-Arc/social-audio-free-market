@@ -2,6 +2,7 @@
     <div>
         <v-dialog
             v-model="dialog"
+            max-width="600"
             light
         >
             <template v-slot:activator="{ on }">
@@ -23,7 +24,7 @@
                     <v-container>
                         <v-text-field
                             v-model="quickSearchInput"
-                            label="Tag, tone, tempo, username, ..."
+                            label="Tag, tempo, user, ..."
                             autofocus
                             outlined
                             hide-details
@@ -39,7 +40,7 @@
                 <v-card-actions>
                     <v-container>
                         <v-btn
-                            color="primary"
+                            color="accent"
                             text
                             @click="advancedSearch"
                         >

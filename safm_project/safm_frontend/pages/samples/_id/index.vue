@@ -1,51 +1,170 @@
 <template>
-    <div class="sample-page">
-        <section class="section-sample">
-        </section>
-        <section class="section-comments">
-            <Comments :comments="comments" />
-        </section>
+    <div>
+        <v-container>
+            <h2 class="page-title">{{ sample.name }}</h2>
+            <section>
+                <WaveForm
+                    ref="waveform"
+                    :id="sample.id"
+                />
+            </section>
+            <v-card>
+                <v-card-text>
+                    <SampleActions :sampleId="sample.id" />
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        fab
+                        x-large
+                        @click="likedSample = !likedSample"
+                        class="pink--text"
+                    >
+                        <v-icon>{{ likeSampleIcon }}</v-icon>
+                    </v-btn>
+                </v-card-text>
+            </v-card>
+            <section>
+                <v-row>
+                    <v-col cols="2" lg="2" md="3" sm=12>
+                        <v-card class="text-center">
+                            <nuxt-link :to="`/profiles/${username}`">
+                                <v-img
+                                    src="https://image.flaticon.com/icons/svg/17/17004.svg"
+                                    width="100"
+                                    height="100"
+                                    color="white"
+                                ></v-img>
+                                <v-card-title class="justify-center">
+                                    {{ username }}
+                                </v-card-title>
+                            </nuxt-link>
+                            <v-card-actions>
+                                <v-row>
+                                    <v-col cols="12">
+                                        <v-icon class="mr-1">mdi-music-note</v-icon>
+                                        <span class="mr-2">8</span>
+                                        <span class="mr-1">·</span>
+                                        <v-icon class="mr-1">mdi-account-multiple</v-icon>
+                                        <span>21</span>
+                                    </v-col>
+                                    <v-col cols="12">
+                                        <v-btn
+                                            small
+                                            color="accent"
+                                        >
+                                            <v-icon class="mr-1">mdi-account-plus</v-icon>
+                                            Follow
+                                        </v-btn>
+                                    </v-col>
+                                </v-row>
+                            </v-card-actions>     
+                        </v-card>
+                    </v-col>
+                    <v-col cols="10" lg="10" md="9" sm=12>
+                        <v-card>
+                            <v-card-actions>
+                                <v-row class="text-center headline">
+                                    <v-col cols="4">
+                                        <v-icon large class="mr-2">mdi-metronome</v-icon>
+                                        {{ sample.tempo }}
+                                    </v-col>
+                                    <v-col cols="4">
+                                        <v-icon large class="mr-2">mdi-timer-outline</v-icon>
+                                        {{ sample.duration }}s
+                                    </v-col>
+                                    <v-col cols="4">
+                                        <v-icon large class="mr-2">mdi-music-circle-outline</v-icon>
+                                        {{ keyMode }}
+                                    </v-col>
+                                </v-row>
+                            </v-card-actions>
+                            <v-divider class="mx-6"></v-divider>
+                            <v-card-text>
+                                <v-chip
+                                    v-for="tag in sample.tags"
+                                    :key="tag.id"
+                                    class="tag mx-1"
+                                    label
+                                    small
+                                >
+                                    {{ tag.name }}
+                                </v-chip>
+                            </v-card-text>
+                            <v-divider class="mx-6"></v-divider>
+                            <v-card-text class="px-6 body-1">
+                                {{ sample.description }}
+                            </v-card-text>
+                            <v-divider class="mx-6"></v-divider>
+                            <v-card-text class="px-6 body-2">
+                                {{ `Uploaded on ${new Date(sample.datetime_upload).toLocaleDateString()}` }}
+                            </v-card-text>
+                        </v-card>
+                    </v-col>
+                </v-row>
+            </section>
+            <section>
+                <h3 class="section-title">Fork</h3>
+                <SampleForkContainer
+                    :forkFrom="forkFrom"
+                    :forkTo="forkTo"
+                />
+            </section>
+        </v-container>
     </div>
 </template>
 
 <script>
-import Comments from '~/components/Comments.vue'
+import WaveForm from '~/components/WaveForm.vue'
+import SampleActions from '~/components/sample/SampleActions.vue'
+import SampleForkContainer from '~/components/SampleForkContainer.vue'
 
 export default {
     components: {
-        Comments
+        WaveForm,
+        SampleActions,
+        SampleForkContainer
     },
 
     data () {
         return {
-            sample: [],
-            comments: []
+            sample: {},
+            username: '',
+            likedSample: false,
+            forkFrom: [],
+            forkTo: []
+        }
+    },
+
+    computed: {
+        likeSampleIcon () {
+            return this.likedSample ? 'mdi-heart' : 'mdi-heart-outline'
+        },
+
+        keyMode () {
+            if (this.sample.key || this.sample.mode) {
+                return this.sample.key + (this.sample.mode == 'min' ? 'm' : this.sample.mode == 'maj' ? 'M' : '')
+            }
+
+            return '-'
         }
     },
 
     async asyncData({ $axios, params }) {
-        try {
-            let sample = await $axios.$get(`/sample/${params.id}`)
+        const sample = await $axios.$get(`/sample/${params.id}`)
+        const forkFrom = await $axios.$get(`/fork_from/${params.id}`)
+        const forkTo = await $axios.$get(`/fork_to/${params.id}`)
 
-            // THIS IS TEMPORARY ; WILL BE DEVELOPED LATER
-            let comments = [
-                {
-                    id: 1,
-                    username: 'Len Faki',
-                    text: 'Aliquip laborum dolor ex ut ut qui ipsum. Ullamco tempor deserunt incididunt veniam. Pariatur veniam ad tempor sit. Ipsum dolore pariatur aliqua veniam eu est.',
-                    datetime: '26.04.2020 14:30'
-                },
-                {
-                    id: 2,
-                    username: 'Solomun',
-                    text: 'Amet dolor laboris ea ad mollit elit nulla aliquip. Occaecat consectetur commodo culpa excepteur consectetur occaecat. Ullamco culpa occaecat cillum ipsum deserunt culpa reprehenderit. Occaecat pariatur et reprehenderit eu labore nisi non consequat ipsum nisi tempor ullamco fugiat Lorem. Ut Lorem qui id eu velit id ut fugiat sit cupidatat. Sunt voluptate ex voluptate cillum proident magna.',
-                    datetime: '26.04.2020 14:43'
-                }
-            ]
-            return { sample, comments }
-        } catch (e) {
-            return { sample: [], comments: [] }
+        return {
+            sample: sample,
+            username: sample.user.username,
+            forkFrom: forkFrom,
+            forkTo: forkTo
         }
     }
 }
 </script>
+
+<style scoped>
+.v-image {
+    margin: 0 auto;
+}
+</style>

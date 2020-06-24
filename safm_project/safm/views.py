@@ -1,17 +1,69 @@
 import os
+import re
 import mimetypes
+import wave
 from django.conf import settings
+from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
 from rest_framework import filters, generics
 from rest_framework.views import APIView
-from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework import status
+from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.filters import OrderingFilter
 
 from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
 from .models import *
 from .serializers import *
 
 # Create your views here.
+
+class Login(generics.GenericAPIView):
+    serializer_class = LoginSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data
+        token = Token.objects.get_or_create(user=user)[0].key
+
+        return JsonResponse({
+            'token': token,
+            'username': user.username
+        }, status=status.HTTP_200_OK)
+
+
+class Logout(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        request.user.auth_token.delete()
+        return HttpResponse(status=status.HTTP_200_OK)
+
+
+class Register(generics.CreateAPIView):
+    model = User
+    serializer_class = UserSerializer
+    permission_classes = [AllowAny]
+
+    def create(self, request, *args, **kwargs):
+        '''
+        Overriden create method in order to return the authentication token
+        after a successful registration.
+        '''
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        token = Token.objects.get_or_create(user=user)[0].key
+
+        return JsonResponse({
+            'token': token,
+            'username': user.username
+        }, status=status.HTTP_201_CREATED)
+
 
 class QuickSearch(generics.ListAPIView):
     queryset = Sample.objects.all()
@@ -43,7 +95,9 @@ class AdvancedSearch(generics.ListAPIView):
 
 
 class SamplePage(APIView):
-
+    
+    #TODO: other APIView class ?
+    
     def get(self, request, sample_id):
         sample = Sample.objects.filter(id=sample_id).get()
         serializer = SampleSerializer(sample)
@@ -51,29 +105,146 @@ class SamplePage(APIView):
         return JsonResponse(serializer.data)
 
 
+class SampleUpload(generics.CreateAPIView):
+    model = Sample
+    serializer_class = SampleSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        '''
+        Overriden create method in order to set the current user
+        to the uploaded sample.
+        '''
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)        
+        sample = self.perform_create(serializer)
+
+        if sample:
+            # Sample key
+            key = request.POST.get('key')
+            if key in [item.value for item in Sample.Key]:
+                sample.key = key
+
+            # Sample mode
+            mode = request.POST.get('mode')
+            if mode in [item.value for item in Sample.Mode]:
+                sample.mode = mode
+
+            # Adds the sample tags
+            tags = re.escape(request.POST.get('tags', ''))
+            if tags:
+                regex = re.compile(r'[a-z]+[a-z0-9]+')
+                tags_list = list(filter(regex.match, [tag.strip() for tag in tags.split(',')]))
+                for tag_name in tags_list:
+                    tag = Tag.objects.get_or_create(name=tag_name)[0] # Returns a tuple
+                    sample.tags.add(tag)
+
+            # Adds the sample forks from and to relations
+            forks_from = re.escape(request.POST.get('forks_from', ''))
+            if forks_from:
+                forks_from_list = [fork_from.strip() for fork_from in forks_from.split(',')]
+                for fork_from_id in forks_from_list:
+                    fork_sample = Sample.objects.get(pk=fork_from_id)
+                    # Fork From
+                    SampleForkFrom.objects.get_or_create(
+                        sample=sample,
+                        sample_from=fork_sample
+                    )
+                    # Fork To
+                    SampleForkTo.objects.get_or_create(
+                        sample=fork_sample,
+                        sample_to=sample
+                    )
+
+            # Automatically deducted sample properties
+            sample.deduce_properties()
+
+            # Updates the Sample model
+            sample.save()
+        
+            return JsonResponse({'id': sample.id}, status=status.HTTP_201_CREATED)
+
+        return JsonResponse({'error': 'You are not logged in.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    def perform_create(self, serializer):
+        '''
+        Overriden perform_create method in order to set the current
+        user to the SampleSerializer before save.
+        '''
+        user = self.request.user
+        if user:
+            return serializer.save(user=user)
+        
+        return False
+
+
 class SampleFile(APIView):
     
-    def get(self, request, sample_id):
-        file = Sample.objects.filter(id=sample_id).values('file').get()
+    def get(self, request, sample_id, download):
+        sample = Sample.objects.get(pk=sample_id)
+        sample_file = sample.file
 
-        if file:
-            path_to_file = os.path.join(settings.MEDIA_ROOT, file['file'])
-            with open(path_to_file, 'rb') as sample_file:
-                mime_type = mimetypes.MimeTypes().guess_type(file['file'][0])
-                response = HttpResponse(sample_file, content_type=mime_type)
-                filename = file['file'].split('/')[-1]
+        if sample:
+            if download == 1:
+                if request.auth:
+                    # If the user is authenticated, adds this sample to its downloads
+                    UserSampleDownload.objects.get_or_create(
+                        user=request.user,
+                        sample=sample
+                    )
+
+                # Increments the sample number of downloads
+                sample.number_downloads += 1
+                sample.save()
+                
+            # Returns the audio file as a file attachment
+            path_to_file = os.path.join(settings.MEDIA_ROOT, sample_file.name)
+            with open(path_to_file, 'rb') as f:
+                mime_type = mimetypes.MimeTypes().guess_type(sample_file.name)
+                response = HttpResponse(f, content_type=mime_type)
+                filename = sample_file.name.split('/')[-1]
                 response['Content-Disposition'] = f'attachement; filename="{filename}"'
+                response['Access-Control-Expose-Headers'] = 'Content-Disposition' # To allow the client to read it
 
             return response
         else:
             return HttpResponseNotFound('No matching file found.')
-        
+
+
+class ListSampleForkFrom(generics.ListAPIView):
+    serializer_class = SampleForkFromSerializer
+
+    def get_queryset(self):
+        # lookup_field only used in detail views
+        return SampleForkFrom.objects.filter(sample=self.kwargs['sample_id'])
+    
+
+class ListSampleForkTo(generics.ListAPIView):
+    serializer_class = SampleForkToSerializer
+
+    def get_queryset(self):
+        # lookup_field only used in detail views
+        return SampleForkTo.objects.filter(sample=self.kwargs['sample_id'])
+    
+
+class UserDownloads(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        user_downloads = UserSampleDownload.objects.filter(user=user).order_by('-datetime_download')
+        user_downloads_serializer = UserDownloadSerializer(user_downloads, many=True)
+
+        return JsonResponse(user_downloads_serializer.data, safe=False)
+
 
 class UserProfilePage(APIView):
 
     def get(self, request, username):
 
-        # Can do better ?
+        #TODO: Can do better ?
 
         user = User.objects.filter(username=username).values('id')
         if user.exists():
@@ -91,7 +262,7 @@ class UserSamples(APIView):
 
     def get(self, request, username):
 
-        # Can do better ?
+        #TODO: Can do better ?
 
         user = User.objects.filter(username=username).values('id')
         if user.exists():
