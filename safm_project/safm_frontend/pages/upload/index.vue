@@ -49,25 +49,7 @@
                         ></v-select>
                     </v-col>
                     <v-col cols="12">
-                        <v-text-field
-                            v-model="tagInput"
-                            label="Add a tag"
-                            @keypress.enter="addTag"
-                        >
-                            <template v-slot:append>
-                                <v-icon @click="addTag">{{ addTagIcon }}</v-icon>
-                            </template>
-                        </v-text-field>
-                        <v-chip-group>
-                            <v-chip
-                                v-for="(tag, i) in tags"
-                                :key="tag"
-                                close
-                                @click:close="removeTag(i)"
-                            >
-                                {{ tag }}
-                            </v-chip>
-                        </v-chip-group>
+                        <TagsField />
                     </v-col>
                     <v-col cols="12">
                         <v-checkbox
@@ -105,6 +87,7 @@
 <script>
 import { validationMixin } from 'vuelidate'
 import { required } from 'vuelidate/lib/validators'
+import TagsField from '~/components/sample/TagsField'
 import SampleFork from '~/components/SampleFork.vue'
 
 export default {
@@ -118,6 +101,7 @@ export default {
     },
 
     components: {
+        TagsField,
         SampleFork
     },
     
@@ -143,7 +127,6 @@ export default {
                     value: 'maj'
                 }
             ],
-            tagInput: '',
             tags: [],
             selectedForkFrom: [],
             downloadedSamples: []
@@ -151,10 +134,6 @@ export default {
     },
 
     computed: {
-        addTagIcon () {
-            return this.tagInput.length > 0 ? 'mdi-plus-circle-outline' : ''
-        },
-
         fileErrors () {
             const errors = []
             if (!this.$v.file.$dirty) return errors
@@ -170,6 +149,13 @@ export default {
 
             return errors
         }
+    },
+
+    mounted () {
+        // On Tags Field update
+        this.$nuxt.$on('updateTagsField', (tagsList) => {
+            this.tags = tagsList
+        })
     },
 
     async asyncData ({ $axios }) {
@@ -224,23 +210,7 @@ export default {
                     })
                 }
             }
-        },
-
-        addTag () {
-            if (this.tagInput.length > 0) {
-                if (! this.tags.includes(this.tagInput)) {
-                    // Inserts tag at beginning of array
-                    this.tags.splice(0, 0, this.tagInput)
-                    this.tagInput = ''
-                }
-            } else {
-                this.upload()
-            }
-        },
-
-        removeTag (index) {
-            this.tags.splice(index, 1)
-        },
+        }
     }
 }
 </script>
