@@ -134,7 +134,8 @@ class SampleUpload(generics.CreateAPIView):
             # Adds the sample tags
             tags = re.escape(request.POST.get('tags', ''))
             if tags:
-                tags_list = [tag.strip() for tag in tags.split(',')]
+                regex = re.compile(r'^[a-z]+[a-z0-9]+$')
+                tags_list = list(filter(regex.search, [tag.strip() for tag in tags.split(',')]))
                 for tag_name in tags_list:
                     tag = Tag.objects.get_or_create(name=tag_name)[0] # Returns a tuple
                     sample.tags.add(tag)
