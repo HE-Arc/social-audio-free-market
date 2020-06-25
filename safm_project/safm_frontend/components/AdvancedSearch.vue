@@ -15,26 +15,76 @@
                     @keypress.enter="advancedSearch"
                 ></v-text-field>
             </v-col>
-            <v-col cols="6">
-                <v-range-slider
-                    v-model="durationRange"
-                    :min="durationMin"
-                    :max="durationMax"
-                    step=0.1
-                    label="Duration [s]"
-                    thumb-label="always"
-                    @change="durationRangeOnChange"
-                ></v-range-slider>
+            <v-col cols="12">
+                <v-card
+                    flat
+                    color="transparent"
+                >
+                    <v-subheader>Duration [s]</v-subheader>
+                    <v-card-text>
+                        <v-range-slider
+                            v-model="durationRange"
+                            :min="durationMin"
+                            :max="durationMax"
+                            step=0.1
+                            thumb-label
+                            @input="durationRangeOnChange"
+                        >
+                            <template v-slot:prepend>
+                                <v-text-field
+                                    :value="durationRange[0]"
+                                    type="number"
+                                    step=0.1
+                                    class="mt-0 pt-0 range-text-field"
+                                    @change="$set(durationRange, 0, $event)"
+                                ></v-text-field>
+                            </template>
+                            <template v-slot:append>
+                                <v-text-field
+                                    :value="durationRange[1]"
+                                    type="number"
+                                    step=0.1
+                                    class="mt-0 pt-0 range-text-field"
+                                    @change="$set(durationRange, 1, $event)"
+                                ></v-text-field>
+                            </template>
+                        </v-range-slider>
+                    </v-card-text>
+                </v-card>
             </v-col>
-            <v-col cols="6">
-                <v-range-slider
-                    v-model="tempoRange"
-                    :min="tempoMin"
-                    :max="tempoMax"
-                    label="Tempo"
-                    thumb-label="always"
-                    @change="tempoRangeOnChange"
-                ></v-range-slider>
+            <v-col cols="12">
+                <v-card
+                    flat
+                    color="transparent"
+                >
+                    <v-subheader>Tempo</v-subheader>
+                    <v-card-text>
+                        <v-range-slider
+                            v-model="tempoRange"
+                            :min="tempoMin"
+                            :max="tempoMax"
+                            thumb-label
+                            @input="tempoRangeOnChange"
+                        >
+                            <template v-slot:prepend>
+                                <v-text-field
+                                    :value="tempoRange[0]"
+                                    type="number"
+                                    class="mt-0 pt-0 range-text-field"
+                                    @change="$set(tempoRange, 0, $event)"
+                                ></v-text-field>
+                            </template>
+                            <template v-slot:append>
+                                <v-text-field
+                                    :value="tempoRange[1]"
+                                    type="number"
+                                    class="mt-0 pt-0 range-text-field"
+                                    @change="$set(tempoRange, 1, $event)"
+                                ></v-text-field>
+                            </template>
+                        </v-range-slider>
+                    </v-card-text>
+                </v-card>
             </v-col>
             <v-col cols="6">
                 <v-select
@@ -52,7 +102,7 @@
                 ></v-select>
             </v-col>
             <v-col cols="12">
-                <TagsField :tags="params.tags__name__icontains" />
+                <TagsField loadFromStore="true" />
             </v-col>
             <v-col cols="6">
                 <v-select
@@ -111,47 +161,25 @@ export default {
             tempoMax: 200,
             keyItems: ['A', 'B', 'C', 'D', 'E', 'F', 'G'],
             modeItems: [
-                {
-                    text: 'Any',
-                    value: ''
-                },
-                {
-                    text: 'Minor',
-                    value: 'm'
-                },
-                {
-                    text: 'Major',
-                    value: 'M'
-                }
+                { text: 'Any', value: '' },
+                { text: 'Minor', value: 'min' },
+                { text: 'Major', value: 'maj' }
             ],
             ordering: '',
             orderingItems: [
-                {
-                    text: 'Name',
-                    value: 'name'
-                },
-                {
-                    text: 'Username',
-                    value: 'user__username'
-                },
-                {
-                    text: 'Duration',
-                    value: 'duration'
-                },
-                {
-                    text: 'Tempo',
-                    value: 'tempo'
-                },
-                {
-                    text: 'Key',
-                    value: 'key'
-                }
+                { text: 'Name', value: 'name' },
+                { text: 'Username', value: 'user__username' },
+                { text: 'Duration', value: 'duration' },
+                { text: 'Tempo', value: 'tempo' },
+                { text: 'Key', value: 'key' }
             ],
             orderingReverse: false
         }
     },
 
     mounted () {
+        this.restoreState()
+
         // On Tags Field update
         this.$nuxt.$on('updateTagsField', (tagsList) => {
             this.params.tags__name__icontains = tagsList
@@ -195,9 +223,31 @@ export default {
                 params += `&ordering=${this.orderingReverse ? '-' : ''}${this.ordering}`
             }
 
+            this.saveState()
+
             //FIXME: How to preserve the form inputs values ?
             this.$router.push(`/advanced-search/${params}`)
+        },
+
+        saveState () {
+            this.$store.commit('setAdvancedSearchParams', {...this.params})
+            this.$store.commit('setAdvancedSearchOrdering', this.ordering)
+            this.$store.commit('setAdvancedSearchOrderingReverse', this.orderingReverse)
+        },
+
+        restoreState () {
+            this.params = {...this.$store.state.advancedSearchParams}
+            this.durationRange = [this.params.duration__gte, this.params.duration__lte]
+            this.tempoRange = [this.params.tempo__gte, this.params.tempo__lte]
+            this.ordering = this.$store.state.advancedSearchOrdering
+            this.orderingReverse = this.$store.state.advancedSearchOrderingReverse
         }
     }
 }
 </script>
+
+<style scoped>
+.range-text-field {
+    width: 60px;
+}
+</style>
