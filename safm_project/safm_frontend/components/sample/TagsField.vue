@@ -25,11 +25,11 @@
 
 <script>
 export default {
-    props: ['tags'],
+    props: ['loadFromStore'],
 
     data () {
         return {
-            tagsList: this.tags ? this.tags : [],
+            tagsList: [],
             tagInput: '',
             tagInputErrors: ''
         }
@@ -38,6 +38,12 @@ export default {
     computed: {
         addTagIcon () {
             return this.tagInput.length > 0 ? 'mdi-plus-circle-outline' : ''
+        }
+    },
+
+    mounted () {
+        if (this.loadFromStore) {
+            this.tagsList = [...this.$store.state.advancedSearchParams.tags__name__icontains]
         }
     },
 

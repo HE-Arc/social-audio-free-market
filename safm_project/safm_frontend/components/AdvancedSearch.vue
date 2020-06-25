@@ -52,7 +52,7 @@
                 ></v-select>
             </v-col>
             <v-col cols="12">
-                <TagsField :tags="params.tags__name__icontains" />
+                <TagsField loadFromStore="true" />
             </v-col>
             <v-col cols="6">
                 <v-select
@@ -111,47 +111,25 @@ export default {
             tempoMax: 200,
             keyItems: ['A', 'B', 'C', 'D', 'E', 'F', 'G'],
             modeItems: [
-                {
-                    text: 'Any',
-                    value: ''
-                },
-                {
-                    text: 'Minor',
-                    value: 'min'
-                },
-                {
-                    text: 'Major',
-                    value: 'maj'
-                }
+                { text: 'Any', value: '' },
+                { text: 'Minor', value: 'min' },
+                { text: 'Major', value: 'maj' }
             ],
             ordering: '',
             orderingItems: [
-                {
-                    text: 'Name',
-                    value: 'name'
-                },
-                {
-                    text: 'Username',
-                    value: 'user__username'
-                },
-                {
-                    text: 'Duration',
-                    value: 'duration'
-                },
-                {
-                    text: 'Tempo',
-                    value: 'tempo'
-                },
-                {
-                    text: 'Key',
-                    value: 'key'
-                }
+                { text: 'Name', value: 'name' },
+                { text: 'Username', value: 'user__username' },
+                { text: 'Duration', value: 'duration' },
+                { text: 'Tempo', value: 'tempo' },
+                { text: 'Key', value: 'key' }
             ],
             orderingReverse: false
         }
     },
 
     mounted () {
+        this.restoreState()
+
         // On Tags Field update
         this.$nuxt.$on('updateTagsField', (tagsList) => {
             this.params.tags__name__icontains = tagsList
@@ -195,8 +173,24 @@ export default {
                 params += `&ordering=${this.orderingReverse ? '-' : ''}${this.ordering}`
             }
 
+            this.saveState()
+
             //FIXME: How to preserve the form inputs values ?
             this.$router.push(`/advanced-search/${params}`)
+        },
+
+        saveState () {
+            this.$store.commit('setAdvancedSearchParams', {...this.params})
+            this.$store.commit('setAdvancedSearchOrdering', this.ordering)
+            this.$store.commit('setAdvancedSearchOrderingReverse', this.orderingReverse)
+        },
+
+        restoreState () {
+            this.params = {...this.$store.state.advancedSearchParams}
+            this.durationRange = [this.params.duration__gte, this.params.duration__lte]
+            this.tempoRange = [this.params.tempo__gte, this.params.tempo__lte]
+            this.ordering = this.$store.state.advancedSearchOrdering
+            this.orderingReverse = this.$store.state.advancedSearchOrderingReverse
         }
     }
 }
