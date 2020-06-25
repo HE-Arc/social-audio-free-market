@@ -154,13 +154,9 @@ export default {
                 this.$axios.setHeader('Authorization', `Token ${authToken}`)
 
                 this.dialog = false
-                this.$toast.success('Successfully logged in !', {
-                    duration: 3000
-                })
+                this.$nuxt.$emit('snackbar', 'Successfully logged in !')
             } catch (error) {
-                this.$toast.error('Invalid login', {
-                    duration: 3000
-                })
+                this.$nuxt.$emit('snackbar', 'Invalid login')
             }
         }
     }

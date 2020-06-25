@@ -46,8 +46,7 @@ export default {
     modules: [
         // Doc: https://axios.nuxtjs.org/usage
         '@nuxtjs/axios',
-        '@nuxtjs/pwa',
-        '@nuxtjs/toast'
+        '@nuxtjs/pwa'
     ],
     /*
     ** Axios module configuration
@@ -77,19 +76,11 @@ export default {
             }
         }
     },
-    toast: {
-        position: 'top-right',
-        register: [
-            {
-                name: 'error',
-                message: 'Woops... Something went wrong',
-                options: {
-                    type: 'error',
-                    theme: 'bubble',
-                    duration: 3000
-                }
-            }
-        ]
+    pwa: {
+        manifest: {
+            name: 'Social Audio Free Market',
+            short_name: 'SAFM'
+        }
     },
     /*
     ** Build configuration

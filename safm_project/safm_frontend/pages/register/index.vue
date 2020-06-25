@@ -145,17 +145,19 @@ export default {
                 this.$axios.setHeader('Authorization', `Token ${authToken}`)
 
                 this.dialog = false
-                this.$toast.success('Successful registration !', {
-                    duration: 3000
-                })
-
+                this.$nuxt.$emit('snackbar', 'Successful registration !')
+                // Redirects to the home page
                 this.$router.push('/')
             } catch (error) {
+                this.$nuxt.$emit('snackbar', error.response.data)
+                /*
                 for (let e in error.response.data) {
+
                     this.$toast.error(`${e}: ${error.response.data[e]}`, {
                         duration: 5000
                     })
                 }
+                */
             }
         }
     }

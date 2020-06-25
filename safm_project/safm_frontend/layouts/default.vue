@@ -52,21 +52,21 @@
                 <nuxt />
             </v-container>
         </v-content>
-        <v-footer
-            
+        <v-footer></v-footer>
+        <v-snackbar
+            v-model="snackbar"
+            app
+            :timeout="snackbarTimeout"
         >
-            <v-container>
-                <!--v-row>
-                    <v-col cols="4">
-                        <v-switch
-                            :v-model="`this.$store.state.repeatSample`"
-                            :prepend-icon="repeatIcon"
-                            @change="repeatSampleOnToggle"
-                        ></v-switch>
-                    </v-col>
-                </v-row-->
-            </v-container>
-        </v-footer>
+            {{ snackbarText }}
+            <v-btn
+                text
+                color="accent"
+                @click="snackbar = false"
+            >
+                Close
+            </v-btn>
+        </v-snackbar>
     </v-app>
 </template>
 
@@ -87,29 +87,39 @@ export default {
             accountMenu: [
                 { icon: 'mdi-cloud-upload', title: 'Upload', method: 'upload' },
                 { icon: 'mdi-logout', title: 'Logout', method: 'logout' }
-            ]
+            ],
+            snackbar: false,
+            snackbarText: '',
+            snackbarTimeout: 3000
         }
     },
 
     computed: {
-        username () {
-            return this.$store.state.username
+        isOffline () {
+            return this.$nuxt.isOffline
         },
 
-        /*
-        repeatIcon () {
-            return this.$store.state.repeatSample ? 'mdi-repeat' : 'mdi-repeat-off'
+        username () {
+            return this.$store.state.username
         }
-        */
+    },
+
+    mounted () {
+        // On Snackbar
+        this.$nuxt.$on('snackbar', (text) => {
+            this.snackbarText = text
+            this.snackbar = true
+        })
+    },
+
+    watch: {
+        isOffline () {
+            const text = this.isOffline ? 'No Internet connection' : 'You are now online'
+            this.$nuxt.$emit('snackbar', text)
+        }
     },
 
     methods: {
-        /*
-        repeatSampleOnToggle () {
-            this.$store.commit('toggleRepeatSample')
-        },
-        */
-
         handleFunctionCall (functionName) {
             this[functionName]()
         },
@@ -119,25 +129,20 @@ export default {
         },
 
         async logout () {
-            await this.$axios.post('/logout', {}, {
-                headers: {
-                    'Authorization': `Token ${this.$store.state.auth}`
-                }
-            })
-                .then(() => {
-                    this.$store.commit('setAuth', null)
-                    Cookie.remove('auth')
-                    Cookie.remove('username')
+            try {
+                await this.$axios.post('/logout')
 
-                    this.$axios.setHeader('Authorization', '')
-                    
-                    this.$toast.success('Successfully logged out !', {
-                        duration: 3000
-                    })
-                })
-                .catch(() => {
-                    this.$toast.global.error()
-                })
+                this.$store.commit('setAuth', null)
+                Cookie.remove('auth')
+                this.$store.commit('setUsername', null)
+                Cookie.remove('username')
+
+                this.$axios.setHeader('Authorization', '')
+
+                this.$nuxt.$emit('snackbar', 'Successfully logged out !')
+            } catch (error) {
+                this.$nuxt.$emit('snackbar', 'An error occured')
+            }
         }
     }
 }
