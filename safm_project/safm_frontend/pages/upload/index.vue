@@ -202,7 +202,7 @@ export default {
                 // Redirects to the uploaded sample page
                 this.$router.push(`/samples/${sampleId}`)
             } catch (error) {
-                this.$nuxt.$emit('snackbar', error.response.data)
+                this.$nuxt.$emit('snackbar', error)
                 /*
                 for (let e in error.response.data) {
                     this.$toast.error(error.response.data[e], {

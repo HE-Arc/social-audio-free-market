@@ -1,5 +1,7 @@
 import colors from 'vuetify/es5/util/colors'
 
+const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:8000/api'
+
 export default {
     mode: process.env.NUXT_APP_MODE || 'universal',
     /*
@@ -53,7 +55,7 @@ export default {
     ** See https://axios.nuxtjs.org/options
     */
     axios: {
-        baseURL: process.env.AXIOS_BASE_URL || 'http://localhost:8000/api'
+        baseURL: API_BASE_URL
     },
     /*
     ** vuetify module configuration
@@ -79,7 +81,32 @@ export default {
     pwa: {
         manifest: {
             name: 'Social Audio Free Market',
-            short_name: 'SAFM'
+            short_name: 'SAFM',
+            display: 'standalone',
+        },
+        workbox: {
+            runtimeCaching: [
+                // Audio files (samples)
+                {
+                    urlPattern: `${API_BASE_URL}/sample_file/*`,
+                    handler: 'cacheFirst',
+                    method: 'GET',
+                    strategyOptions: { cacheableResponse: { statuses: [0, 200] } },
+                    options: {
+                        cacheName: 'audio'
+                    }
+                },
+                // Images
+                {
+                    urlPattern: '\\.(?:png|jpg|jpeg|svg)$',
+                    handler: 'cacheFirst',
+                    method: 'GET',
+                    strategyOptions: { cacheableResponse: { statuses: [0, 200] } },
+                    options: {
+                        cacheName: 'images'
+                    }
+                }
+            ]
         }
     },
     /*
