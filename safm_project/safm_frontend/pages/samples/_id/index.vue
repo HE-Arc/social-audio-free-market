@@ -26,7 +26,7 @@
                 <v-row>
                     <v-col cols="2" lg="2" md="3" sm=12>
                         <v-card class="text-center">
-                            <nuxt-link :to="`/profiles/${username}`">
+                            <nuxt-link :to="`/profiles/${userId}`">
                                 <v-img
                                     src="https://image.flaticon.com/icons/svg/17/17004.svg"
                                     width="100"
@@ -127,6 +127,7 @@ export default {
     data () {
         return {
             sample: {},
+            userId: '',
             username: '',
             likedSample: false,
             forkFrom: [],
@@ -155,6 +156,7 @@ export default {
 
         return {
             sample: sample,
+            userId: sample.user.id,
             username: sample.user.username,
             forkFrom: forkFrom,
             forkTo: forkTo

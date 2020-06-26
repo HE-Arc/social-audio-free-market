@@ -143,12 +143,17 @@ export default {
             try {
                 const response = await this.$axios.post('/login', body)
                 const authToken = response.data.token
+                const userid = response.data.userid
                 const username = response.data.username
 
                 this.$store.commit('setAuth', authToken)
                 Cookie.set('auth', authToken)
 
-                this.$store.commit('setUsername', username)
+                this.$store.commit('setUser', {
+                    id: userid,
+                    name: username
+                })
+                Cookie.set('userid', userid)
                 Cookie.set('username', username)
 
                 this.$axios.setHeader('Authorization', `Token ${authToken}`)

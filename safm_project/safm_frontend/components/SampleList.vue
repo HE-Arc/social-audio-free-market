@@ -19,6 +19,7 @@
                         :_mode="sample.mode"
                         :duration="sample.duration"
                         :tags="sample.tags"
+                        :userId="sample.user.id"
                         :username="sample.user.username"
                     />
                 </v-col>

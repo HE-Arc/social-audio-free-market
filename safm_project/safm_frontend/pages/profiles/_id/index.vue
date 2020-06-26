@@ -18,25 +18,28 @@ export default {
 
     data () {
         return {
-            userProfile: [],
+            username: '',
+            profile: {},
             samples: []
-        }
-    },
-
-    computed: {
-        username () {
-            return this.$route.params.username
         }
     },
 
     async asyncData({ $axios, params }) {
         try {
-            let userProfile = await $axios.$get(`/profile/${params.username}`)
-            let samples = await $axios.$get(`/samples/${params.username}`)
+            const profile = await $axios.$get(`/profile/${params.id}`)
+            const samples = await $axios.$get(`/samples/${params.id}`)
 
-            return { userProfile, samples }
+            return {
+                username: profile.user.username,
+                profile: profile,
+                samples: samples
+            }
         } catch (e) {
-            return { userProfile: [], samples: [] }
+            return {
+                username: '',
+                userProfile: {},
+                samples: []
+            }
         }
     }
 }

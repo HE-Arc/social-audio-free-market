@@ -23,7 +23,7 @@
                         v-on="on"
                         depressed
                         class="account-menu"
-                        :to="`/profiles/${$store.state.username}`"
+                        :to="`/profiles/${userid}`"
                     >
                         <v-icon>mdi-account</v-icon>
                         {{ username }}
@@ -99,8 +99,12 @@ export default {
             return this.$nuxt.isOffline
         },
 
+        userid () {
+            return this.$store.state.user.id
+        },
+
         username () {
-            return this.$store.state.username
+            return this.$store.state.user.name
         }
     },
 
@@ -134,7 +138,8 @@ export default {
 
                 this.$store.commit('setAuth', null)
                 Cookie.remove('auth')
-                this.$store.commit('setUsername', null)
+                this.$store.commit('setUser', null)
+                Cookie.remove('userid')
                 Cookie.remove('username')
 
                 this.$axios.setHeader('Authorization', '')

@@ -13,6 +13,6 @@ urlpatterns = [
     path('api/user_downloads/', UserDownloads.as_view()),
     path('api/fork_from/<int:sample_id>', ListSampleForkFrom.as_view()),
     path('api/fork_to/<int:sample_id>', ListSampleForkTo.as_view()),
-    path('api/profile/<str:username>', UserProfilePage.as_view()),
-    path('api/samples/<str:username>', UserSamples.as_view()),
+    path('api/profile/<int:user_id>', UserProfilePage.as_view()),
+    path('api/samples/<int:user_id>', UserSamples.as_view()),
 ]
