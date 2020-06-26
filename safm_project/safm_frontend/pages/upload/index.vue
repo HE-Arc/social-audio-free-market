@@ -198,17 +198,18 @@ export default {
                 const response = await this.$axios.post('/upload_sample', body)
                 const sampleId = response.data.id
 
-                this.$toast.success('Sample uploaded !', {
-                    duration: 5000
-                })
+                this.$nuxt.$emit('snackbar', 'Sample uploaded !')
                 // Redirects to the uploaded sample page
                 this.$router.push(`/samples/${sampleId}`)
             } catch (error) {
+                this.$nuxt.$emit('snackbar', error)
+                /*
                 for (let e in error.response.data) {
                     this.$toast.error(error.response.data[e], {
                         duration: 5000
                     })
                 }
+                */
             }
         }
     }

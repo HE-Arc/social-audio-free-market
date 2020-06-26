@@ -27,6 +27,8 @@ class UserSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
 
+        UserProfile.objects.create(user=user)
+
         return user
 
     class Meta:
@@ -64,7 +66,7 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class SampleSerializer(serializers.ModelSerializer):
-    tags = TagSerializer(many=True, required=False) # Join on tags
+    tags = TagSerializer(many=True, required=False)
     user = UserSerializer(required=False) # Not required in order to set the current user
 
     class Meta:

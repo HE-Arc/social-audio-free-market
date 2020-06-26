@@ -143,24 +143,25 @@ export default {
             try {
                 const response = await this.$axios.post('/login', body)
                 const authToken = response.data.token
+                const userid = response.data.userid
                 const username = response.data.username
 
                 this.$store.commit('setAuth', authToken)
                 Cookie.set('auth', authToken)
 
-                this.$store.commit('setUsername', username)
+                this.$store.commit('setUser', {
+                    id: userid,
+                    name: username
+                })
+                Cookie.set('userid', userid)
                 Cookie.set('username', username)
 
                 this.$axios.setHeader('Authorization', `Token ${authToken}`)
 
                 this.dialog = false
-                this.$toast.success('Successfully logged in !', {
-                    duration: 3000
-                })
+                this.$nuxt.$emit('snackbar', 'Successfully logged in !')
             } catch (error) {
-                this.$toast.error('Invalid login', {
-                    duration: 3000
-                })
+                this.$nuxt.$emit('snackbar', 'Invalid login')
             }
         }
     }

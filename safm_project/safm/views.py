@@ -31,6 +31,7 @@ class Login(generics.GenericAPIView):
 
         return JsonResponse({
             'token': token,
+            'userid': user.id,
             'username': user.username
         }, status=status.HTTP_200_OK)
 
@@ -61,6 +62,7 @@ class Register(generics.CreateAPIView):
 
         return JsonResponse({
             'token': token,
+            'userid': user.id,
             'username': user.username
         }, status=status.HTTP_201_CREATED)
 
@@ -240,37 +242,16 @@ class UserDownloads(APIView):
         return JsonResponse(user_downloads_serializer.data, safe=False)
 
 
-class UserProfilePage(APIView):
-
-    def get(self, request, username):
-
-        #TODO: Can do better ?
-
-        user = User.objects.filter(username=username).values('id')
-        if user.exists():
-            user_id = user[0]['id']
-            user_profile = UserProfile.objects.filter(user_id=user_id)
-            if user_profile.exists():
-                user_profile_serializer = UserProfileSerializer(user_profile[0])
-
-                return JsonResponse(user_profile_serializer.data)
-
-        return HttpResponseNotFound('No matching user profile found.')
+class UserProfilePage(generics.RetrieveAPIView):
+    lookup_field = 'user_id'
+    queryset = UserProfile.objects.all()
+    serializer_class = UserProfileSerializer
               
 
-class UserSamples(APIView):
+class UserSamples(generics.ListAPIView):
+    serializer_class = SampleSerializer
 
-    def get(self, request, username):
-
-        #TODO: Can do better ?
-
-        user = User.objects.filter(username=username).values('id')
-        if user.exists():
-            user_id = user[0]['id']
-            user_samples = Sample.objects.filter(user_id=user_id)
-            sample_serializer = SampleSerializer(user_samples, many=True)
-
-            return JsonResponse(sample_serializer.data, safe=False)
-
-        return HttpResponseNotFound('No matching user found.')
+    def get_queryset(self):
+        # lookup_field only used in detail views
+        return Sample.objects.filter(user=self.kwargs['user_id'])
         

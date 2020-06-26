@@ -52,7 +52,7 @@
             <v-btn
                 text
                 small
-                :to="`/profiles/${username}`"
+                :to="`/profiles/${userId}`"
                 class="pa-0"
             >
                 {{ username }}
@@ -84,6 +84,7 @@ export default {
         '_mode',
         'duration',
         'tags',
+        'userId',
         'username'
     ],
 

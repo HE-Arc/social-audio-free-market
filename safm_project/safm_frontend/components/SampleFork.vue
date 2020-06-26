@@ -5,7 +5,7 @@
                 <nuxt-link :to="`/samples/${id}`">{{ name }}</nuxt-link>
             </v-card-title>
             <v-card-text>
-                By <nuxt-link :to="`/profiles/${username}`">{{ username }}</nuxt-link>
+                By <nuxt-link :to="`/profiles/${userId}`">{{ username }}</nuxt-link>
             </v-card-text>
             <WaveForm :id="id" />
             <v-card-text>
@@ -31,6 +31,7 @@ export default {
     props: [
         'id',
         'name',
+        'userId',
         'username',
         'datetime_download'
     ]

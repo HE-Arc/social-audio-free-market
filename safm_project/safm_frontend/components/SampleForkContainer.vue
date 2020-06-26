@@ -10,6 +10,7 @@
                     <SampleFork
                         :id="sample.sample_from.id"
                         :name="sample.sample_from.name"
+                        :userId="sample.sample_from.user.id"
                         :username="sample.sample_from.user.username"
                     />
                 </div>
@@ -25,6 +26,7 @@
                     <SampleFork
                         :id="sample.sample_to.id"
                         :name="sample.sample_to.name"
+                        :userId="sample.sample_to.user.id"
                         :username="sample.sample_to.user.username"
                     />
                 </div>

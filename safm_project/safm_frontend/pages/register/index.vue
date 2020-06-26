@@ -134,28 +134,35 @@ export default {
             try {
                 const response = await this.$axios.post('/register', body)
                 const authToken = response.data.token
+                const userid = response.data.userid
                 const username = response.data.username
 
                 this.$store.commit('setAuth', authToken)
                 Cookie.set('auth', authToken)
 
-                this.$store.commit('setUsername', username)
+                this.$store.commit('setUser', {
+                    id: userid,
+                    name: username
+                })
+                Cookie.set('userid', userid)
                 Cookie.set('username', username)
 
                 this.$axios.setHeader('Authorization', `Token ${authToken}`)
 
                 this.dialog = false
-                this.$toast.success('Successful registration !', {
-                    duration: 3000
-                })
-
-                this.$router.push('/')
+                this.$nuxt.$emit('snackbar', 'Successful registration !')
+                // Redirects to the user profile page
+                this.$router.push(`/profiles/${userid}`)
             } catch (error) {
+                this.$nuxt.$emit('snackbar', error.response.data)
+                /*
                 for (let e in error.response.data) {
+
                     this.$toast.error(`${e}: ${error.response.data[e]}`, {
                         duration: 5000
                     })
                 }
+                */
             }
         }
     }

@@ -2,7 +2,12 @@ const cookieparser = process.server ? require('cookieparser') : undefined
 
 export const state = () => ({
     auth: null,
-    username: '',
+
+    user: {
+        id: '',
+        name: ''
+    },
+
     advancedSearchParams: {
         name__icontains: '',   // Sample name
         user__username__icontains: '',
@@ -14,7 +19,9 @@ export const state = () => ({
         mode: '',
         tags__name__icontains: []
     },
+
     advancedSearchOrdering: '',
+    
     advancedSearchOrderingReverse: false
 })
 
@@ -23,8 +30,8 @@ export const mutations = {
         state.auth = auth
     },
 
-    setUsername (state, username) {
-        state.username = username
+    setUser (state, user) {
+        state.user = user
     },
 
     setAdvancedSearchParams (state, params) {
@@ -43,6 +50,7 @@ export const mutations = {
 export const actions = {
     nuxtServerInit ({ commit }, { req }) {
         let auth = null
+        let userid = ''
         let username = ''
 
         if (req && req.headers.cookie) {
@@ -50,6 +58,7 @@ export const actions = {
             // Sets the authentification token if the corresponding cookie is present
             try {
                 auth = parsed.auth
+                userid = parsed.userid
                 username = parsed.username
             } catch (error) {
                 // Not a valid authentication token nor username
@@ -57,6 +66,9 @@ export const actions = {
         }
 
         commit('setAuth', auth)
-        commit('setUsername', username)
+        commit('setUser', {
+            id: userid,
+            name: username
+        })
     }
 }
