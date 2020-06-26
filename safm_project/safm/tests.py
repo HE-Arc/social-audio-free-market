@@ -87,6 +87,15 @@ class AuthTest(TestCase):
         # Successful registration returns an authentication token
         jsonResponse = json.loads(response.content)
         self.assertIn('token', jsonResponse)
+        self.assertIn('userid', jsonResponse)
+        self.assertIn('username', jsonResponse)
+
+        # User Profile creation at registration
+        user_id = jsonResponse['userid']
+        user_profile = UserProfile.objects.get(user=user_id)
+        self.assertEqual(user_profile.user.id, user_id)
+        self.assertEqual(user_profile.description, 'No description provided.')
+        self.assertEqual(user_profile.email_public, False)
 
     @tag('registration_valid_username')
     def test_registration_valid_username(self):

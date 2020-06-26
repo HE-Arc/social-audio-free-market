@@ -134,20 +134,25 @@ export default {
             try {
                 const response = await this.$axios.post('/register', body)
                 const authToken = response.data.token
+                const userid = response.data.userid
                 const username = response.data.username
 
                 this.$store.commit('setAuth', authToken)
                 Cookie.set('auth', authToken)
 
-                this.$store.commit('setUsername', username)
+                this.$store.commit('setUser', {
+                    id: userid,
+                    name: username
+                })
+                Cookie.set('userid', userid)
                 Cookie.set('username', username)
 
                 this.$axios.setHeader('Authorization', `Token ${authToken}`)
 
                 this.dialog = false
                 this.$nuxt.$emit('snackbar', 'Successful registration !')
-                // Redirects to the home page
-                this.$router.push('/')
+                // Redirects to the user profile page
+                this.$router.push(`/profiles/${userid}`)
             } catch (error) {
                 this.$nuxt.$emit('snackbar', error.response.data)
                 /*

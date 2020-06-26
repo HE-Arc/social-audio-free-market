@@ -62,6 +62,7 @@ class Register(generics.CreateAPIView):
 
         return JsonResponse({
             'token': token,
+            'userid': user.id,
             'username': user.username
         }, status=status.HTTP_201_CREATED)
 
