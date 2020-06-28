@@ -17,16 +17,16 @@
                 v-else
                 open-on-hover
                 offset-y
+                transition="scale-transition"
             >
                 <template v-slot:activator="{ on }">
                     <v-btn
                         v-on="on"
                         depressed
                         class="account-menu"
-                        :to="`/profiles/${userid}`"
                     >
-                        <v-icon>mdi-account</v-icon>
                         {{ username }}
+                        <v-icon>mdi-menu-down</v-icon>
                     </v-btn>
                 </template>
                 <v-list>
@@ -85,6 +85,7 @@ export default {
         return {
             title: 'SAFMarket',
             accountMenu: [
+                { icon: 'mdi-account', title: 'Profile', method: 'profile' },
                 { icon: 'mdi-cloud-upload', title: 'Upload', method: 'upload' },
                 { icon: 'mdi-logout', title: 'Logout', method: 'logout' }
             ],
@@ -126,6 +127,10 @@ export default {
     methods: {
         handleFunctionCall (functionName) {
             this[functionName]()
+        },
+
+        profile () {
+            this.$router.push(`/profiles/${this.userid}`)
         },
 
         upload () {
