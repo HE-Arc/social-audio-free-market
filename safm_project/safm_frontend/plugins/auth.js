@@ -18,6 +18,8 @@ export default ({ nuxt, store, $axios }, inject) => {
         Cookie.set('username', username)
 
         $axios.setHeader('Authorization', `Token ${authToken}`)
+
+        return userid
     })
 
     // Removes the user authentication information

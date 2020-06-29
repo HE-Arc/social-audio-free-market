@@ -133,13 +133,14 @@ export default {
 
             try {
                 const response = await this.$axios.post('/register', body)
-                this.$authenticateUser(response)
+                const userid = this.$authenticateUser(response)
                 this.$nuxt.$emit('snackbar', 'Successful registration !')
                 
                 // Redirects to the user profile page
                 this.$router.push(`/profiles/${userid}`)
             } catch (error) {
-                this.$nuxt.$emit('snackbar', error.response.data)
+                console.log(error)
+                //this.$nuxt.$emit('snackbar', error.response.data)
                 /*
                 for (let e in error.response.data) {
 
