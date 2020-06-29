@@ -12,21 +12,36 @@
             </v-btn>
             <v-spacer />
             <QuickSearch />
-            <Login v-if="!$store.state.auth" />
+            <v-tooltip
+                v-if="!$store.state.auth"
+                bottom
+            >
+                <template v-slot:activator="{ on }">
+                    <v-btn
+                        fab
+                        depressed
+                        to="/login"
+                        v-on="on"
+                    >
+                        <v-icon>mdi-login-variant</v-icon>
+                    </v-btn>
+                </template>
+                <span>Login</span>
+            </v-tooltip>
             <v-menu
                 v-else
                 open-on-hover
                 offset-y
+                transition="scale-transition"
             >
                 <template v-slot:activator="{ on }">
                     <v-btn
                         v-on="on"
                         depressed
                         class="account-menu"
-                        :to="`/profiles/${userid}`"
                     >
-                        <v-icon>mdi-account</v-icon>
                         {{ username }}
+                        <v-icon>mdi-menu-down</v-icon>
                     </v-btn>
                 </template>
                 <v-list>
@@ -72,19 +87,17 @@
 
 <script>
 import QuickSearch from '~/components/QuickSearch.vue'
-import Login from '~/components/auth/Login.vue'
-const Cookie = process.client ? require('js-cookie') : undefined
 
 export default {
     components: {
-        QuickSearch,
-        Login
+        QuickSearch
     },
 
     data () {
         return {
             title: 'SAFMarket',
             accountMenu: [
+                { icon: 'mdi-account', title: 'Profile', method: 'profile' },
                 { icon: 'mdi-cloud-upload', title: 'Upload', method: 'upload' },
                 { icon: 'mdi-logout', title: 'Logout', method: 'logout' }
             ],
@@ -128,22 +141,17 @@ export default {
             this[functionName]()
         },
 
+        profile () {
+            this.$router.push(`/profiles/${this.userid}`)
+        },
+
         upload () {
             this.$router.push('/upload')
         },
 
-        async logout () {
+        logout () {
             try {
-                await this.$axios.post('/logout')
-
-                this.$store.commit('setAuth', null)
-                Cookie.remove('auth')
-                this.$store.commit('setUser', null)
-                Cookie.remove('userid')
-                Cookie.remove('username')
-
-                this.$axios.setHeader('Authorization', '')
-
+                this.$logoutUser()
                 this.$nuxt.$emit('snackbar', 'Successfully logged out !')
             } catch (error) {
                 this.$nuxt.$emit('snackbar', 'An error occured')

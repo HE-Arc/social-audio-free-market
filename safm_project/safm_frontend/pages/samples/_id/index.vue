@@ -24,7 +24,11 @@
             </v-card>
             <section>
                 <v-row>
-                    <v-col cols="2" lg="2" md="3" sm=12>
+                    <v-col
+                        cols="12"
+                        sm="3"
+                        md="2"
+                    >
                         <v-card class="text-center">
                             <nuxt-link :to="`/profiles/${userId}`">
                                 <v-img
@@ -59,7 +63,11 @@
                             </v-card-actions>     
                         </v-card>
                     </v-col>
-                    <v-col cols="10" lg="10" md="9" sm=12>
+                    <v-col
+                        cols="12"
+                        sm="9"
+                        md="10"
+                    >
                         <v-card>
                             <v-card-actions>
                                 <v-row class="text-center headline">
