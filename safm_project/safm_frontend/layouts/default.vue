@@ -150,18 +150,9 @@ export default {
             this.$router.push('/upload')
         },
 
-        async logout () {
+        logout () {
             try {
-                await this.$axios.post('/logout')
-
-                this.$store.commit('setAuth', null)
-                Cookie.remove('auth')
-                this.$store.commit('setUser', null)
-                Cookie.remove('userid')
-                Cookie.remove('username')
-
-                this.$axios.setHeader('Authorization', '')
-
+                this.$logoutUser()
                 this.$nuxt.$emit('snackbar', 'Successfully logged out !')
             } catch (error) {
                 this.$nuxt.$emit('snackbar', 'An error occured')

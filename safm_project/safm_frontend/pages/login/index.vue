@@ -54,7 +54,6 @@
 <script>
 import { validationMixin } from 'vuelidate'
 import { required, email } from 'vuelidate/lib/validators'
-const Cookie = process.client ? require('js-cookie') : undefined
 
 export default {
     middleware: 'unauthenticated',
@@ -107,22 +106,7 @@ export default {
 
             try {
                 const response = await this.$axios.post('/login', body)
-                const authToken = response.data.token
-                const userid = response.data.userid
-                const username = response.data.username
-
-                this.$store.commit('setAuth', authToken)
-                Cookie.set('auth', authToken)
-
-                this.$store.commit('setUser', {
-                    id: userid,
-                    name: username
-                })
-                Cookie.set('userid', userid)
-                Cookie.set('username', username)
-
-                this.$axios.setHeader('Authorization', `Token ${authToken}`)
-
+                this.$authenticateUser(response)
                 this.$nuxt.$emit('snackbar', 'Successfully logged in !')
 
                 // Redirects to the last visited page
