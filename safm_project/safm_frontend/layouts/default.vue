@@ -12,7 +12,22 @@
             </v-btn>
             <v-spacer />
             <QuickSearch />
-            <Login v-if="!$store.state.auth" />
+            <v-tooltip
+                v-if="!$store.state.auth"
+                bottom
+            >
+                <template v-slot:activator="{ on }">
+                    <v-btn
+                        fab
+                        depressed
+                        to="/login"
+                        v-on="on"
+                    >
+                        <v-icon>mdi-login-variant</v-icon>
+                    </v-btn>
+                </template>
+                <span>Login</span>
+            </v-tooltip>
             <v-menu
                 v-else
                 open-on-hover
@@ -72,13 +87,11 @@
 
 <script>
 import QuickSearch from '~/components/QuickSearch.vue'
-import Login from '~/components/auth/Login.vue'
 const Cookie = process.client ? require('js-cookie') : undefined
 
 export default {
     components: {
-        QuickSearch,
-        Login
+        QuickSearch
     },
 
     data () {
