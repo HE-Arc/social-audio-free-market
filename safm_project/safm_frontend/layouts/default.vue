@@ -87,7 +87,6 @@
 
 <script>
 import QuickSearch from '~/components/QuickSearch.vue'
-const Cookie = process.client ? require('js-cookie') : undefined
 
 export default {
     components: {

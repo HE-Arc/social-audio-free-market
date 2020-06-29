@@ -1,6 +1,6 @@
 const Cookie = process.client ? require('js-cookie') : undefined
 
-export default ({ nuxt, store, $axios }, inject) => {
+export default ({ store, $axios }, inject) => {
     // Stores the user authentication information
     inject('authenticateUser', (response) => {
         const authToken = response.data.token

@@ -65,7 +65,6 @@
 <script>
 import { validationMixin } from 'vuelidate'
 import { required, email } from 'vuelidate/lib/validators'
-const Cookie = process.client ? require('js-cookie') : undefined
 
 export default {
     middleware: 'unauthenticated',
@@ -139,7 +138,6 @@ export default {
                 // Redirects to the user profile page
                 this.$router.push(`/profiles/${userid}`)
             } catch (error) {
-                console.log(error)
                 //this.$nuxt.$emit('snackbar', error.response.data)
                 /*
                 for (let e in error.response.data) {
