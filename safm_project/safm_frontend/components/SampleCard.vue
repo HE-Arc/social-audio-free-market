@@ -104,7 +104,7 @@ export default {
         },
 
         keyMode () {
-            if (this._key || this._mode) {
+            if (this._key != ' ' || this._mode != ' ') {
                 return this._key + (this._mode == 'min' ? 'm' : this._mode == 'maj' ? 'M' : '')
             }
 
