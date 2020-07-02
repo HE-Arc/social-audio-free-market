@@ -7,7 +7,7 @@ from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
 from rest_framework import filters, generics
 from rest_framework.views import APIView
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import status
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
@@ -17,6 +17,8 @@ from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from .models import *
 from .serializers import *
+
+from rest_framework.decorators import api_view, permission_classes
 
 # Create your views here.
 
@@ -96,89 +98,134 @@ class AdvancedSearch(generics.ListAPIView):
     ]
 
 
-class SamplePage(APIView):
-    
-    #TODO: other APIView class ?
-    
-    def get(self, request, sample_id):
-        sample = Sample.objects.filter(id=sample_id).get()
-        serializer = SampleSerializer(sample)
-
-        return JsonResponse(serializer.data)
-
-
-class SampleUpload(generics.CreateAPIView):
-    model = Sample
+class SampleView(generics.GenericAPIView):
     serializer_class = SampleSerializer
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    sample_not_found = JsonResponse({'detail': 'Sample not found.'}, status=status.HTTP_400_BAD_REQUEST)
+    unauthenticated = JsonResponse({'detail': 'Authentication credentials were not provided.'}, status=status.HTTP_401_UNAUTHORIZED)
+    sample_not_authorized = JsonResponse({'detail': 'Sample does not belong to the user.'}, status=status.HTTP_401_UNAUTHORIZED)
+    regex_tags = re.compile(r'[a-z]+[a-z0-9]+')
+    regex_forks = re.compile(r'\d')
 
-    def create(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         '''
-        Overriden create method in order to set the current user
-        to the uploaded sample.
+        Retrieve Sample
         '''
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)        
-        sample = self.perform_create(serializer)
-
+        sample = self._sample_by_id(kwargs)
         if sample:
-            # Sample key
-            key = request.POST.get('key')
-            if key in [item.value for item in Sample.Key]:
-                sample.key = key
+            serializer = SampleSerializer(sample)
+            return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+            
+        return self.sample_not_found
 
-            # Sample mode
-            mode = request.POST.get('mode')
-            if mode in [item.value for item in Sample.Mode]:
-                sample.mode = mode
-
-            # Adds the sample tags
-            tags = re.escape(request.POST.get('tags', ''))
-            if tags:
-                regex = re.compile(r'[a-z]+[a-z0-9]+')
-                tags_list = list(filter(regex.match, [tag.strip() for tag in tags.split(',')]))
-                for tag_name in tags_list:
-                    tag = Tag.objects.get_or_create(name=tag_name)[0] # Returns a tuple
-                    sample.tags.add(tag)
-
-            # Adds the sample forks from and to relations
-            forks_from = re.escape(request.POST.get('forks_from', ''))
-            if forks_from:
-                forks_from_list = [fork_from.strip() for fork_from in forks_from.split(',')]
-                for fork_from_id in forks_from_list:
-                    fork_sample = Sample.objects.get(pk=fork_from_id)
-                    # Fork From
-                    SampleForkFrom.objects.get_or_create(
-                        sample=sample,
-                        sample_from=fork_sample
-                    )
-                    # Fork To
-                    SampleForkTo.objects.get_or_create(
-                        sample=fork_sample,
-                        sample_to=sample
-                    )
-
-            # Automatically deducted sample properties
-            sample.deduce_properties()
-
-            # Updates the Sample model
-            sample.save()
-        
-            return JsonResponse({'id': sample.id}, status=status.HTTP_201_CREATED)
-
-        return JsonResponse({'error': 'You are not logged in.'}, status=status.HTTP_401_UNAUTHORIZED)
-
-    def perform_create(self, serializer):
+    def post(self, request, *args, **kwargs):
         '''
-        Overriden perform_create method in order to set the current
-        user to the SampleSerializer before save.
+        Create Sample
         '''
-        user = self.request.user
-        if user:
-            return serializer.save(user=user)
+        if self._is_authenticated(request):
+            serializer = SampleSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            sample = serializer.save(user=request.user)
+
+            if sample:
+                self._set_tags_from_request(request, sample)
+                self._set_forks_from_request(request, sample)
+
+                return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
+
+            return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        return self.unauthenticated
+
+    def patch(self, request, *args, **kwargs):
+        '''
+        Update Sample
+        '''
+        if self._is_authenticated(request):
+            sample = self._sample_by_id(kwargs)
+            
+            if sample:
+                if self._sample_belongs_to_user(sample, request):
+                    serializer = SampleSerializer(sample, data=request.data, partial=True)
+                    serializer.is_valid(raise_exception=True)
+                    sample = serializer.save()
+
+                    if sample:
+                        sample.tags.clear()
+                        self._set_tags_from_request(request, sample)
+
+                        sample.forks.clear()
+                        self._set_forks_from_request(request, sample)
+
+                        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+
+                    return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+                return self.sample_not_authorized
+
+            return self.sample_not_found
+
+        return self.unauthenticated
+
+    def delete(self, request, *args, **kwargs):
+        '''
+        Delete Sample
+        '''
+        if self._is_authenticated(request):
+            sample = self._sample_by_id(kwargs)
+
+            if sample:
+                if self._sample_belongs_to_user(sample, request):
+                    sample.delete()
+                    return JsonResponse({'detail': 'Sample was successfully deleted.'}, status=status.HTTP_200_OK)
+                
+                return self.sample_not_authorized
+
+            return self.sample_not_found
+
+        return self.unauthenticated
+
+    def _is_authenticated(self, request):
+        '''
+        Returns wether the current user is authenticated or not.
+        '''
+        return request.user.is_authenticated
+
+    def _sample_by_id(self, kwargs):
+        '''
+        Returns the Sample model associated to the ID parameter or None.
+        '''
+        try:
+            return Sample.objects.get(pk=kwargs['id'])
+        except:
+            return None
+
+    def _sample_belongs_to_user(self, sample, request):
+        '''
+        Returns wether the given Sample belongs to the current user.
+        '''
+        return sample.user.id == request.user.id
+
+    def _set_tags_from_request(self, request, sample):
+        '''
+        Adds the Tag relations - based on the request - to the given Sample.
+        '''
+        tags_str = re.escape(request.data.get('tags', ''))
+        tags_list = list(filter(self.regex_tags.match, [tag.strip() for tag in tags_str.split(',')]))
         
-        return False
+        for tag_name in tags_list:
+            tag = Tag.objects.get_or_create(name=tag_name)[0] # Returns a tuple
+            sample.tags.add(tag)
+
+    def _set_forks_from_request(self, request, sample):
+        '''
+        Adds the Sample fork relations - based on the request - to the given Sample.
+        '''
+        forks_str = re.escape(request.data.get('forks', ''))
+        forks_list = list(filter(self.regex_forks.match, [fork.strip() for fork in forks_str.split(',')]))
+
+        for fork_id in forks_list:
+            fork = Sample.objects.get(pk=fork_id)
+            sample.forks.add(fork)
 
 
 class SampleFile(APIView):
@@ -215,20 +262,23 @@ class SampleFile(APIView):
 
 
 class ListSampleForkFrom(generics.ListAPIView):
-    serializer_class = SampleForkFromSerializer
+    serializer_class = SampleSerializer
 
     def get_queryset(self):
         # lookup_field only used in detail views
-        return SampleForkFrom.objects.filter(sample=self.kwargs['sample_id'])
+        return Sample.objects.filter(forks=self.kwargs['sample_id'])
     
 
 class ListSampleForkTo(generics.ListAPIView):
-    serializer_class = SampleForkToSerializer
+    serializer_class = SampleSerializer
 
     def get_queryset(self):
+
+        #FIXME
+
         # lookup_field only used in detail views
-        return SampleForkTo.objects.filter(sample=self.kwargs['sample_id'])
-    
+        return Sample.objects.filter(forks=self.kwargs['sample_id']).values('forks')
+
 
 class UserDownloads(APIView):
     authentication_classes = [TokenAuthentication]

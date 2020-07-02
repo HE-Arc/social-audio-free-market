@@ -114,18 +114,9 @@ export default {
             keyItems: ['-', 'A', 'B', 'C', 'D', 'E', 'F', 'G'],
             mode: '',
             modeItems: [
-                {
-                    text: '-',
-                    value: 'None'
-                },
-                {
-                    text: 'Minor',
-                    value: 'min'
-                },
-                {
-                    text: 'Major',
-                    value: 'maj'
-                }
+                { text: '-', value: 'None' },
+                { text: 'Minor', value: 'min' },
+                { text: 'Major', value: 'maj' }
             ],
             tags: [],
             selectedForkFrom: [],
