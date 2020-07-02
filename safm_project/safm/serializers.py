@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate
 from .models import *
 
 class UserSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(validators=[UniqueValidator(queryset=User.objects.all())])
+    email = serializers.EmailField(write_only=True, validators=[UniqueValidator(queryset=User.objects.all())])
     password = serializers.CharField(write_only=True)
     password_confirm = serializers.CharField(write_only=True)
 
@@ -65,9 +65,25 @@ class TagSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class SampleForkSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Sample
+        fields = '__all__'
+
+
 class SampleSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
     tags = TagSerializer(many=True, required=False)
-    user = UserSerializer(required=False) # Not required in order to set the current user
+    forks = SampleForkSerializer( many=True, required=False)
+
+    def create(self, validated_data):
+        sample = Sample.objects.create(**validated_data)
+
+        sample.deduce_properties()
+        sample.save()
+
+        return sample
 
     class Meta:
         model = Sample
@@ -80,23 +96,7 @@ class UserDownloadSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserSampleDownload
         fields = '__all__'
-
-
-class SampleForkFromSerializer(serializers.ModelSerializer):
-    sample_from = SampleSerializer()
-
-    class Meta:
-        model = SampleForkFrom
-        fields = ['sample_from']
-
-
-class SampleForkToSerializer(serializers.ModelSerializer):
-    sample_to = SampleSerializer()
-
-    class Meta:
-        model = SampleForkTo
-        fields = ['sample_to']
-
+        
 
 class UserProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer()

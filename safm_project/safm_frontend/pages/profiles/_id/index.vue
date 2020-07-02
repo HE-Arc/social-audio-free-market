@@ -26,8 +26,8 @@ export default {
 
     async asyncData({ $axios, params }) {
         try {
-            const profile = await $axios.$get(`/profile/${params.id}`)
-            const samples = await $axios.$get(`/samples/${params.id}`)
+            const profile = await $axios.$get(`/user/profile/${params.id}`)
+            const samples = await $axios.$get(`/user/samples/${params.id}`)
 
             return {
                 username: profile.user.username,

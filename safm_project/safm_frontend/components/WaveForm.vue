@@ -54,7 +54,7 @@ export default {
             })
 
             // Loads the sample audio file
-            let audioFileUrl = `${this.$axios.defaults.baseURL}/sample_file/${this.id}/0`
+            let audioFileUrl = `${this.$axios.defaults.baseURL}/sample/file/${this.id}/0`
             this.wavesurfer.load(audioFileUrl)
 
             // On play event

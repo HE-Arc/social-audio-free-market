@@ -47,6 +47,7 @@ class Sample(models.Model):
     datetime_upload = models.DateTimeField(auto_now_add=True) # auto now at creation
     number_downloads = models.PositiveIntegerField(default=0) # nb dl > 0
     tags = models.ManyToManyField(Tag) # a sample can have multiple tags
+    forks = models.ManyToManyField('self')
 
     def deduce_properties(self):
         frames = 0
@@ -57,6 +58,7 @@ class Sample(models.Model):
         
         self._deduce_duration(frames, rate)
         self._deduce_tempo(rate)
+        self.save()
 
     def _deduce_duration(self, frames, rate):
         self.duration = frames / float(rate)
@@ -99,13 +101,3 @@ class UserSampleDownload(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     sample = models.ForeignKey(Sample, on_delete=models.CASCADE)
     datetime_download = models.DateTimeField(auto_now_add=True) # auto now at creation
-
-
-class SampleForkFrom(models.Model):
-    sample = models.ForeignKey(Sample, related_name='sample_fork_from_base', on_delete=models.CASCADE)
-    sample_from = models.ForeignKey(Sample, related_name='sample_fork_from', on_delete=models.CASCADE)
-
-
-class SampleForkTo(models.Model):
-    sample = models.ForeignKey(Sample, related_name='sample_fork_to_base', on_delete=models.CASCADE)
-    sample_to = models.ForeignKey(Sample, related_name='sample_fork_to', on_delete=models.CASCADE)

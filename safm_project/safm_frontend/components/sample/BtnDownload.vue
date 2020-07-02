@@ -16,7 +16,7 @@ export default {
     methods: {
         async click () {
             try {
-                const response = await this.$axios.get(`/sample_file/${this.sampleId}/1`, { responseType: 'blob' })
+                const response = await this.$axios.get(`/sample/file/${this.sampleId}/1`, { responseType: 'blob' })
                 
                 const contentDisposition = response.request.getResponseHeader('Content-Disposition')
                 let filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/

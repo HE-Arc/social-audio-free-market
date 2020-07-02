@@ -114,18 +114,9 @@ export default {
             keyItems: ['-', 'A', 'B', 'C', 'D', 'E', 'F', 'G'],
             mode: '',
             modeItems: [
-                {
-                    text: '-',
-                    value: 'None'
-                },
-                {
-                    text: 'Minor',
-                    value: 'min'
-                },
-                {
-                    text: 'Major',
-                    value: 'maj'
-                }
+                { text: '-', value: 'None' },
+                { text: 'Minor', value: 'min' },
+                { text: 'Major', value: 'maj' }
             ],
             tags: [],
             selectedForkFrom: [],
@@ -160,7 +151,7 @@ export default {
 
     async asyncData ({ $axios }) {
         try {
-            let downloadedSamples = await $axios.$get('/user_downloads')
+            let downloadedSamples = await $axios.$get('/user/downloads')
 
             return { downloadedSamples }
         } catch (e) {
@@ -195,7 +186,7 @@ export default {
             }
             
             try {
-                const response = await this.$axios.post('/upload_sample', body)
+                const response = await this.$axios.post('/sample', body)
                 const sampleId = response.data.id
 
                 this.$nuxt.$emit('snackbar', 'Sample uploaded !')
