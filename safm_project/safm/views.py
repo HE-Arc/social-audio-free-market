@@ -277,7 +277,7 @@ class ListSampleForkTo(generics.ListAPIView):
         #FIXME
 
         # lookup_field only used in detail views
-        return Sample.objects.filter(forks=self.kwargs['sample_id']).values('forks')
+        return Sample.objects.filter(forks=self.kwargs['sample_id'])#.values('forks')
 
 
 class UserDownloads(APIView):

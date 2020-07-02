@@ -159,8 +159,8 @@ export default {
 
     async asyncData({ $axios, params }) {
         const sample = await $axios.$get(`/sample/${params.id}`)
-        const forkFrom = await $axios.$get(`/fork_from/${params.id}`)
-        const forkTo = await $axios.$get(`/fork_to/${params.id}`)
+        const forkFrom = await $axios.$get(`/forks/from/${params.id}`)
+        const forkTo = await $axios.$get(`/forks/to/${params.id}`)
 
         return {
             sample: sample,

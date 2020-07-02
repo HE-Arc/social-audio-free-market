@@ -8,10 +8,10 @@
                     :key="i"
                 >
                     <SampleFork
-                        :id="sample.sample_from.id"
-                        :name="sample.sample_from.name"
-                        :userId="sample.sample_from.user.id"
-                        :username="sample.sample_from.user.username"
+                        :id="sample.id"
+                        :name="sample.name"
+                        :userId="sample.user.id"
+                        :username="sample.user.username"
                     />
                 </div>
             </div>
@@ -19,17 +19,17 @@
         <v-layout column fill-width>
             <div class="d-flex flex-column">
                 <div>Used by</div>
-                <div
+                <!--div
                     v-for="(sample, i) in forkTo"
                     :key="i"
                 >
                     <SampleFork
-                        :id="sample.sample_to.id"
-                        :name="sample.sample_to.name"
-                        :userId="sample.sample_to.user.id"
-                        :username="sample.sample_to.user.username"
+                        :id="sample.id"
+                        :name="sample.name"
+                        :userId="sample.user.id"
+                        :username="sample.user.username"
                     />
-                </div>
+                </div-->
             </div>
         </v-layout>
     </div>
