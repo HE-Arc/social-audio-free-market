@@ -130,7 +130,7 @@ class SampleView(generics.GenericAPIView):
                 self._set_tags_from_request(request, sample)
                 self._set_forks_from_request(request, sample)
 
-                return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
+                return JsonResponse({'id': sample.id}, status=status.HTTP_201_CREATED)
 
             return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -158,7 +158,7 @@ class SampleView(generics.GenericAPIView):
                         sample.forks.clear()
                         self._set_forks_from_request(request, sample)
 
-                        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+                        return JsonResponse({'id': sample.id}, status=status.HTTP_200_OK)
 
                     return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
