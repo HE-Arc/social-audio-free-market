@@ -168,7 +168,7 @@ export default {
         },
 
         keyMode () {
-            if (this.sample.key || this.sample.mode) {
+            if (this.sample.key != ' ' || this.sample.mode != ' ') {
                 return this.sample.key + (this.sample.mode == 'min' ? 'm' : this.sample.mode == 'maj' ? 'M' : '')
             }
 

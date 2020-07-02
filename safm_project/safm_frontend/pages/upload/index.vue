@@ -111,10 +111,10 @@ export default {
             name: '',
             description: '',
             key: '',
-            keyItems: ['-', 'A', 'B', 'C', 'D', 'E', 'F', 'G'],
+            keyItems: [{ text: '-', value: '' }, 'A', 'B', 'C', 'D', 'E', 'F', 'G'],
             mode: '',
             modeItems: [
-                { text: '-', value: 'None' },
+                { text: '-', value: '' },
                 { text: 'Minor', value: 'min' },
                 { text: 'Major', value: 'maj' }
             ],

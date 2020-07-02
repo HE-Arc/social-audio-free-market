@@ -145,11 +145,9 @@ class SampleView(generics.GenericAPIView):
             
             if sample:
                 if self._sample_belongs_to_user(sample, request):
-                    print(request.data)
                     serializer = SampleSerializer(sample, data=request.data, partial=True)
                     serializer.is_valid(raise_exception=True)
                     sample = serializer.save()
-                    print(sample.name)
 
                     if sample:
                         sample.tags.clear()

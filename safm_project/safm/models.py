@@ -17,6 +17,7 @@ class Sample(models.Model):
 
     class Key(models.TextChoices):
         # Key Enum
+        NONE = ' '
         A = 'A'
         B = 'B'
         C = 'C'
@@ -27,6 +28,7 @@ class Sample(models.Model):
 
     class Mode(models.TextChoices):
         # Mode Enum
+        NONE = ' '
         MINOR = 'min'
         MAJOR = 'maj'
 
@@ -41,8 +43,8 @@ class Sample(models.Model):
     file = models.FileField(max_length=255, upload_to=user_directory_path)
     duration = models.DecimalField(max_digits=4, decimal_places=1, blank=True, null=True) # duration in [s]
     tempo = models.PositiveIntegerField(blank=True, null=True) # tempo is > 0
-    key = models.CharField(max_length=1, choices=Key.choices, blank=True)
-    mode = models.CharField(max_length=3, choices=Mode.choices, blank=True)
+    key = models.CharField(max_length=1, choices=Key.choices, blank=True, default=Key.NONE)
+    mode = models.CharField(max_length=3, choices=Mode.choices, blank=True, default=Mode.NONE)
     description = models.TextField(blank=True, default='No description provided.')
     datetime_upload = models.DateTimeField(auto_now_add=True) # auto now at creation
     number_downloads = models.PositiveIntegerField(default=0) # nb dl > 0
