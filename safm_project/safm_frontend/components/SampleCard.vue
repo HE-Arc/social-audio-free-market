@@ -3,6 +3,16 @@
         <v-card-title class="headline">
             <nuxt-link :to="`/samples/${id}`">{{ name }}</nuxt-link>
         </v-card-title>
+        <v-btn
+            v-if="canEdit"
+            absolute
+            top
+            right
+            fab
+            :to="`/samples/edit/${this.id}`"
+        >
+            <v-icon>mdi-pencil</v-icon>
+        </v-btn>
         <WaveForm
             ref="waveform"
             :id="id"
@@ -89,6 +99,10 @@ export default {
     ],
 
     computed: {
+        canEdit () {
+            return this.userId == this.$store.state.user.id
+        },
+
         keyMode () {
             if (this._key || this._mode) {
                 return this._key + (this._mode == 'min' ? 'm' : this._mode == 'maj' ? 'M' : '')

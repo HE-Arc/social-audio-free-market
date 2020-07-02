@@ -20,6 +20,14 @@
                     >
                         <v-icon>{{ likeSampleIcon }}</v-icon>
                     </v-btn>
+                    <v-btn
+                        v-if="canEdit"
+                        fab
+                        x-large
+                        :to="`/samples/edit/${this.sample.id}`"
+                    >
+                        <v-icon>mdi-pencil</v-icon>
+                    </v-btn>
                 </v-card-text>
             </v-card>
             <section>
@@ -146,6 +154,10 @@ export default {
     computed: {
         likeSampleIcon () {
             return this.likedSample ? 'mdi-heart' : 'mdi-heart-outline'
+        },
+
+        canEdit () {
+            return this.userId == this.$store.state.user.id
         },
 
         keyMode () {
