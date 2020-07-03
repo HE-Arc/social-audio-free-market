@@ -302,6 +302,47 @@ class UserSamples(generics.ListAPIView):
     serializer_class = SampleSerializer
 
     def get_queryset(self):
-        # lookup_field only used in detail views
         return Sample.objects.filter(user=self.kwargs['user_id'])
         
+
+class UserSamplesCount(APIView):
+
+    def get(self, request, user_id):
+        count = len(Sample.objects.filter(user=self.kwargs['user_id']))
+        return JsonResponse({'count': count}, status=status.HTTP_200_OK)
+
+
+class UserProfilePicture(APIView):
+
+    def get(self, request, user_id):
+        user_profile = UserProfile.objects.get(user=user_id)
+        image_file = user_profile.profile_picture
+
+        if image_file:
+            print(image_file)
+            path_to_file = os.path.join(settings.MEDIA_ROOT, image_file.name)
+            print(path_to_file)
+            with open(path_to_file, 'rb') as f:
+                mime_type = mimetypes.MimeTypes().guess_type(image_file.name)
+                response = HttpResponse(f, content_type=mime_type)
+                filename = image_file.name.split('/')[-1]
+                response['Content-Disposition'] = f'attachement; filename="{filename}"'
+                response['Access-Control-Expose-Headers'] = 'Content-Disposition' # To allow the client to read it
+
+            return response
+
+        return HttpResponseNotFound('No matching file found.')
+
+
+class UserEmail(APIView):
+
+    def get(self, request, user_id):
+        user_profile = UserProfile.objects.get(user=user_id)
+        
+        if user_profile and user_profile.email_public:
+            user = User.objects.get(pk=user_id)
+            user_email = user.email
+
+            return JsonResponse({'email': user_email}, status=status.HTTP_200_OK)
+
+        return HttpResponseNotFound('No matching user found.')

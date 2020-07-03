@@ -18,5 +18,8 @@ urlpatterns = [
 
     path('api/user/downloads', UserDownloads.as_view()),
     path('api/user/samples/<int:user_id>', UserSamples.as_view()),
+    path('api/user/samples/count/<int:user_id>', UserSamplesCount.as_view()),
     path('api/user/profile/<int:user_id>', UserProfilePage.as_view()),
+    path('api/user/picture/<int:user_id>', UserProfilePicture.as_view()),
+    path('api/user/email/<int:user_id>', UserEmail.as_view()),
 ]

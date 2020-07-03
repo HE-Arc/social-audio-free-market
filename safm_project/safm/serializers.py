@@ -33,7 +33,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'password', 'password_confirm']
+        fields = ['id', 'username', 'email', 'password', 'password_confirm', 'date_joined']
 
 
 class LoginSerializer(serializers.Serializer):

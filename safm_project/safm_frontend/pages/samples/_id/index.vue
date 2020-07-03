@@ -18,6 +18,7 @@
                             x-large
                             @click="likedSample = !likedSample"
                             class="pink--text"
+                            disabled
                         >
                             <v-icon>{{ likeSampleIcon }}</v-icon>
                         </v-btn>
@@ -41,10 +42,9 @@
                             <v-card class="text-center">
                                 <nuxt-link :to="`/profiles/${userId}`">
                                     <v-img
-                                        src="https://image.flaticon.com/icons/svg/17/17004.svg"
+                                        :src="profilePictureSrc"
                                         width="100"
                                         height="100"
-                                        color="white"
                                     ></v-img>
                                     <v-card-title class="justify-center">
                                         {{ username }}
@@ -54,15 +54,16 @@
                                     <v-row>
                                         <v-col cols="12">
                                             <v-icon class="mr-1">mdi-music-note</v-icon>
-                                            <span class="mr-2">8</span>
+                                            <span class="mr-2">{{ numberSamples }}</span>
                                             <span class="mr-1">·</span>
                                             <v-icon class="mr-1">mdi-account-multiple</v-icon>
-                                            <span>21</span>
+                                            <span>-</span>
                                         </v-col>
                                         <v-col cols="12">
                                             <v-btn
                                                 small
                                                 color="accent"
+                                                disabled
                                             >
                                                 <v-icon class="mr-1">mdi-account-plus</v-icon>
                                                 Follow
@@ -152,6 +153,7 @@ export default {
             sample: {},
             userId: '',
             username: '',
+            numberSamples: '',
             likedSample: false,
             forkFrom: [],
             forkTo: []
@@ -159,6 +161,10 @@ export default {
     },
 
     computed: {
+        profilePictureSrc () {
+            return `${this.$axios.defaults.baseURL}/user/picture/${this.userId}`
+        },
+
         likeSampleIcon () {
             return this.likedSample ? 'mdi-heart' : 'mdi-heart-outline'
         },
@@ -179,6 +185,7 @@ export default {
     async asyncData({ $axios, params }) {
         try {
             const sample = await $axios.$get(`/sample/${params.id}`)
+            const numberSamples = await $axios.$get(`/user/samples/count/${sample.user.id}`)
             const forkFrom = await $axios.$get(`/forks/from/${params.id}`)
             const forkTo = await $axios.$get(`/forks/to/${params.id}`)
 
@@ -186,6 +193,7 @@ export default {
                 sample: sample,
                 userId: sample.user.id,
                 username: sample.user.username,
+                numberSamples: numberSamples.count,
                 forkFrom: forkFrom,
                 forkTo: forkTo
             }
@@ -194,6 +202,7 @@ export default {
                 sample: {},
                 userId: '',
                 username: '',
+                numberSamples: '',
                 forkFrom: [],
                 forkTo: []
             }
@@ -204,6 +213,7 @@ export default {
 
 <style scoped>
 .v-image {
+    border-radius: 100px;
     margin: 0 auto;
 }
 </style>
