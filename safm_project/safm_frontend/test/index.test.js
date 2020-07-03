@@ -30,13 +30,13 @@ test('Route /advanced-search exists and renders HTML', async (t) => {
     const { html } = await nuxt.server.renderRoute('/advanced-search', context)
     t.true(html.includes('nuxt'))
 })
-
+/*
 test('Route /profiles exits and renders HTML', async (t) => {
     const context = {}
     const { html } = await nuxt.server.renderRoute('/profiles', context)
     t.true(html.includes('nuxt'))
 })
-
+*/
 test('Route /quick-search exists and renders HTML', async (t) => {
     const context = {}
     const { html } = await nuxt.server.renderRoute('/quick-search', context)
