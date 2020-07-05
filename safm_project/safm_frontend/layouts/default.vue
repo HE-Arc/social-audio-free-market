@@ -97,8 +97,9 @@ export default {
         return {
             title: 'SAFMarket',
             accountMenu: [
-                { icon: 'mdi-account', title: 'Profile', method: 'profile' },
                 { icon: 'mdi-cloud-upload', title: 'Upload', method: 'upload' },
+                { icon: 'mdi-account', title: 'Profile', method: 'profile' },
+                { icon: 'mdi-cogs', title: 'Settings', method: 'settings' },
                 { icon: 'mdi-logout', title: 'Logout', method: 'logout' }
             ],
             snackbar: false,
@@ -141,12 +142,16 @@ export default {
             this[functionName]()
         },
 
-        profile () {
-            this.$router.push(`/profiles/${this.userid}`)
-        },
-
         upload () {
             this.$router.push('/upload')
+        },
+
+        profile () {
+            this.$router.push(`/profiles/${this.userid}`)
+        },        
+
+        settings () {
+            this.$router.push('/profiles/edit')
         },
 
         logout () {
