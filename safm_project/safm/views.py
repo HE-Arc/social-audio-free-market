@@ -99,7 +99,6 @@ class AdvancedSearch(generics.ListAPIView):
 
 
 class SampleView(generics.GenericAPIView):
-    serializer_class = SampleSerializer
     sample_not_found = JsonResponse({'detail': 'Sample not found.'}, status=status.HTTP_400_BAD_REQUEST)
     unauthenticated = JsonResponse({'detail': 'Authentication credentials were not provided.'}, status=status.HTTP_401_UNAUTHORIZED)
     sample_not_authorized = JsonResponse({'detail': 'Sample does not belong to the user.'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -292,10 +291,52 @@ class UserDownloads(APIView):
         return JsonResponse(user_downloads_serializer.data, safe=False)
 
 
-class UserProfilePage(generics.RetrieveAPIView):
-    lookup_field = 'user_id'
-    queryset = UserProfile.objects.all()
-    serializer_class = UserProfileSerializer
+class UserProfileView(generics.GenericAPIView):
+    profile_not_found = JsonResponse({'detail': 'User profile not found.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request, *args, **kwargs):
+        '''
+        Retrieve UserProfile
+        '''
+        profile = self._profile_by_id(kwargs)
+        if profile:
+            serializer = UserProfileSerializer(profile)
+            return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+            
+        return self.profile_not_found
+
+    def patch(self, request, *args, **kwargs):
+        '''
+        Update User Profile
+        '''
+        if request.user.is_authenticated:
+            profile = self._profile_by_id(kwargs)
+
+            if profile:
+                if profile.user == request.user:
+                    serializer = UserProfileSerializer(profile, data=request.data, partial=True)
+                    serializer.is_valid(raise_exception=True)
+                    profile = serializer.save()
+
+                    if profile:
+                        return JsonResponse({'id': profile.id}, status=status.HTTP_200_OK)
+
+                    return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+                return JsonResponse({'detail': 'Profile does not belong to the user.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+            return self.profile_not_found
+
+        return JsonResponse({'detail': 'Authentication credentials were not provided.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    def _profile_by_id(self, kwargs):
+        '''
+        Returns the UserProfile model associated to the ID parameter or None.
+        '''
+        try:
+            return UserProfile.objects.get(pk=kwargs['id'])
+        except:
+            return None
               
 
 class UserSamples(generics.ListAPIView):
