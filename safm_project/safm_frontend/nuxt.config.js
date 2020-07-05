@@ -89,23 +89,17 @@ export default {
             runtimeCaching: [
                 // Audio files (samples)
                 {
-                    urlPattern: `${API_BASE_URL}/sample_file/*`,
+                    urlPattern: `${API_BASE_URL}/sample/file/*`,
                     handler: 'cacheFirst',
                     method: 'GET',
-                    strategyOptions: { cacheableResponse: { statuses: [0, 200] } },
-                    options: {
-                        cacheName: 'audio'
-                    }
+                    strategyOptions: { cacheName: 'audio', cacheableResponse: { statuses: [0, 200] } }
                 },
                 // Images
                 {
-                    urlPattern: '\\.(?:png|jpg|jpeg|svg)$',
+                    urlPattern: `${API_BASE_URL}/user/picture/*`,
                     handler: 'cacheFirst',
                     method: 'GET',
-                    strategyOptions: { cacheableResponse: { statuses: [0, 200] } },
-                    options: {
-                        cacheName: 'images'
-                    }
+                    strategyOptions: { cacheName: 'images', cacheableResponse: { statuses: [0, 200] } }
                 }
             ]
         }
