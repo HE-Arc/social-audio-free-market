@@ -9,7 +9,7 @@ class UserSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(write_only=True, validators=[UniqueValidator(queryset=User.objects.all())])
     password = serializers.CharField(write_only=True)
     password_confirm = serializers.CharField(write_only=True)
-    password_current = serializers.CharField(write_only=True)
+    password_current = serializers.CharField(write_only=True, required=False)
     password_min_length = 8
     
     def validate(self, data):
