@@ -2,20 +2,29 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
+from django.contrib.auth.hashers import check_password
 from .models import *
 
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(write_only=True, validators=[UniqueValidator(queryset=User.objects.all())])
     password = serializers.CharField(write_only=True)
     password_confirm = serializers.CharField(write_only=True)
+    password_current = serializers.CharField(write_only=True)
     password_min_length = 8
     
     def validate(self, data):
         password = data.get('password')
         password_confirm = data.get('password_confirm')
-        
+        password_current = data.get('password_current')
+
         # User create or user password patch
-        if not self.partial or (self.partial and password and password_confirm):
+        if not self.partial or (self.partial and password):
+            if self.partial and not check_password(password_current, self.instance.password):
+                raise serializers.ValidationError('Invalid current password.')
+
+            if self.partial and check_password(password, self.instance.password):
+                raise serializers.ValidationError('The new password must be different than the current one.')
+
             if len(password) < self.password_min_length:
                 raise serializers.ValidationError('Password length must be at least {0} characters.'.format(self.password_min_length))
 
@@ -53,7 +62,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'password', 'password_confirm', 'date_joined']
+        fields = ['id', 'username', 'email', 'password', 'password_confirm', 'password_current', 'date_joined']
 
 
 class LoginSerializer(serializers.Serializer):

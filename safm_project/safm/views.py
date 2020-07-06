@@ -380,9 +380,7 @@ class UserProfilePicture(APIView):
         image_file = user_profile.profile_picture
 
         if image_file:
-            print(image_file)
             path_to_file = os.path.join(settings.MEDIA_ROOT, image_file.name)
-            print(path_to_file)
             with open(path_to_file, 'rb') as f:
                 mime_type = mimetypes.MimeTypes().guess_type(image_file.name)
                 response = HttpResponse(f, content_type=mime_type)
@@ -400,7 +398,8 @@ class UserEmail(APIView):
     def get(self, request, user_id):
         user_profile = UserProfile.objects.get(user=user_id)
         
-        if user_profile and user_profile.email_public:
+        # Email is public or the profile belongs to the current user
+        if user_profile and (user_profile.email_public or request.user.id == user_profile.id):
             user = User.objects.get(pk=user_id)
             user_email = user.email
 

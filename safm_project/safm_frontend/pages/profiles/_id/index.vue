@@ -111,8 +111,8 @@ export default {
 
             let userEmail = ''
             if (profile.email_public) {
-                const response = await $axios.$get(`/user/email/${params.id}`)
-                userEmail = response.email
+                const email = await $axios.$get(`/user/email/${params.id}`)
+                userEmail = email.email
             }
 
             return {

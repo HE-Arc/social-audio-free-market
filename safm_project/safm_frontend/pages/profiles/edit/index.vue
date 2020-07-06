@@ -37,12 +37,113 @@
                         </v-col>
                         <v-col cols="12">
                             <v-btn
-                                block
-                                x-large
+                                large
                                 color="accent"
                                 @click="updateProfile"
                             >
                                 Update Profile
+                            </v-btn>
+                        </v-col>
+                    </v-row>
+                </form>
+            </section>
+            <section>
+                <h3 class="section-title">Username</h3>
+                <form>
+                    <v-row>
+                        <v-col cols="12">
+                            <v-text-field
+                                v-model="username"
+                                label="Username"
+                                required
+                                :error-messages="usernameErrors"
+                                @blur="$v.username.$touch()"
+                                @keypress.enter="updateUsername"
+                            ></v-text-field>
+                        </v-col>
+                        <v-col cols="12">
+                            <v-btn
+                                large
+                                color="accent"
+                                @click="updateUsername"
+                            >
+                                Update Username
+                            </v-btn>
+                        </v-col>
+                    </v-row>
+                </form>
+            </section>
+            <section>
+                <h3 class="section-title">Email</h3>
+                <form>
+                    <v-row>
+                        <v-col cols="12">
+                            <v-text-field
+                                v-model="email"
+                                label="Email"
+                                type="email"
+                                required
+                                :error-messages="emailErrors"
+                                @blur="$v.email.$touch()"
+                                @keypress.enter="updateEmail"
+                            ></v-text-field>
+                        </v-col>
+                        <v-col cols="12">
+                            <v-btn
+                                large
+                                color="accent"
+                                @click="updateEmail"
+                            >
+                                Update Email
+                            </v-btn>
+                        </v-col>
+                    </v-row>
+                </form>
+            </section>
+            <section>
+                <h3 class="section-title">Password</h3>
+                <form>
+                    <v-row>
+                        <v-col cols="12">
+                            <v-text-field
+                                v-model="password_current"
+                                label="Current Password"
+                                type="password"
+                                required
+                                :error-messages="passwordCurrentErrors"
+                                @blur="$v.password_current.$touch()"
+                                @keypress.enter="updatePassword"
+                            ></v-text-field>
+                        </v-col>
+                        <v-col cols="12">
+                            <v-text-field
+                                v-model="password"
+                                label="New Password"
+                                type="password"
+                                required
+                                :error-messages="passwordErrors"
+                                @blur="$v.password.$touch()"
+                                @keypress.enter="updatePassword"
+                            ></v-text-field>
+                        </v-col>
+                        <v-col cols="12">
+                            <v-text-field
+                                v-model="password_confirm"
+                                label="Confirm Password"
+                                type="password"
+                                required
+                                :error-messages="passwordConfirmErrors"
+                                @blur="$v.password_confirm.$touch()"
+                                @keypress.enter="updatePassword"
+                            ></v-text-field>
+                        </v-col>
+                        <v-col cols="12">
+                            <v-btn
+                                large
+                                color="accent"
+                                @click="updatePassword"
+                            >
+                                Update Password
                             </v-btn>
                         </v-col>
                     </v-row>
@@ -53,14 +154,32 @@
 </template>
 
 <script>
+import { validationMixin } from 'vuelidate'
+import { required, email, minLength } from 'vuelidate/lib/validators'
+
 export default {
     middleware: 'authenticated',
+
+    mixins: [validationMixin],
+
+    validations: {
+        username: { required },
+        email: { required, email },
+        password_current: { required, minLength: minLength(8) },
+        password: { required, minLength: minLength(8) },
+        password_confirm: { required, minLength: minLength(8) }
+    },
     
     data () {
         return {
             profile_picture: [],
             description: '',
             email_public: '',
+            username: '',
+            email: '',
+            password_current: '',
+            password: '',
+            password_confirm: ''
         }
     },
 
@@ -77,22 +196,71 @@ export default {
             case 'lg': return '150px'
             case 'xl': return '175px'
             }
+        },
+
+        usernameErrors () {
+            const errors = []
+            if (!this.$v.username.$dirty) return errors
+            !this.$v.username.required && errors.push('Username is required')
+
+            return errors
+        },
+
+        emailErrors () {
+            const errors = []
+            if (!this.$v.email.$dirty) return errors
+            !this.$v.email.email && errors.push('Must be valid email')
+            !this.$v.email.required && errors.push('Email is required')
+
+            return errors
+        },
+
+        passwordCurrentErrors () {
+            const errors = []
+            if (!this.$v.password_current.$dirty) return errors
+            !this.$v.password_current.required && errors.push('Current Password is required')
+            !this.$v.password_current.minLength && errors.push('Current Password must be at least 8 characters')
+
+            return errors
+        },
+
+        passwordErrors () {
+            const errors = []
+            if (!this.$v.password.$dirty) return errors
+            !this.$v.password.required && errors.push('New Password is required')
+            !this.$v.password.minLength && errors.push('New Password must be at least 8 characters')
+
+            return errors
+        },
+        
+        passwordConfirmErrors () {
+            const errors = []
+            if (!this.$v.password_confirm.$dirty) return errors
+            !this.$v.password_confirm.required && errors.push('Confirm Password is required')
+            !this.$v.password_confirm.minLength && errors.push('Confirm Password must be at least 8 characters')
+
+            return errors
         }
     },
 
     async asyncData ({ $axios, store }) {
         try {
             const profile = await $axios.$get(`/user/profile/${store.state.user.id}`)
+            const email = await $axios.$get(`/user/email/${store.state.user.id}`)
 
             return {
                 description: profile.description,
-                email_public: profile.email_public
+                email_public: profile.email_public,
+                username: profile.user.username,
+                email: email.email
             }
         } catch (e) {
             return {
                 profile_picture: '',
                 description: '',
-                email_public: ''
+                email_public: '',
+                username: '',
+                email: ''
             }
         }
     },
@@ -117,6 +285,62 @@ export default {
                 this.$nuxt.$emit('snackbar', 'Profile updated !')
             } catch (error) {
                 this.$nuxt.$emit('snackbar', error)
+            }
+        },
+
+        async updateUser (body, snackbarMessage) {
+            try {
+                const response = await this.$axios.patch(`/user/${this.$store.state.user.id}`, body)
+
+                this.$nuxt.$emit('snackbar', snackbarMessage)
+
+                return response.data
+            } catch (error) {
+                this.$nuxt.$emit('snackbar', error)
+            }
+        },
+
+        async updateUsername () {
+            this.$v.username.$touch()
+
+            if (!this.$v.username.$invalid) {
+                let body = new FormData()
+                body.set('username', this.username)
+
+                const response = await this.updateUser(body, 'Username updated !')
+                try {
+                    this.$updateUsername(response.username)
+                } catch (error) {
+                    this.$nuxt.$emit('snackbar', 'An error occured')
+                }
+            }
+        },
+
+        async updateEmail () {
+            this.$v.email.$touch()
+
+            if (!this.$v.email.$invalid) {
+                let body = new FormData()
+                body.set('email', this.email)
+
+                this.updateUser(body, 'Email updated !')
+            }
+        },
+
+        async updatePassword () {
+            this.$v.password_current.$touch()
+            this.$v.password.$touch()
+            this.$v.password_confirm.$touch()
+
+            if (!this.$v.password_current.$invalid &&
+                !this.$v.password.$invalid &&
+                !this.$v.password_confirm.$invalid) {
+                let body = new FormData()
+                body.set('password_current', this.password_current)
+                body.set('password', this.password)
+                body.set('password_confirm', this.password_confirm)
+
+                this.updateUser(body, 'Password updated !')
             }
         }
     }

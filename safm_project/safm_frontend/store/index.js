@@ -34,6 +34,10 @@ export const mutations = {
         state.user = user
     },
 
+    setUsername (state, username) {
+        state.user.name = username
+    },
+
     setAdvancedSearchParams (state, params) {
         state.advancedSearchParams = params
     },
