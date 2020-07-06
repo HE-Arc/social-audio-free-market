@@ -167,7 +167,7 @@ export default {
                 // Redirects to the uploaded sample page
                 this.$router.push(`/samples/${this.id}`)
             } catch (error) {
-                this.$nuxt.$emit('snackbar', error)
+                this.$nuxt.$emit('snackbar', this.$errorArrayToString(error.response.data))
             }
         },
 

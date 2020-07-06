@@ -124,29 +124,31 @@ export default {
 
     methods: {
         async register () {
-            let body = new FormData()
-            body.set('username', this.username)
-            body.set('email', this.email)
-            body.set('password', this.password)
-            body.set('password_confirm', this.password_confirm)
+            this.$v.username.$touch()
+            this.$v.email.$touch()
+            this.$v.password.$touch()
+            this.$v.password_confirm.$touch()
 
-            try {
-                const response = await this.$axios.post('/register', body)
-                const userid = this.$authenticateUser(response)
-                this.$nuxt.$emit('snackbar', 'Successful registration !')
-                
-                // Redirects to the user profile page
-                this.$router.push(`/profiles/${userid}`)
-            } catch (error) {
-                //this.$nuxt.$emit('snackbar', error.response.data)
-                /*
-                for (let e in error.response.data) {
+            if (!this.$v.username.$invalid &&
+                !this.$v.email.$invalid &&
+                !this.$v.password.$invalid &&
+                !this.$v.password_confirm.$invalid) {
+                let body = new FormData()
+                body.set('username', this.username)
+                body.set('email', this.email)
+                body.set('password', this.password)
+                body.set('password_confirm', this.password_confirm)
 
-                    this.$toast.error(`${e}: ${error.response.data[e]}`, {
-                        duration: 5000
-                    })
+                try {
+                    const response = await this.$axios.post('/register', body)
+                    const userid = this.$authenticateUser(response)
+                    this.$nuxt.$emit('snackbar', 'Successful registration !')
+                    
+                    // Redirects to the user profile page
+                    this.$router.push(`/profiles/${userid}`)
+                } catch (error) {
+                    this.$nuxt.$emit('snackbar', this.$errorArrayToString(error.response.data))
                 }
-                */
             }
         }
     }

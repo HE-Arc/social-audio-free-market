@@ -161,46 +161,44 @@ export default {
 
     methods: {
         async upload () {
-            let body = new FormData()
-            body.append('file', this.file)
-            body.set('name', this.name)
-            
-            if (this.description) {
-                body.set('description', this.description)
-            }
-            
-            if (this.key) {
-                body.set('key', this.key)
-            }
+            this.$v.file.$touch()
+            this.$v.name.$touch()
 
-            if (this.mode) {
-                body.set('mode', this.mode)
-            }
-            
-            if (this.tags) {
-                body.set('tags', this.tags)
-            }
-            
-            if (this.selectedForkFrom) {
-                body.append('forks_from', this.selectedForkFrom)
-            }
-            
-            try {
-                const response = await this.$axios.post('/sample', body)
-                const sampleId = response.data.id
-
-                this.$nuxt.$emit('snackbar', 'Sample uploaded !')
-                // Redirects to the uploaded sample page
-                this.$router.push(`/samples/${sampleId}`)
-            } catch (error) {
-                this.$nuxt.$emit('snackbar', error)
-                /*
-                for (let e in error.response.data) {
-                    this.$toast.error(error.response.data[e], {
-                        duration: 5000
-                    })
+            if (!this.$v.file.$invalid && !this.$v.name.$invalid) {
+                let body = new FormData()
+                body.append('file', this.file)
+                body.set('name', this.name)
+                
+                if (this.description) {
+                    body.set('description', this.description)
                 }
-                */
+                
+                if (this.key) {
+                    body.set('key', this.key)
+                }
+
+                if (this.mode) {
+                    body.set('mode', this.mode)
+                }
+                
+                if (this.tags) {
+                    body.set('tags', this.tags)
+                }
+                
+                if (this.selectedForkFrom) {
+                    body.append('forks_from', this.selectedForkFrom)
+                }
+                
+                try {
+                    const response = await this.$axios.post('/sample', body)
+                    const sampleId = response.data.id
+
+                    this.$nuxt.$emit('snackbar', 'Sample uploaded !')
+                    // Redirects to the uploaded sample page
+                    this.$router.push(`/samples/${sampleId}`)
+                } catch (error) {
+                    this.$nuxt.$emit('snackbar', this.$errorArrayToString(error.response.data))
+                }
             }
         }
     }

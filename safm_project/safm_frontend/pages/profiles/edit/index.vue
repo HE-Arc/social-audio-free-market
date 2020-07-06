@@ -284,7 +284,7 @@ export default {
 
                 this.$nuxt.$emit('snackbar', 'Profile updated !')
             } catch (error) {
-                this.$nuxt.$emit('snackbar', error)
+                this.$nuxt.$emit('snackbar', this.$errorArrayToString(error.response.data))
             }
         },
 
@@ -296,7 +296,8 @@ export default {
 
                 return response.data
             } catch (error) {
-                this.$nuxt.$emit('snackbar', error)
+                this.$nuxt.$emit('snackbar', this.$errorArrayToString(error.response.data))
+                return null
             }
         },
 
@@ -308,10 +309,8 @@ export default {
                 body.set('username', this.username)
 
                 const response = await this.updateUser(body, 'Username updated !')
-                try {
+                if (response) {
                     this.$updateUsername(response.username)
-                } catch (error) {
-                    this.$nuxt.$emit('snackbar', 'An error occured')
                 }
             }
         },
