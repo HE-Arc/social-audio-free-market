@@ -34,4 +34,10 @@ export default ({ store, $axios }, inject) => {
 
         $axios.setHeader('Authorization', '')
     })
+
+    // Updates the username in the store
+    inject('updateUsername', (username) => {
+        store.commit('setUsername', username)
+        Cookie.set('username', username)
+    })
 }

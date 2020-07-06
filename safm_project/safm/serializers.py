@@ -2,24 +2,38 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
+from django.contrib.auth.hashers import check_password
 from .models import *
 
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(write_only=True, validators=[UniqueValidator(queryset=User.objects.all())])
     password = serializers.CharField(write_only=True)
     password_confirm = serializers.CharField(write_only=True)
+    password_current = serializers.CharField(write_only=True, required=False)
+    password_min_length = 8
+    
+    def validate(self, data):
+        password = data.get('password')
+        password_confirm = data.get('password_confirm')
+        password_current = data.get('password_current')
 
+        # User create or user password patch
+        if not self.partial or (self.partial and password):
+            if self.partial and not check_password(password_current, self.instance.password):
+                raise serializers.ValidationError('Invalid current password.')
+
+            if self.partial and check_password(password, self.instance.password):
+                raise serializers.ValidationError('The new password must be different than the current one.')
+
+            if len(password) < self.password_min_length:
+                raise serializers.ValidationError('Password length must be at least {0} characters.'.format(self.password_min_length))
+
+            if password != password_confirm:
+                raise serializers.ValidationError('Password confirmation does not match.')
+
+        return data
+    
     def create(self, validated_data):
-        password_min_length = 8
-
-        # Password min length validation
-        if len(validated_data['password']) < password_min_length:
-            raise serializers.ValidationError('Password length must be at least {0} characters.'.format(password_min_length))
-
-        # Confirm password validation
-        if validated_data['password'] != validated_data['password_confirm']:
-            raise serializers.ValidationError('Password confirmation does not match.')
-
         user = User.objects.create(
             username=validated_data['username'],
             email=validated_data['email']
@@ -27,13 +41,28 @@ class UserSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
 
+        # Creates a UserProfile when a new User is created
         UserProfile.objects.create(user=user)
 
         return user
 
+    def update(self, instance, validated_data):
+        if validated_data.get('username'):
+            instance.username = validated_data.get('username')
+
+        if validated_data.get('email'):
+            instance.email = validated_data.get('email')
+
+        if validated_data.get('password'):
+            instance.set_password(validated_data.get('password'))
+        
+        instance.save()
+
+        return instance
+
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'password', 'password_confirm', 'date_joined']
+        fields = ['id', 'username', 'email', 'password', 'password_confirm', 'password_current', 'date_joined']
 
 
 class LoginSerializer(serializers.Serializer):

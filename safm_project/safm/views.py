@@ -6,6 +6,7 @@ from django.conf import settings
 from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
 from rest_framework import filters, generics
 from rest_framework.views import APIView
+from rest_framework.mixins import UpdateModelMixin
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import status
@@ -69,6 +70,19 @@ class Register(generics.CreateAPIView):
         }, status=status.HTTP_201_CREATED)
 
 
+class UserUpdate(generics.GenericAPIView, UpdateModelMixin):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, *args, **kwargs):
+        if request.user.id == kwargs['pk']:
+            return self.partial_update(request, *args, **kwargs)
+
+        return JsonResponse({'detail': 'User does not belong to the user.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
 class QuickSearch(generics.ListAPIView):
     queryset = Sample.objects.all()
     serializer_class = SampleSerializer
@@ -99,7 +113,6 @@ class AdvancedSearch(generics.ListAPIView):
 
 
 class SampleView(generics.GenericAPIView):
-    serializer_class = SampleSerializer
     sample_not_found = JsonResponse({'detail': 'Sample not found.'}, status=status.HTTP_400_BAD_REQUEST)
     unauthenticated = JsonResponse({'detail': 'Authentication credentials were not provided.'}, status=status.HTTP_401_UNAUTHORIZED)
     sample_not_authorized = JsonResponse({'detail': 'Sample does not belong to the user.'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -292,10 +305,58 @@ class UserDownloads(APIView):
         return JsonResponse(user_downloads_serializer.data, safe=False)
 
 
-class UserProfilePage(generics.RetrieveAPIView):
-    lookup_field = 'user_id'
-    queryset = UserProfile.objects.all()
-    serializer_class = UserProfileSerializer
+class UserProfileView(generics.GenericAPIView):
+    profile_not_found = JsonResponse({'detail': 'User profile not found.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request, *args, **kwargs):
+        '''
+        Retrieve UserProfile
+        '''
+        profile = self._profile_by_id(kwargs)
+        if profile:
+            serializer = UserProfileSerializer(profile)
+            return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+            
+        return self.profile_not_found
+
+    def patch(self, request, *args, **kwargs):
+        '''
+        Update User Profile
+        '''
+        if request.user.is_authenticated:
+            profile = self._profile_by_id(kwargs)
+
+            if profile:
+                if profile.user == request.user:
+                    serializer = UserProfileSerializer(profile, data=request.data, partial=True)
+                    serializer.is_valid(raise_exception=True)
+    
+                    # Removes the old profile picture if a new one is uploaded
+                    if request.data.get('profile_picture'):
+                        path_old_picture = os.path.join(settings.MEDIA_ROOT, profile.profile_picture.name)
+                        os.remove(path_old_picture)
+
+                    profile = serializer.save()
+
+                    if profile:
+                        return JsonResponse({'id': profile.id}, status=status.HTTP_200_OK)
+
+                    return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+                return JsonResponse({'detail': 'Profile does not belong to the user.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+            return self.profile_not_found
+
+        return JsonResponse({'detail': 'Authentication credentials were not provided.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    def _profile_by_id(self, kwargs):
+        '''
+        Returns the UserProfile model associated to the ID parameter or None.
+        '''
+        try:
+            return UserProfile.objects.get(pk=kwargs['id'])
+        except:
+            return None
               
 
 class UserSamples(generics.ListAPIView):
@@ -319,9 +380,7 @@ class UserProfilePicture(APIView):
         image_file = user_profile.profile_picture
 
         if image_file:
-            print(image_file)
             path_to_file = os.path.join(settings.MEDIA_ROOT, image_file.name)
-            print(path_to_file)
             with open(path_to_file, 'rb') as f:
                 mime_type = mimetypes.MimeTypes().guess_type(image_file.name)
                 response = HttpResponse(f, content_type=mime_type)
@@ -339,7 +398,8 @@ class UserEmail(APIView):
     def get(self, request, user_id):
         user_profile = UserProfile.objects.get(user=user_id)
         
-        if user_profile and user_profile.email_public:
+        # Email is public or the profile belongs to the current user
+        if user_profile and (user_profile.email_public or request.user.id == user_profile.id):
             user = User.objects.get(pk=user_id)
             user_email = user.email
 
