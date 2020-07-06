@@ -163,7 +163,7 @@ export default {
             try {
                 await this.$axios.patch(`/sample/${this.id}`, body)
 
-                this.$nuxt.$emit('snackbar', 'Sample uploaded !')
+                this.$nuxt.$emit('snackbar', 'Sample updated !')
                 // Redirects to the uploaded sample page
                 this.$router.push(`/samples/${this.id}`)
             } catch (error) {

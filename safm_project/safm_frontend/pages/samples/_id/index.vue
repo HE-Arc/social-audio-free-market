@@ -170,7 +170,11 @@ export default {
         },
 
         canEdit () {
-            return this.userId == this.$store.state.user.id
+            if (this.$store.state.user) {
+                return this.userId == this.$store.state.user.id
+            }
+            
+            return false
         },
 
         keyMode () {

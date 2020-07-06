@@ -32,7 +32,7 @@ export default ({ store, $axios }, inject) => {
         Cookie.remove('userid')
         Cookie.remove('username')
 
-        $axios.setHeader('Authorization', '')
+        $axios.setHeader('Authorization', null)
     })
 
     // Updates the username in the store

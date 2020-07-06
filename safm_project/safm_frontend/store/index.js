@@ -52,7 +52,7 @@ export const mutations = {
 }
 
 export const actions = {
-    nuxtServerInit ({ commit }, { req }) {
+    nuxtServerInit ({ commit }, { req, app }) {
         let auth = null
         let userid = ''
         let username = ''
