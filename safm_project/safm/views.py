@@ -6,6 +6,7 @@ from django.conf import settings
 from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
 from rest_framework import filters, generics
 from rest_framework.views import APIView
+from rest_framework.mixins import UpdateModelMixin
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import status
@@ -67,6 +68,19 @@ class Register(generics.CreateAPIView):
             'userid': user.id,
             'username': user.username
         }, status=status.HTTP_201_CREATED)
+
+
+class UserUpdate(generics.GenericAPIView, UpdateModelMixin):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, *args, **kwargs):
+        if request.user.id == kwargs['pk']:
+            return self.partial_update(request, *args, **kwargs)
+
+        return JsonResponse({'detail': 'User does not belong to the user.'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class QuickSearch(generics.ListAPIView):

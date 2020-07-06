@@ -16,6 +16,7 @@ urlpatterns = [
     path('api/forks/from/<int:sample_id>', ListSampleForkFrom.as_view()),
     path('api/forks/to/<int:sample_id>', ListSampleForkTo.as_view()),
 
+    path('api/user/<int:pk>', UserUpdate.as_view()),
     path('api/user/downloads', UserDownloads.as_view()),
     path('api/user/samples/<int:user_id>', UserSamples.as_view()),
     path('api/user/samples/count/<int:user_id>', UserSamplesCount.as_view()),
