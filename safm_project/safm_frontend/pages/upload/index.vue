@@ -24,14 +24,13 @@
                             required
                             :error-messages="nameErrors"
                             @blur="$v.name.$touch()"
-                            @keypress.enter="upload"
                         ></v-text-field>
                     </v-col>
                     <v-col cols="12">
                         <v-textarea
                             v-model="description"
                             label="Description"
-                            @keypress.enter="upload"
+                            outlined
                         ></v-textarea>
                     </v-col>
                     <v-col cols="6">
@@ -73,6 +72,7 @@
                             block
                             x-large
                             color="accent"
+                            :loading="loading"
                             @click="upload"
                         >
                             Upload
@@ -120,7 +120,8 @@ export default {
             ],
             tags: [],
             selectedForkFrom: [],
-            downloadedSamples: []
+            downloadedSamples: [],
+            loading: false
         }
     },
 
@@ -154,50 +155,54 @@ export default {
             let downloadedSamples = await $axios.$get('/user/downloads')
 
             return { downloadedSamples }
-        } catch (e) {
+        } catch (error) {
             return { downloadedSamples: [] }
         }
     },
 
     methods: {
         async upload () {
-            this.$v.file.$touch()
-            this.$v.name.$touch()
+            if (!this.loading) {
+                this.$v.$touch()
 
-            if (!this.$v.file.$invalid && !this.$v.name.$invalid) {
-                let body = new FormData()
-                body.append('file', this.file)
-                body.set('name', this.name)
-                
-                if (this.description) {
-                    body.set('description', this.description)
-                }
-                
-                if (this.key) {
-                    body.set('key', this.key)
-                }
+                if (!this.$v.$anyError) {
+                    this.loading = true
 
-                if (this.mode) {
-                    body.set('mode', this.mode)
-                }
-                
-                if (this.tags) {
-                    body.set('tags', this.tags)
-                }
-                
-                if (this.selectedForkFrom) {
-                    body.append('forks_from', this.selectedForkFrom)
-                }
-                
-                try {
-                    const response = await this.$axios.post('/sample', body)
-                    const sampleId = response.data.id
+                    let body = new FormData()
+                    body.append('file', this.file)
+                    body.set('name', this.name)
+                    
+                    if (this.description) {
+                        body.set('description', this.description)
+                    }
+                    
+                    if (this.key) {
+                        body.set('key', this.key)
+                    }
 
-                    this.$nuxt.$emit('snackbar', 'Sample uploaded !')
-                    // Redirects to the uploaded sample page
-                    this.$router.push(`/samples/${sampleId}`)
-                } catch (error) {
-                    this.$nuxt.$emit('snackbar', this.$errorArrayToString(error.response.data))
+                    if (this.mode) {
+                        body.set('mode', this.mode)
+                    }
+                    
+                    if (this.tags) {
+                        body.set('tags', this.tags)
+                    }
+                    
+                    if (this.selectedForkFrom) {
+                        body.append('forks_from', this.selectedForkFrom)
+                    }
+                    
+                    try {
+                        const response = await this.$axios.post('/sample', body)
+                        const sampleId = response.data.id
+
+                        this.$nuxt.$emit('snackbar', 'Sample uploaded !')
+                        // Redirects to the uploaded sample page
+                        this.$router.push(`/sample/${sampleId}`)
+                    } catch (error) {
+                        this.$nuxt.$emit('snackbar', this.$errorArrayToString(error.response.data))
+                        this.loading = false
+                    }
                 }
             }
         }

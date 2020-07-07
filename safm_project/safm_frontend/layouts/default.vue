@@ -147,16 +147,17 @@ export default {
         },
 
         profile () {
-            this.$router.push(`/profiles/${this.userid}`)
+            this.$router.push(`/profile/${this.userid}`)
         },        
 
         settings () {
-            this.$router.push('/profiles/edit')
+            this.$router.push('/profile/edit')
         },
 
-        logout () {
+        async logout () {
             try {
-                this.$logoutUser()
+                await this.$axios.post('/logout')
+                this.$deleteUserCredentials()
                 this.$nuxt.$emit('snackbar', 'Successfully logged out !')
             } catch (error) {
                 this.$nuxt.$emit('snackbar', 'An error occured')

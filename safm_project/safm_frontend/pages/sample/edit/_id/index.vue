@@ -165,7 +165,7 @@ export default {
 
                 this.$nuxt.$emit('snackbar', 'Sample updated !')
                 // Redirects to the uploaded sample page
-                this.$router.push(`/samples/${this.id}`)
+                this.$router.push(`/sample/${this.id}`)
             } catch (error) {
                 this.$nuxt.$emit('snackbar', this.$errorArrayToString(error.response.data))
             }
@@ -177,7 +177,7 @@ export default {
 
             this.$nuxt.$emit('snackbar', detail)
             // Redirects to the user profile page
-            this.$router.push(`/profiles/${this.sampleUserId}`)
+            this.$router.push(`/profile/${this.sampleUserId}`)
         }
     }
 }

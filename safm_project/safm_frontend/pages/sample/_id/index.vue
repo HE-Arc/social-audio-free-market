@@ -26,7 +26,7 @@
                             v-if="canEdit"
                             fab
                             x-large
-                            :to="`/samples/edit/${this.sample.id}`"
+                            :to="`/sample/edit/${this.sample.id}`"
                         >
                             <v-icon>mdi-pencil</v-icon>
                         </v-btn>
@@ -40,7 +40,7 @@
                             md="2"
                         >
                             <v-card class="text-center">
-                                <nuxt-link :to="`/profiles/${userId}`">
+                                <nuxt-link :to="`/profile/${userId}`">
                                     <v-img
                                         :src="profilePictureSrc"
                                         width="100"

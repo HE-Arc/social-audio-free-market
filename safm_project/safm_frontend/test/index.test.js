@@ -31,9 +31,9 @@ test('Route /advanced-search exists and renders HTML', async (t) => {
     t.true(html.includes('nuxt'))
 })
 /*
-test('Route /profiles exits and renders HTML', async (t) => {
+test('Route /profile exits and renders HTML', async (t) => {
     const context = {}
-    const { html } = await nuxt.server.renderRoute('/profiles', context)
+    const { html } = await nuxt.server.renderRoute('/profile', context)
     t.true(html.includes('nuxt'))
 })
 */
@@ -49,9 +49,9 @@ test('Route /register exists and renders HTML', async (t) => {
     t.true(html.includes('nuxt'))
 })
 /*
-test('Route /samples exists and renders HTML', async (t) => {
+test('Route /sample exists and renders HTML', async (t) => {
     const context = {}
-    const { html } = await nuxt.server.renderRoute('/samples', context)
+    const { html } = await nuxt.server.renderRoute('/sample', context)
     t.true(html.includes('nuxt'))
 })
 */

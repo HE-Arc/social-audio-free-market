@@ -2,10 +2,10 @@
     <div>
         <v-card>
             <v-card-title class="headline">
-                <nuxt-link :to="`/samples/${id}`">{{ name }}</nuxt-link>
+                <nuxt-link :to="`/sample/${id}`">{{ name }}</nuxt-link>
             </v-card-title>
             <v-card-text>
-                By <nuxt-link :to="`/profiles/${userId}`">{{ username }}</nuxt-link>
+                By <nuxt-link :to="`/profile/${userId}`">{{ username }}</nuxt-link>
             </v-card-text>
             <WaveForm :id="id" />
             <v-card-text>

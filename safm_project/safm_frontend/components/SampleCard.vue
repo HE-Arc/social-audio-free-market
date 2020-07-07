@@ -1,7 +1,7 @@
 <template>
     <v-card class="sample card">
         <v-card-title class="headline">
-            <nuxt-link :to="`/samples/${id}`">{{ name }}</nuxt-link>
+            <nuxt-link :to="`/sample/${id}`">{{ name }}</nuxt-link>
         </v-card-title>
         <v-btn
             v-if="canEdit"
@@ -9,7 +9,7 @@
             top
             right
             fab
-            :to="`/samples/edit/${this.id}`"
+            :to="`/sample/edit/${this.id}`"
         >
             <v-icon>mdi-pencil</v-icon>
         </v-btn>
@@ -62,7 +62,7 @@
             <v-btn
                 text
                 small
-                :to="`/profiles/${userId}`"
+                :to="`/profile/${userId}`"
                 class="pa-0"
             >
                 {{ username }}
