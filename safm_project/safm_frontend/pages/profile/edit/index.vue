@@ -290,6 +290,12 @@ export default {
         }
     },
 
+    head () {
+        return {
+            title: 'Edit Profile'
+        }
+    },
+
     methods: {
         async updateProfile () {
             if (!this.loadingProfile) {

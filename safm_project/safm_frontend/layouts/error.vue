@@ -29,10 +29,8 @@ export default {
     },
 
     head () {
-        const title = `${this.error.statusCode} | ${this.codeStatusMessage}`
-        
         return {
-            title
+            title: this.codeStatusMessage
         }
     }
 }

@@ -128,7 +128,13 @@ export default {
         } catch (e) {
             error({ statusCode: 404, message: 'User profile not found' })
         }
-    }
+    },
+
+    head () {
+        return {
+            title: this.username
+        }
+    },
 }
 </script>
 
