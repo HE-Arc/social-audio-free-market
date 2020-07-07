@@ -92,6 +92,12 @@ export default {
         }
     },
 
+    head () {
+        return {
+            title: 'Login'
+        }
+    },
+
     methods: {
         async login () {
             if (!this.loading) {

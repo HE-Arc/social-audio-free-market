@@ -202,7 +202,13 @@ export default {
         } catch (e) {
             error({ statusCode: 404, message: 'Sample not found' })
         }
-    }
+    },
+
+    head () {
+        return {
+            title: this.sample.name
+        }
+    },
 }
 </script>
 

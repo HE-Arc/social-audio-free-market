@@ -160,6 +160,12 @@ export default {
         }
     },
 
+    head () {
+        return {
+            title: 'Upload Sample'
+        }
+    },
+
     methods: {
         async upload () {
             if (!this.loading) {

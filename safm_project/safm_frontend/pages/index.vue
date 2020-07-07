@@ -43,6 +43,12 @@ export default {
         }
     },
 
+    head () {
+        return {
+            title: 'Home'
+        }
+    },
+
     methods: {
         quickSearch () {
             if (this.quickSearchInput.length > 0) {

@@ -129,6 +129,12 @@ export default {
         }
     },
 
+    head () {
+        return {
+            title: `Edit ${this.name}`
+        }
+    },
+
     methods: {
         async update () {
             if (!this.loadingUpdate) {

@@ -127,6 +127,12 @@ export default {
         }
     },
 
+    head () {
+        return {
+            title: 'Register'
+        }
+    },
+
     methods: {
         async register () {
             if (!this.loading) {

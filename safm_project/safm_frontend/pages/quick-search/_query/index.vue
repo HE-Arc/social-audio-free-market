@@ -34,6 +34,12 @@ export default {
         } catch (e) {
             error({ statusCode: 404, message: 'Page not found' })
         }
-    }
+    },
+
+    head () {
+        return {
+            title: 'Quick Search'
+        }
+    },
 }
 </script>
