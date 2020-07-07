@@ -41,6 +41,7 @@
                             block
                             x-large
                             color="accent"
+                            :loading="loadingUpdate"
                             @click="update"
                         >
                             Update
@@ -57,6 +58,7 @@
                 block
                 x-large
                 color="error"
+                :loading="loadingRemove"
                 @click="remove"
                 :disabled="!removeEnable"
             >
@@ -91,7 +93,9 @@ export default {
                 { text: 'Major', value: 'maj' }
             ],
             tags: [],
-            removeEnable: false
+            loadingUpdate: false,
+            removeEnable: false,
+            loadingRemove: false
         }
     },
 
@@ -127,46 +131,60 @@ export default {
 
     methods: {
         async update () {
-            let body = new FormData()
+            if (!this.loadingUpdate) {
+                this.loadingUpdate = true
 
-            if (this.name) {
-                body.set('name', this.name)
-            }
-            
-            if (this.description) {
-                body.set('description', this.description)
-            }
-            
-            if (this.key) {
-                body.set('key', this.key)
-            }
+                let body = new FormData()
 
-            if (this.mode) {
-                body.set('mode', this.mode)
-            }
-            
-            if (this.tags) {
-                body.set('tags', this.tags)
-            }
+                if (this.name) {
+                    body.set('name', this.name)
+                }
+                
+                if (this.description) {
+                    body.set('description', this.description)
+                }
+                
+                if (this.key) {
+                    body.set('key', this.key)
+                }
 
-            try {
-                await this.$axios.patch(`/sample/${this.id}`, body)
+                if (this.mode) {
+                    body.set('mode', this.mode)
+                }
+                
+                if (this.tags) {
+                    body.set('tags', this.tags)
+                }
 
-                this.$nuxt.$emit('snackbar', 'Sample updated !')
-                // Redirects to the uploaded sample page
-                this.$router.push(`/sample/${this.id}`)
-            } catch (e) {
-                this.$nuxt.$emit('snackbar', this.$errorArrayToString(e.response.data))
+                try {
+                    await this.$axios.patch(`/sample/${this.id}`, body)
+
+                    this.$nuxt.$emit('snackbar', 'Sample updated !')
+                    // Redirects to the uploaded sample page
+                    this.$router.push(`/sample/${this.id}`)
+                } catch (e) {
+                    this.$nuxt.$emit('snackbar', this.$errorArrayToString(e.response.data))
+                    this.loadingUpdate = false
+                }
             }
         },
 
         async remove () {
-            const response = await this.$axios.delete(`/sample/${this.id}`)
-            const detail = response.data.detail
+            if (!this.loadingRemove) {
+                this.loadingRemove = true
 
-            this.$nuxt.$emit('snackbar', detail)
-            // Redirects to the user profile page
-            this.$router.push(`/profile/${this.sampleUserId}`)
+                try {
+                    const response = await this.$axios.delete(`/sample/${this.id}`)
+                    const detail = response.data.detail
+
+                    this.$nuxt.$emit('snackbar', detail)
+                    // Redirects to the user profile page
+                    this.$router.push(`/profile/${this.sampleUserId}`)
+                } catch (e) {
+                    this.$nuxt.$emit('snackbar', 'An error occured')
+                    this.loadingRemove = true
+                }
+            }
         }
     }
 }

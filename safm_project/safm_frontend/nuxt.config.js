@@ -84,6 +84,7 @@ export default {
             name: 'Social Audio Free Market',
             short_name: 'SAFM',
             display: 'standalone',
+            background_color: '#333'
         },
         workbox: {
             runtimeCaching: [
