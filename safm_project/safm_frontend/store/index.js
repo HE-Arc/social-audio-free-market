@@ -52,7 +52,7 @@ export const mutations = {
 }
 
 export const actions = {
-    nuxtServerInit ({ commit }, { req, app }) {
+    nuxtServerInit ({ commit }, { req }) {
         let auth = null
         let userid = ''
         let username = ''
@@ -64,7 +64,7 @@ export const actions = {
                 auth = parsed.auth
                 userid = parsed.userid
                 username = parsed.username
-            } catch (error) {
+            } catch (e) {
                 // Not a valid authentication token nor username
             }
         }

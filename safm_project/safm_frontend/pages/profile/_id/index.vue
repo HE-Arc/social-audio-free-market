@@ -1,87 +1,80 @@
 <template>
     <div>
         <v-container>
-            <div v-if="profile">
-                <v-img
-                    :src="profilePictureSrc"
-                    :width="profilePictureSize"
-                    :height="profilePictureSize"
-                ></v-img>
-                <h1>{{ username }}</h1>
-                <v-row>
-                    <v-col
-                        cols="12"
-                        sm="3"
-                        md="2"
-                    >
-                        <v-card>
-                            <v-card-actions class="justify-center">
-                                <v-icon class="mr-1">mdi-music-note</v-icon>
-                                <span class="mr-2">{{ numberSamples }}</span>
-                                <span class="mr-1">·</span>
-                                <v-icon class="mr-1">mdi-account-multiple</v-icon>
-                                <span>-</span>
-                            </v-card-actions>
-                            <v-card-actions class="justify-center">
-                                <v-btn
-                                    small
-                                    color="accent"
-                                    disabled
-                                >
-                                    <v-icon class="mr-1">mdi-account-plus</v-icon>
-                                    Follow
-                                </v-btn>
-                            </v-card-actions>
-                        </v-card>
-                    </v-col>
-                    <v-col
-                        cols="12"
-                        sm="9"
-                        md="10"
-                    >
-                        <v-card>
-                            <v-card-text class="px-6 body-1">
-                                {{ profile.description }}
-                            </v-card-text>
-                            <div v-if="profile.email_public">
-                                <v-divider class="mx-6"></v-divider>
-                                <v-card-text class="px-6 body-2">
-                                    <v-icon>mdi-email-outline</v-icon>
-                                    <span class="mx-2">{{ userEmail }}</span>
-                                </v-card-text>
-                            </div>
+            <v-img
+                :src="profilePictureSrc"
+                :width="profilePictureSize"
+                :height="profilePictureSize"
+            ></v-img>
+            <h1>{{ username }}</h1>
+            <v-row>
+                <v-col
+                    cols="12"
+                    sm="3"
+                    md="2"
+                >
+                    <v-card>
+                        <v-card-actions class="justify-center">
+                            <v-icon class="mr-1">mdi-music-note</v-icon>
+                            <span class="mr-2">{{ numberSamples }}</span>
+                            <span class="mr-1">·</span>
+                            <v-icon class="mr-1">mdi-account-multiple</v-icon>
+                            <span>-</span>
+                        </v-card-actions>
+                        <v-card-actions class="justify-center">
+                            <v-btn
+                                small
+                                color="accent"
+                                disabled
+                            >
+                                <v-icon class="mr-1">mdi-account-plus</v-icon>
+                                Follow
+                            </v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-col>
+                <v-col
+                    cols="12"
+                    sm="9"
+                    md="10"
+                >
+                    <v-card>
+                        <v-card-text class="px-6 body-1">
+                            {{ profile.description }}
+                        </v-card-text>
+                        <div v-if="profile.email_public">
                             <v-divider class="mx-6"></v-divider>
                             <v-card-text class="px-6 body-2">
-                                {{ `Joined on ${new Date(dateJoined).toLocaleDateString()}` }}
+                                <v-icon>mdi-email-outline</v-icon>
+                                <span class="mx-2">{{ userEmail }}</span>
                             </v-card-text>
-                        </v-card>
-                    </v-col>
-                </v-row>
-                <section>
-                    <h2>User Samples</h2>
-                    <div v-if="samples.length > 0">
-                        <SampleList :samples="samples" />
-                    </div>
-                    <div v-else>
-                        This user does not have any samples.
-                    </div>
-                </section>
-            </div>
-            <div v-else>
-                <ErrorDisplay title="This user does not exist" />
-            </div>
+                        </div>
+                        <v-divider class="mx-6"></v-divider>
+                        <v-card-text class="px-6 body-2">
+                            {{ `Joined on ${new Date(dateJoined).toLocaleDateString()}` }}
+                        </v-card-text>
+                    </v-card>
+                </v-col>
+            </v-row>
+            <section>
+                <h2>User Samples</h2>
+                <div v-if="samples.length > 0">
+                    <SampleList :samples="samples" />
+                </div>
+                <div v-else>
+                    This user does not have any samples.
+                </div>
+            </section>
         </v-container>
     </div>
 </template>
 
 <script>
 import SampleList from '~/components/SampleList.vue'
-import ErrorDisplay from '~/components/ErrorDisplay.vue'
 
 export default {
     components: {
-        SampleList,
-        ErrorDisplay
+        SampleList
     },
 
     data () {
@@ -114,7 +107,7 @@ export default {
         }
     },
 
-    async asyncData({ $axios, params }) {
+    async asyncData({ $axios, params, error }) {
         try {
             const profile = await $axios.$get(`/user/profile/${params.id}`)
             const samples = await $axios.$get(`/user/samples/${params.id}`)
@@ -133,13 +126,7 @@ export default {
                 samples: samples
             }
         } catch (e) {
-            return {
-                username: '',
-                profile: '',
-                userEmail: '',
-                dateJoined: '',
-                samples: []
-            }
+            error({ statusCode: 404, message: 'User profile not found' })
         }
     }
 }

@@ -8,7 +8,7 @@
                 <SampleList :samples="samples" />
             </div>
             <div v-else>
-                <ErrorDisplay title="No Results" />
+                <h2>No Results</h2>
             </div>
         </section>
     </div>
@@ -17,13 +17,11 @@
 <script>
 import AdvancedSearch from '~/components/AdvancedSearch.vue'
 import SampleList from '~/components/SampleList.vue'
-import ErrorDisplay from '~/components/ErrorDisplay.vue'
 
 export default {
     components: {
         AdvancedSearch,
-        SampleList,
-        ErrorDisplay
+        SampleList
     },
 
     data () {
@@ -32,15 +30,15 @@ export default {
         }
     },
 
-    async asyncData ({ $axios, params }) {
+    async asyncData ({ $axios, params, error }) {
         try {
-            if (params.query.length > 0) {
-                let samples = await $axios.$get(`/ad_search?${params.query}`)
+            if (params.query && params.query.length > 0) {
+                const samples = await $axios.$get(`/ad_search?${params.query}`)
                 
                 return { samples }
             }
-        } catch (error) {
-            return { samples: [] }
+        } catch (e) {
+            error({ statusCode: 404, message: 'Page not found' })
         }
     }
 }

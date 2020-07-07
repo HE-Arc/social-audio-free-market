@@ -5,8 +5,8 @@
             app
         >
             <v-btn
-                to="/"
                 text
+                @click="home"
             >
                 {{ title }}
             </v-btn>
@@ -138,6 +138,10 @@ export default {
     },
 
     methods: {
+        home () {
+            this.$router.push('/')
+        },
+
         handleFunctionCall (functionName) {
             this[functionName]()
         },
@@ -159,7 +163,7 @@ export default {
                 await this.$axios.post('/logout')
                 this.$deleteUserCredentials()
                 this.$nuxt.$emit('snackbar', 'Successfully logged out !')
-            } catch (error) {
+            } catch (e) {
                 this.$nuxt.$emit('snackbar', 'An error occured')
             }
         }

@@ -1,140 +1,135 @@
 <template>
     <div>
         <v-container>
-            <div v-if="sample">
-                <h1>{{ sample.name }}</h1>
-                <section>
-                    <WaveForm
-                        ref="waveform"
-                        :id="sample.id"
+            <h1>{{ sample.name }}</h1>
+            <section>
+                <WaveForm
+                    ref="waveform"
+                    :id="sample.id"
+                />
+            </section>
+            <v-card>
+                <v-card-text>
+                    <SampleActions :sampleId="sample.id" />
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        fab
+                        x-large
+                        @click="likedSample = !likedSample"
+                        class="pink--text"
+                        disabled
+                    >
+                        <v-icon>{{ likeSampleIcon }}</v-icon>
+                    </v-btn>
+                    <v-btn
+                        v-if="canEdit"
+                        fab
+                        x-large
+                        :to="`/sample/edit/${this.sample.id}`"
+                    >
+                        <v-icon>mdi-pencil</v-icon>
+                    </v-btn>
+                </v-card-text>
+            </v-card>
+            <section>
+                <v-row>
+                    <v-col
+                        cols="12"
+                        sm="3"
+                        md="2"
+                    >
+                        <v-card class="text-center">
+                            <nuxt-link :to="`/profile/${userId}`">
+                                <v-img
+                                    :src="profilePictureSrc"
+                                    width="100"
+                                    height="100"
+                                ></v-img>
+                                <v-card-title class="justify-center">
+                                    {{ username }}
+                                </v-card-title>
+                            </nuxt-link>
+                            <v-card-actions>
+                                <v-row>
+                                    <v-col cols="12">
+                                        <v-icon class="mr-1">mdi-music-note</v-icon>
+                                        <span class="mr-2">{{ numberSamples }}</span>
+                                        <span class="mr-1">·</span>
+                                        <v-icon class="mr-1">mdi-account-multiple</v-icon>
+                                        <span>-</span>
+                                    </v-col>
+                                    <v-col cols="12">
+                                        <v-btn
+                                            small
+                                            color="accent"
+                                            disabled
+                                        >
+                                            <v-icon class="mr-1">mdi-account-plus</v-icon>
+                                            Follow
+                                        </v-btn>
+                                    </v-col>
+                                </v-row>
+                            </v-card-actions>     
+                        </v-card>
+                    </v-col>
+                    <v-col
+                        cols="12"
+                        sm="9"
+                        md="10"
+                    >
+                        <v-card>
+                            <v-card-actions>
+                                <v-row class="text-center headline">
+                                    <v-col cols="4">
+                                        <v-icon large class="mr-2">mdi-metronome</v-icon>
+                                        {{ sample.tempo }}
+                                    </v-col>
+                                    <v-col cols="4">
+                                        <v-icon large class="mr-2">mdi-timer-outline</v-icon>
+                                        {{ sample.duration }}s
+                                    </v-col>
+                                    <v-col cols="4">
+                                        <v-icon large class="mr-2">mdi-music-circle-outline</v-icon>
+                                        {{ keyMode }}
+                                    </v-col>
+                                </v-row>
+                            </v-card-actions>
+                            <v-divider class="mx-6"></v-divider>
+                            <v-card-text>
+                                <v-chip
+                                    v-for="tag in sample.tags"
+                                    :key="tag.id"
+                                    class="tag mx-1"
+                                    label
+                                    small
+                                >
+                                    {{ tag.name }}
+                                </v-chip>
+                            </v-card-text>
+                            <v-divider class="mx-6"></v-divider>
+                            <v-card-text class="px-6 body-1">
+                                {{ sample.description }}
+                            </v-card-text>
+                            <v-divider class="mx-6"></v-divider>
+                            <v-card-text class="px-6 body-2">
+                                {{ `Uploaded on ${new Date(sample.datetime_upload).toLocaleDateString()}` }}
+                            </v-card-text>
+                        </v-card>
+                    </v-col>
+                </v-row>
+            </section>
+            <section>
+                <h2>Fork</h2>
+                <div v-if="forkFrom.length > 0 || forkTo.length > 0">
+                    <SampleForkContainer
+                        :forkFrom="forkFrom"
+                        :forkTo="forkTo"
                     />
-                </section>
-                <v-card>
-                    <v-card-text>
-                        <SampleActions :sampleId="sample.id" />
-                        <v-spacer></v-spacer>
-                        <v-btn
-                            fab
-                            x-large
-                            @click="likedSample = !likedSample"
-                            class="pink--text"
-                            disabled
-                        >
-                            <v-icon>{{ likeSampleIcon }}</v-icon>
-                        </v-btn>
-                        <v-btn
-                            v-if="canEdit"
-                            fab
-                            x-large
-                            :to="`/sample/edit/${this.sample.id}`"
-                        >
-                            <v-icon>mdi-pencil</v-icon>
-                        </v-btn>
-                    </v-card-text>
-                </v-card>
-                <section>
-                    <v-row>
-                        <v-col
-                            cols="12"
-                            sm="3"
-                            md="2"
-                        >
-                            <v-card class="text-center">
-                                <nuxt-link :to="`/profile/${userId}`">
-                                    <v-img
-                                        :src="profilePictureSrc"
-                                        width="100"
-                                        height="100"
-                                    ></v-img>
-                                    <v-card-title class="justify-center">
-                                        {{ username }}
-                                    </v-card-title>
-                                </nuxt-link>
-                                <v-card-actions>
-                                    <v-row>
-                                        <v-col cols="12">
-                                            <v-icon class="mr-1">mdi-music-note</v-icon>
-                                            <span class="mr-2">{{ numberSamples }}</span>
-                                            <span class="mr-1">·</span>
-                                            <v-icon class="mr-1">mdi-account-multiple</v-icon>
-                                            <span>-</span>
-                                        </v-col>
-                                        <v-col cols="12">
-                                            <v-btn
-                                                small
-                                                color="accent"
-                                                disabled
-                                            >
-                                                <v-icon class="mr-1">mdi-account-plus</v-icon>
-                                                Follow
-                                            </v-btn>
-                                        </v-col>
-                                    </v-row>
-                                </v-card-actions>     
-                            </v-card>
-                        </v-col>
-                        <v-col
-                            cols="12"
-                            sm="9"
-                            md="10"
-                        >
-                            <v-card>
-                                <v-card-actions>
-                                    <v-row class="text-center headline">
-                                        <v-col cols="4">
-                                            <v-icon large class="mr-2">mdi-metronome</v-icon>
-                                            {{ sample.tempo }}
-                                        </v-col>
-                                        <v-col cols="4">
-                                            <v-icon large class="mr-2">mdi-timer-outline</v-icon>
-                                            {{ sample.duration }}s
-                                        </v-col>
-                                        <v-col cols="4">
-                                            <v-icon large class="mr-2">mdi-music-circle-outline</v-icon>
-                                            {{ keyMode }}
-                                        </v-col>
-                                    </v-row>
-                                </v-card-actions>
-                                <v-divider class="mx-6"></v-divider>
-                                <v-card-text>
-                                    <v-chip
-                                        v-for="tag in sample.tags"
-                                        :key="tag.id"
-                                        class="tag mx-1"
-                                        label
-                                        small
-                                    >
-                                        {{ tag.name }}
-                                    </v-chip>
-                                </v-card-text>
-                                <v-divider class="mx-6"></v-divider>
-                                <v-card-text class="px-6 body-1">
-                                    {{ sample.description }}
-                                </v-card-text>
-                                <v-divider class="mx-6"></v-divider>
-                                <v-card-text class="px-6 body-2">
-                                    {{ `Uploaded on ${new Date(sample.datetime_upload).toLocaleDateString()}` }}
-                                </v-card-text>
-                            </v-card>
-                        </v-col>
-                    </v-row>
-                </section>
-                <section>
-                    <h2>Fork</h2>
-                    <div v-if="forkFrom.length > 0 || forkTo.length > 0">
-                        <SampleForkContainer
-                            :forkFrom="forkFrom"
-                            :forkTo="forkTo"
-                        />
-                    </div>
-                    <div v-else>
-                        This sample does not have any fork.
-                    </div>
-                </section>
-            </div>
-            <div v-else>
-                <ErrorDisplay title="This sample does not exist" />
-            </div>
+                </div>
+                <div v-else>
+                    This sample does not have any fork.
+                </div>
+            </section>
         </v-container>
     </div>
 </template>
@@ -143,14 +138,12 @@
 import WaveForm from '~/components/WaveForm.vue'
 import SampleActions from '~/components/sample/SampleActions.vue'
 import SampleForkContainer from '~/components/SampleForkContainer.vue'
-import ErrorDisplay from '~/components/ErrorDisplay.vue'
 
 export default {
     components: {
         WaveForm,
         SampleActions,
-        SampleForkContainer,
-        ErrorDisplay
+        SampleForkContainer
     },
 
     data () {
@@ -191,7 +184,7 @@ export default {
         }
     },
 
-    async asyncData({ $axios, params }) {
+    async asyncData({ $axios, params, error }) {
         try {
             const sample = await $axios.$get(`/sample/${params.id}`)
             const numberSamples = await $axios.$get(`/user/samples/count/${sample.user.id}`)
@@ -207,14 +200,7 @@ export default {
                 forkTo: forkTo
             }
         } catch (e) {
-            return {
-                sample: '',
-                userId: '',
-                username: '',
-                numberSamples: '',
-                forkFrom: [],
-                forkTo: []
-            }
+            error({ statusCode: 404, message: 'Sample not found' })
         }
     }
 }

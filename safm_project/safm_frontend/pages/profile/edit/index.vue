@@ -266,10 +266,14 @@ export default {
         }
     },
 
-    async asyncData ({ $axios, store }) {
+    async asyncData ({ $axios, error, store }) {
         try {
             const profile = await $axios.$get(`/user/profile/${store.state.user.id}`)
             const email = await $axios.$get(`/user/email/${store.state.user.id}`)
+
+            if (profile.user.id != store.state.user.id) {
+                error({ statusCode: 401, message: 'Unauthorised to update this user profile' })
+            }
 
             return {
                 description: profile.description,
@@ -281,17 +285,8 @@ export default {
                     email: email.email
                 }
             }
-        } catch (error) {
-            return {
-                description: '',
-                email_public: '',
-                formUsername: {
-                    username: '',
-                },
-                formEmail: {
-                    email: ''
-                }
-            }
+        } catch (e) {
+            error({ statusCode: 404, message: 'User profile not found' })
         }
     },
 
@@ -316,8 +311,8 @@ export default {
                     await this.$axios.patch(`/user/profile/${this.$store.state.user.id}`, body)
 
                     this.$nuxt.$emit('snackbar', 'Profile updated !')
-                } catch (error) {
-                    this.$nuxt.$emit('snackbar', this.$errorArrayToString(error.response.data))
+                } catch (e) {
+                    this.$nuxt.$emit('snackbar', this.$errorArrayToString(e.response.data))
                 }
 
                 this.loadingProfile = false
@@ -331,8 +326,8 @@ export default {
                 this.$nuxt.$emit('snackbar', snackbarMessage)
 
                 return response.data
-            } catch (error) {
-                this.$nuxt.$emit('snackbar', this.$errorArrayToString(error.response.data))
+            } catch (e) {
+                this.$nuxt.$emit('snackbar', this.$errorArrayToString(e.response.data))
                 return null
             }
         },

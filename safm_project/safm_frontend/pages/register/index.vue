@@ -148,8 +148,8 @@ export default {
                         
                         // Redirects to the user profile page
                         this.$router.push(`/profile/${userid}`)
-                    } catch (error) {
-                        this.$nuxt.$emit('snackbar', this.$errorArrayToString(error.response.data))
+                    } catch (e) {
+                        this.$nuxt.$emit('snackbar', this.$errorArrayToString(e.response.data))
                         this.loading = false
                     }
                 }

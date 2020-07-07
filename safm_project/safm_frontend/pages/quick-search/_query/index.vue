@@ -5,19 +5,17 @@
             <SampleList :samples="samples" />
         </div>
         <div v-else>
-            <ErrorDisplay title="No Results" />
+            <h2>No Results</h2>
         </div>
     </div>
 </template>
 
 <script>
 import SampleList from '~/components/SampleList.vue'
-import ErrorDisplay from '~/components/ErrorDisplay.vue'
 
 export default {
     components: {
-        SampleList,
-        ErrorDisplay
+        SampleList
     },
 
     data () {
@@ -26,7 +24,7 @@ export default {
         }
     },
 
-    async asyncData ({ $axios, params }) {
+    async asyncData ({ $axios, params, error }) {
         try {
             if (params.query.length > 0) {
                 let samples = await $axios.$get(`/quick?search=${params.query}`)
@@ -34,7 +32,7 @@ export default {
                 return { samples }
             }
         } catch (e) {
-            return { samples: [] }
+            error({ statusCode: 404, message: 'Page not found' })
         }
     }
 }

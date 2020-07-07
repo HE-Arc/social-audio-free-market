@@ -155,7 +155,7 @@ export default {
             let downloadedSamples = await $axios.$get('/user/downloads')
 
             return { downloadedSamples }
-        } catch (error) {
+        } catch (e) {
             return { downloadedSamples: [] }
         }
     },
@@ -199,8 +199,8 @@ export default {
                         this.$nuxt.$emit('snackbar', 'Sample uploaded !')
                         // Redirects to the uploaded sample page
                         this.$router.push(`/sample/${sampleId}`)
-                    } catch (error) {
-                        this.$nuxt.$emit('snackbar', this.$errorArrayToString(error.response.data))
+                    } catch (e) {
+                        this.$nuxt.$emit('snackbar', this.$errorArrayToString(e.response.data))
                         this.loading = false
                     }
                 }

@@ -119,7 +119,7 @@ export default {
 
                         // Redirects to the last visited page
                         this.$router.go(-1)
-                    } catch (error) {
+                    } catch (e) {
                         this.$nuxt.$emit('snackbar', 'Invalid login')
                         this.loading = false
                     }
