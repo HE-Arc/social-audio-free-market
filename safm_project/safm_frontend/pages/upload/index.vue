@@ -1,7 +1,7 @@
 <template>
     <div>
         <v-container>
-            <h2 class="page-title">Upload Sample</h2>
+            <h1>Upload Sample</h1>
             <form id="sample-upload-form">
                 <v-row align=center>
                     <v-col cols="12">

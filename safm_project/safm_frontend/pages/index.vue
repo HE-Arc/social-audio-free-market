@@ -1,7 +1,7 @@
 <template>
     <div>
         <v-container>
-            <h2 class="page-title">SAFMarket</h2>
+            <h1>SAFMarket</h1>
             <section>
                 <v-text-field
                     v-model="quickSearchInput"

@@ -1,16 +1,23 @@
 <template>
     <div>
-        <h2 class="page-title">Search Results</h2>
-        <SampleList :samples="samples" />
+        <h1>Search Results</h1>
+        <div v-if="samples.length > 0">
+            <SampleList :samples="samples" />
+        </div>
+        <div v-else>
+            <ErrorDisplay title="No Results" />
+        </div>
     </div>
 </template>
 
 <script>
 import SampleList from '~/components/SampleList.vue'
+import ErrorDisplay from '~/components/ErrorDisplay.vue'
 
 export default {
     components: {
-        SampleList
+        SampleList,
+        ErrorDisplay
     },
 
     data () {

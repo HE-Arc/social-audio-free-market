@@ -1,8 +1,8 @@
 <template>
     <div>
-        <div v-if="sample.id">
-            <v-container>
-                <h2 class="page-title">{{ sample.name }}</h2>
+        <v-container>
+            <div v-if="sample">
+                <h1>{{ sample.name }}</h1>
                 <section>
                     <WaveForm
                         ref="waveform"
@@ -120,19 +120,22 @@
                     </v-row>
                 </section>
                 <section>
-                    <h3 class="section-title">Fork</h3>
-                    <SampleForkContainer
-                        :forkFrom="forkFrom"
-                        :forkTo="forkTo"
-                    />
+                    <h2>Fork</h2>
+                    <div v-if="forkFrom.length > 0 || forkTo.length > 0">
+                        <SampleForkContainer
+                            :forkFrom="forkFrom"
+                            :forkTo="forkTo"
+                        />
+                    </div>
+                    <div v-else>
+                        This sample does not have any fork.
+                    </div>
                 </section>
-            </v-container>
-        </div>
-        <div v-else>
-            <v-container>
-                <h2 class="page-title">This sample page does not exist.</h2>
-            </v-container>
-        </div>
+            </div>
+            <div v-else>
+                <ErrorDisplay title="This sample does not exist" />
+            </div>
+        </v-container>
     </div>
 </template>
 
@@ -140,17 +143,19 @@
 import WaveForm from '~/components/WaveForm.vue'
 import SampleActions from '~/components/sample/SampleActions.vue'
 import SampleForkContainer from '~/components/SampleForkContainer.vue'
+import ErrorDisplay from '~/components/ErrorDisplay.vue'
 
 export default {
     components: {
         WaveForm,
         SampleActions,
-        SampleForkContainer
+        SampleForkContainer,
+        ErrorDisplay
     },
 
     data () {
         return {
-            sample: {},
+            sample: '',
             userId: '',
             username: '',
             numberSamples: '',
@@ -203,7 +208,7 @@ export default {
             }
         } catch (e) {
             return {
-                sample: {},
+                sample: '',
                 userId: '',
                 username: '',
                 numberSamples: '',

@@ -170,18 +170,21 @@ export default {
 .account-menu {
     text-transform: none !important;
 }
-
-.page-title {
+h1 {
     font-size: 2.7em;
     text-align: center;
     margin: 0.5em 0;
 }
-section {
-    padding: 3em 0;
-}
-.section-title {
+h2 {
     font-size: 2.3em;
     margin: 0 0 1em 0;
+}
+h3 {
+    font-size: 2em;
+    margin: 0 0 0.7em 0;
+}
+section {
+    padding: 3em 0;
 }
 
 .custom-loader {

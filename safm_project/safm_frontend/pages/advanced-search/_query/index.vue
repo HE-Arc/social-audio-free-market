@@ -1,10 +1,15 @@
 <template>
     <div>
-        <h2 class="page-title">Advanced Search</h2>
+        <h1>Advanced Search</h1>
         <AdvancedSearch />
         <section>
-            <h3 class="section-title">Search results</h3>
-            <SampleList :samples="samples" />
+            <div v-if="samples.length > 0">
+                <h2>Search results</h2>
+                <SampleList :samples="samples" />
+            </div>
+            <div v-else>
+                <ErrorDisplay title="No Results" />
+            </div>
         </section>
     </div>
 </template>
@@ -12,11 +17,13 @@
 <script>
 import AdvancedSearch from '~/components/AdvancedSearch.vue'
 import SampleList from '~/components/SampleList.vue'
+import ErrorDisplay from '~/components/ErrorDisplay.vue'
 
 export default {
     components: {
         AdvancedSearch,
-        SampleList
+        SampleList,
+        ErrorDisplay
     },
 
     data () {
@@ -32,7 +39,7 @@ export default {
                 
                 return { samples }
             }
-        } catch (e) {
+        } catch (error) {
             return { samples: [] }
         }
     }

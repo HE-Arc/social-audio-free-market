@@ -1,9 +1,9 @@
 <template>
     <div>
         <v-container>
-            <h2 class="page-title">User Settings</h2>
+            <h1>User Settings</h1>
             <section>
-                <h3 class="section-title">Profile</h3>
+                <h2>Profile</h2>
                 <form>
                     <v-row align="center">
                         <v-col cols="2">
@@ -74,7 +74,7 @@
                 </form>
             </section>
             <section>
-                <h3 class="section-title">Email</h3>
+                <h2>Email</h2>
                 <form>
                     <v-row>
                         <v-col cols="12">
@@ -101,7 +101,7 @@
                 </form>
             </section>
             <section>
-                <h3 class="section-title">Password</h3>
+                <h2>Password</h2>
                 <form>
                     <v-row>
                         <v-col cols="12">

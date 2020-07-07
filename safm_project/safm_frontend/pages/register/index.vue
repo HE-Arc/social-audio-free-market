@@ -1,7 +1,7 @@
 <template>
     <div>
         <v-container>
-            <h2 class="page-title">Create Account</h2>
+            <h1>Create Account</h1>
             <form id="register-form">
                 <v-row align="center">
                     <v-col cols="12">

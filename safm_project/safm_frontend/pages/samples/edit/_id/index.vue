@@ -1,8 +1,8 @@
 <template>
     <div>
-        <div v-if="sampleUserId == $store.state.user.id">
-            <v-container>
-                <h2 class="page-title">Update Sample</h2>
+        <v-container>
+            <div v-if="sampleUserId == $store.state.user.id">
+                <h1>Update Sample</h1>
                 <form>
                     <v-row align="center">
                         <v-col cols="12">
@@ -63,24 +63,24 @@
                 >
                     Remove
                 </v-btn>
-            </v-container>
-        </div>
-        <div v-else>
-            <v-container>
-                <h2 class="page-title">This sample does not belong to you.</h2>
-            </v-container>
-        </div>
+            </div>
+            <div v-else>
+                <ErrorDisplay title="You cannot edit this sample" />
+            </div>
+        </v-container>
     </div>
 </template>
 
 <script>
 import TagsField from '~/components/sample/TagsField'
+import ErrorDisplay from '~/components/ErrorDisplay.vue'
 
 export default {
     middleware: 'authenticated',
     
     components: {
-        TagsField
+        TagsField,
+        ErrorDisplay
     },
 
     data () {
