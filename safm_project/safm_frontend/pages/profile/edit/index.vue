@@ -4,7 +4,7 @@
             <h1>User Settings</h1>
             <section>
                 <h2>Profile</h2>
-                <form>
+                <form @submit.prevent>
                     <v-row align="center">
                         <v-col cols="2">
                             <v-img
@@ -51,7 +51,7 @@
             </section>
             <section>
                 <h3 class="section-title">Username</h3>
-                <form>
+                <form @submit.prevent>
                     <v-row>
                         <v-col cols="12">
                             <v-text-field
@@ -78,7 +78,7 @@
             </section>
             <section>
                 <h2>Email</h2>
-                <form>
+                <form @submit.prevent>
                     <v-row>
                         <v-col cols="12">
                             <v-text-field
@@ -106,7 +106,7 @@
             </section>
             <section>
                 <h2>Password</h2>
-                <form>
+                <form @submit.prevent>
                     <v-row>
                         <v-col cols="12">
                             <v-text-field
