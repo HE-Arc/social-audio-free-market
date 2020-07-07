@@ -6,7 +6,7 @@
                 :width="profilePictureSize"
                 :height="profilePictureSize"
             ></v-img>
-            <h2 class="page-title">{{ username }}</h2>
+            <h1>{{ username }}</h1>
             <v-row>
                 <v-col
                     cols="12"
@@ -56,13 +56,16 @@
                     </v-card>
                 </v-col>
             </v-row>
+            <section>
+                <h2>User Samples</h2>
+                <div v-if="samples.length > 0">
+                    <SampleList :samples="samples" />
+                </div>
+                <div v-else>
+                    This user does not have any samples.
+                </div>
+            </section>
         </v-container>
-        <section>
-            <v-container>
-                <h3 class="section-title">User Samples</h3>
-                <SampleList :samples="samples" />
-            </v-container>
-        </section>
     </div>
 </template>
 
@@ -77,7 +80,7 @@ export default {
     data () {
         return {
             username: '',
-            profile: {},
+            profile: '',
             userEmail: '',
             dateJoined: '',
             samples: []
@@ -104,7 +107,7 @@ export default {
         }
     },
 
-    async asyncData({ $axios, params }) {
+    async asyncData({ $axios, params, error }) {
         try {
             const profile = await $axios.$get(`/user/profile/${params.id}`)
             const samples = await $axios.$get(`/user/samples/${params.id}`)
@@ -123,13 +126,7 @@ export default {
                 samples: samples
             }
         } catch (e) {
-            return {
-                username: '',
-                userProfile: {},
-                userEmail: '',
-                dateJoined: '',
-                samples: []
-            }
+            error({ statusCode: 404, message: 'User profile not found' })
         }
     }
 }

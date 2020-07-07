@@ -2,7 +2,7 @@ const Cookie = process.client ? require('js-cookie') : undefined
 
 export default ({ store, $axios }, inject) => {
     // Stores the user authentication information
-    inject('authenticateUser', (response) => {
+    inject('storeUserCredentials', (response) => {
         const authToken = response.data.token
         const userid = response.data.userid
         const username = response.data.username
@@ -23,16 +23,14 @@ export default ({ store, $axios }, inject) => {
     })
 
     // Removes the user authentication information
-    inject('logoutUser', async () => {
-        await $axios.post('/logout')
-
+    inject('deleteUserCredentials', async () => {
         store.commit('setAuth', null)
         Cookie.remove('auth')
         store.commit('setUser', null)
         Cookie.remove('userid')
         Cookie.remove('username')
 
-        $axios.setHeader('Authorization', '')
+        $axios.setHeader('Authorization', null)
     })
 
     // Updates the username in the store

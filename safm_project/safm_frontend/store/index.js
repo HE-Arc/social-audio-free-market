@@ -64,7 +64,7 @@ export const actions = {
                 auth = parsed.auth
                 userid = parsed.userid
                 username = parsed.username
-            } catch (error) {
+            } catch (e) {
                 // Not a valid authentication token nor username
             }
         }

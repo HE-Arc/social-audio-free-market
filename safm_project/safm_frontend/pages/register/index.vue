@@ -1,7 +1,7 @@
 <template>
     <div>
         <v-container>
-            <h2 class="page-title">Create Account</h2>
+            <h1>Create Account</h1>
             <form id="register-form">
                 <v-row align="center">
                     <v-col cols="12">
@@ -51,6 +51,7 @@
                             block
                             x-large
                             color="accent"
+                            :loading="loading"
                             @click="register"
                         >
                             Register
@@ -64,7 +65,7 @@
 
 <script>
 import { validationMixin } from 'vuelidate'
-import { required, email } from 'vuelidate/lib/validators'
+import { required, email, minLength, sameAs } from 'vuelidate/lib/validators'
 
 export default {
     middleware: 'unauthenticated',
@@ -74,8 +75,8 @@ export default {
     validations: {
         username: { required },
         email: { required, email },
-        password: { required },
-        password_confirm: { required }
+        password: { required, minLength: minLength(8) },
+        password_confirm: { required, minLength: minLength(8), sameAs: sameAs('password') }
     },
     
     data () {
@@ -83,7 +84,8 @@ export default {
             username: '',
             email: '',
             password: '',
-            password_confirm: ''
+            password_confirm: '',
+            loading: false
         }
     },
 
@@ -109,6 +111,7 @@ export default {
             const errors = []
             if (!this.$v.password.$dirty) return errors
             !this.$v.password.required && errors.push('Password is required')
+            !this.$v.password.minLength && errors.push('Password must be at least 8 characters')
 
             return errors
         },
@@ -117,6 +120,8 @@ export default {
             const errors = []
             if (!this.$v.password_confirm.$dirty) return errors
             !this.$v.password_confirm.required && errors.push('Confirm Password is required')
+            !this.$v.password_confirm.minLength && errors.push('Password Confirm must be at least 8 characters')
+            !this.$v.password_confirm.sameAs && errors.push('Password confirmation does not match')
 
             return errors
         }
@@ -124,29 +129,30 @@ export default {
 
     methods: {
         async register () {
-            let body = new FormData()
-            body.set('username', this.username)
-            body.set('email', this.email)
-            body.set('password', this.password)
-            body.set('password_confirm', this.password_confirm)
+            if (!this.loading) {
+                this.$v.$touch()
 
-            try {
-                const response = await this.$axios.post('/register', body)
-                const userid = this.$authenticateUser(response)
-                this.$nuxt.$emit('snackbar', 'Successful registration !')
-                
-                // Redirects to the user profile page
-                this.$router.push(`/profiles/${userid}`)
-            } catch (error) {
-                //this.$nuxt.$emit('snackbar', error.response.data)
-                /*
-                for (let e in error.response.data) {
+                if (!this.$v.$anyError) {
+                    this.loading = true
 
-                    this.$toast.error(`${e}: ${error.response.data[e]}`, {
-                        duration: 5000
-                    })
+                    let body = new FormData()
+                    body.set('username', this.username)
+                    body.set('email', this.email)
+                    body.set('password', this.password)
+                    body.set('password_confirm', this.password_confirm)
+
+                    try {
+                        const response = await this.$axios.post('/register', body)
+                        const userid = this.$storeUserCredentials(response)
+                        this.$nuxt.$emit('snackbar', 'Successful registration !')
+                        
+                        // Redirects to the user profile page
+                        this.$router.push(`/profile/${userid}`)
+                    } catch (e) {
+                        this.$nuxt.$emit('snackbar', this.$errorArrayToString(e.response.data))
+                        this.loading = false
+                    }
                 }
-                */
             }
         }
     }

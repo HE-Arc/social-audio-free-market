@@ -30,6 +30,7 @@
                             block
                             large
                             color="accent"
+                            :loading="loading"
                             @click="login"
                         >
                             Login
@@ -68,7 +69,8 @@ export default {
     data () {
         return {
             usernameEmail: '',
-            password: ''
+            password: '',
+            loading: false
         }
     },
 
@@ -92,27 +94,36 @@ export default {
 
     methods: {
         async login () {
-            let body = new FormData()
+            if (!this.loading) {
+                this.$v.$touch()
 
-            // Checks wether the usernameEmail field is an email address
-            const re = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/
-            if (re.test(this.usernameEmail)) {
-                body.set('email', this.usernameEmail)
-            } else {
-                body.set('username', this.usernameEmail)
-            }
+                if (!this.$v.$anyError) {
+                    this.loading = true
 
-            body.set('password', this.password)
+                    let body = new FormData()
 
-            try {
-                const response = await this.$axios.post('/login', body)
-                this.$authenticateUser(response)
-                this.$nuxt.$emit('snackbar', 'Successfully logged in !')
+                    // Checks wether the usernameEmail field is an email address
+                    const re = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/
+                    if (re.test(this.usernameEmail)) {
+                        body.set('email', this.usernameEmail)
+                    } else {
+                        body.set('username', this.usernameEmail)
+                    }
 
-                // Redirects to the last visited page
-                this.$router.go(-1)
-            } catch (error) {
-                this.$nuxt.$emit('snackbar', 'Invalid login')
+                    body.set('password', this.password)
+
+                    try {
+                        const response = await this.$axios.post('/login', body)
+                        this.$storeUserCredentials(response)
+                        this.$nuxt.$emit('snackbar', 'Successfully logged in !')
+
+                        // Redirects to the last visited page
+                        this.$router.go(-1)
+                    } catch (e) {
+                        this.$nuxt.$emit('snackbar', 'Invalid login')
+                        this.loading = false
+                    }
+                }
             }
         }
     }

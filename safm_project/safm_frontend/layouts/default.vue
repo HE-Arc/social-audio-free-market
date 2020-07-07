@@ -5,8 +5,8 @@
             app
         >
             <v-btn
-                to="/"
                 text
+                @click="home"
             >
                 {{ title }}
             </v-btn>
@@ -138,6 +138,10 @@ export default {
     },
 
     methods: {
+        home () {
+            this.$router.push('/')
+        },
+
         handleFunctionCall (functionName) {
             this[functionName]()
         },
@@ -147,18 +151,19 @@ export default {
         },
 
         profile () {
-            this.$router.push(`/profiles/${this.userid}`)
+            this.$router.push(`/profile/${this.userid}`)
         },        
 
         settings () {
-            this.$router.push('/profiles/edit')
+            this.$router.push('/profile/edit')
         },
 
-        logout () {
+        async logout () {
             try {
-                this.$logoutUser()
+                await this.$axios.post('/logout')
+                this.$deleteUserCredentials()
                 this.$nuxt.$emit('snackbar', 'Successfully logged out !')
-            } catch (error) {
+            } catch (e) {
                 this.$nuxt.$emit('snackbar', 'An error occured')
             }
         }
@@ -170,18 +175,21 @@ export default {
 .account-menu {
     text-transform: none !important;
 }
-
-.page-title {
+h1 {
     font-size: 2.7em;
     text-align: center;
     margin: 0.5em 0;
 }
-section {
-    padding: 3em 0;
-}
-.section-title {
+h2 {
     font-size: 2.3em;
     margin: 0 0 1em 0;
+}
+h3 {
+    font-size: 2em;
+    margin: 0 0 0.7em 0;
+}
+section {
+    padding: 3em 0;
 }
 
 .custom-loader {

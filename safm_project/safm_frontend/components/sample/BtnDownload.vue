@@ -26,8 +26,8 @@ export default {
                     let filename = matches[1].replace(/['"]/g, '')
                     fileDownload(response.data, filename)
                 }
-            } catch (error) {
-                // Error while downloading
+            } catch (e) {
+                this.$nuxt.$emit('snackbar', 'Problem while downloading the sample')
             }
         }
     }

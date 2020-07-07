@@ -1,7 +1,12 @@
 <template>
     <div>
-        <h2 class="page-title">Search Results</h2>
-        <SampleList :samples="samples" />
+        <h1>Search Results</h1>
+        <div v-if="samples.length > 0">
+            <SampleList :samples="samples" />
+        </div>
+        <div v-else>
+            <h2>No Results</h2>
+        </div>
     </div>
 </template>
 
@@ -19,7 +24,7 @@ export default {
         }
     },
 
-    async asyncData ({ $axios, params }) {
+    async asyncData ({ $axios, params, error }) {
         try {
             if (params.query.length > 0) {
                 let samples = await $axios.$get(`/quick?search=${params.query}`)
@@ -27,7 +32,7 @@ export default {
                 return { samples }
             }
         } catch (e) {
-            return { samples: [] }
+            error({ statusCode: 404, message: 'Page not found' })
         }
     }
 }

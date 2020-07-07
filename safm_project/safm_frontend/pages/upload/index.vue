@@ -1,7 +1,7 @@
 <template>
     <div>
         <v-container>
-            <h2 class="page-title">Upload Sample</h2>
+            <h1>Upload Sample</h1>
             <form id="sample-upload-form">
                 <v-row align=center>
                     <v-col cols="12">
@@ -24,14 +24,13 @@
                             required
                             :error-messages="nameErrors"
                             @blur="$v.name.$touch()"
-                            @keypress.enter="upload"
                         ></v-text-field>
                     </v-col>
                     <v-col cols="12">
                         <v-textarea
                             v-model="description"
                             label="Description"
-                            @keypress.enter="upload"
+                            outlined
                         ></v-textarea>
                     </v-col>
                     <v-col cols="6">
@@ -73,6 +72,7 @@
                             block
                             x-large
                             color="accent"
+                            :loading="loading"
                             @click="upload"
                         >
                             Upload
@@ -120,7 +120,8 @@ export default {
             ],
             tags: [],
             selectedForkFrom: [],
-            downloadedSamples: []
+            downloadedSamples: [],
+            loading: false
         }
     },
 
@@ -161,46 +162,48 @@ export default {
 
     methods: {
         async upload () {
-            let body = new FormData()
-            body.append('file', this.file)
-            body.set('name', this.name)
-            
-            if (this.description) {
-                body.set('description', this.description)
-            }
-            
-            if (this.key) {
-                body.set('key', this.key)
-            }
+            if (!this.loading) {
+                this.$v.$touch()
 
-            if (this.mode) {
-                body.set('mode', this.mode)
-            }
-            
-            if (this.tags) {
-                body.set('tags', this.tags)
-            }
-            
-            if (this.selectedForkFrom) {
-                body.append('forks_from', this.selectedForkFrom)
-            }
-            
-            try {
-                const response = await this.$axios.post('/sample', body)
-                const sampleId = response.data.id
+                if (!this.$v.$anyError) {
+                    this.loading = true
 
-                this.$nuxt.$emit('snackbar', 'Sample uploaded !')
-                // Redirects to the uploaded sample page
-                this.$router.push(`/samples/${sampleId}`)
-            } catch (error) {
-                this.$nuxt.$emit('snackbar', error)
-                /*
-                for (let e in error.response.data) {
-                    this.$toast.error(error.response.data[e], {
-                        duration: 5000
-                    })
+                    let body = new FormData()
+                    body.append('file', this.file)
+                    body.set('name', this.name)
+                    
+                    if (this.description) {
+                        body.set('description', this.description)
+                    }
+                    
+                    if (this.key) {
+                        body.set('key', this.key)
+                    }
+
+                    if (this.mode) {
+                        body.set('mode', this.mode)
+                    }
+                    
+                    if (this.tags) {
+                        body.set('tags', this.tags)
+                    }
+                    
+                    if (this.selectedForkFrom) {
+                        body.append('forks_from', this.selectedForkFrom)
+                    }
+                    
+                    try {
+                        const response = await this.$axios.post('/sample', body)
+                        const sampleId = response.data.id
+
+                        this.$nuxt.$emit('snackbar', 'Sample uploaded !')
+                        // Redirects to the uploaded sample page
+                        this.$router.push(`/sample/${sampleId}`)
+                    } catch (e) {
+                        this.$nuxt.$emit('snackbar', this.$errorArrayToString(e.response.data))
+                        this.loading = false
+                    }
                 }
-                */
             }
         }
     }

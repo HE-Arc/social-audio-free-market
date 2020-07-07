@@ -10,7 +10,7 @@ namespace :uwsgi do
   desc 'Restart application'
   task :restart do
     on roles(:web) do |h|
-      execute :sudo, 'rm -rf /var/www/logs/'
+      execute :sudo, 'rm -rf /var/www/logs/*'
       execute :sudo, 'sv reload uwsgi'
       execute :sudo, 'sv reload nginx'
     end
