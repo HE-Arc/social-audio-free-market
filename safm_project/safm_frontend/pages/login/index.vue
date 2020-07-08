@@ -46,6 +46,15 @@
                     >
                         Register
                     </v-btn>
+                    
+                </v-flex>
+                <v-flex class="text-center">
+                    <v-btn
+                        text
+                        to="/reset_password"
+                    >
+                        Forgot password ?
+                    </v-btn>
                 </v-flex>
             </v-layout>
         </v-container>

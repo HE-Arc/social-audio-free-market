@@ -1,0 +1,107 @@
+<template>
+    <div>
+        <v-container>
+            <h1>Request password reset</h1>
+            <form @submit.prevent>
+                <v-row>
+                    <v-col cols="12">
+                        <v-text-field
+                            v-model="email"
+                            label="Email*"
+                            required
+                            type="email"
+                            :error-messages="emailErrors"
+                            @blur="$v.email.$touch()"
+                            @keypress.enter="requestResetPassword"
+                        ></v-text-field>
+                    </v-col>
+                    <v-col cols="12">
+                        <v-btn
+                            block
+                            x-large
+                            color="accent"
+                            :loading="loading"
+                            @click="requestResetPassword"
+                        >
+                            Request Email
+                        </v-btn>
+                    </v-col>
+                </v-row>
+            </form>
+        </v-container>
+    </div>
+</template>
+
+<script>
+import { validationMixin } from 'vuelidate'
+import { required, email } from 'vuelidate/lib/validators'
+
+export default {
+    middleware: 'unauthenticated',
+
+    mixins: [validationMixin],
+
+    validations: {
+        email: { required, email }
+    },
+
+    data () {
+        return {
+            email: '',
+            loading: false
+        }
+    },
+
+    computed: {
+        emailErrors () {
+            const errors = []
+            if (!this.$v.email.$dirty) return errors
+            !this.$v.email.email && errors.push('Must be valid email')
+            !this.$v.email.required && errors.push('Email is required')
+
+            return errors
+        }
+    },
+
+    head () {
+        return {
+            title: 'Request Reset Password'
+        }
+    },
+
+    methods: {
+        async requestResetPassword () {
+            if (!this.loading) {
+                this.$v.$touch()
+
+                if (!this.$v.$anyError) {
+                    this.loading = true
+
+                    let body = new FormData()
+                    body.set('email', this.email)
+
+                    try {
+                        const response = await this.$axios.$post('/password_reset/', body)
+                        const status = response.status
+
+                        if (status == 'OK') {
+                            this.$nuxt.$emit('snackbar', 'An email has been sent to you')
+                            this.email = ''
+                            // Redirects to the home page
+                            //FIXME: Not working ; causes an infinite loop
+                            //this.$router.push('/')
+                        } else {
+                            this.$nuxt.$emit('snackbar', 'An error occured')
+                        }
+                    } catch (e) {
+                        this.$nuxt.$emit('snackbar', this.$errorArrayToString(e.response.data))
+                    }
+
+                    this.$v.$reset()
+                    this.loading = false
+                }
+            }
+        }
+    }
+}
+</script>

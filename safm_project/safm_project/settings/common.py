@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'django_filters',
+    'django_rest_passwordreset',
     'corsheaders',
     'django_extensions',
     'safm',
@@ -103,6 +104,13 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+# Password reset
+
+DJANGO_REST_MULTITOKENAUTH_RESET_TOKEN_EXPIRY_TIME = 2 # in hours 
+
+CLIENT_APP_URL = os.environ.get('CLIENT_APP_URL', 'localhost:3000')
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
