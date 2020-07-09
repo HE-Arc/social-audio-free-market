@@ -3,7 +3,7 @@
         <v-container>
             <h2 class="page-title">Login</h2>
             <form>
-                <v-row align="center">
+                <v-row>
                     <v-col cols="12">
                         <v-text-field
                             v-model="usernameEmail"
@@ -38,25 +38,28 @@
                     </v-col>
                 </v-row>
             </form>
-            <v-layout align-center>
-                <v-flex class="text-center">
-                    <v-btn
-                        text
-                        to="/register"
-                    >
-                        Register
-                    </v-btn>
-                    
-                </v-flex>
-                <v-flex class="text-center">
-                    <v-btn
-                        text
-                        to="/reset_password"
-                    >
-                        Forgot password ?
-                    </v-btn>
-                </v-flex>
-            </v-layout>
+            <v-row>
+                <v-col cols="12">
+                    <div class="text-center">
+                        <v-btn
+                            text
+                            to="/register"
+                        >
+                            Register
+                        </v-btn>
+                    </div>
+                </v-col>
+                <v-col cols="12">
+                    <div class="text-center">
+                        <v-btn
+                            text
+                            to="/reset_password"
+                        >
+                            Forgot password ?
+                        </v-btn>
+                    </div>
+                </v-col>
+            </v-row>
         </v-container>
     </div>
 </template>

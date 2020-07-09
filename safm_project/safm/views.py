@@ -14,7 +14,7 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.filters import OrderingFilter
 from django.dispatch import receiver
-from django_rest_passwordreset.signals import reset_password_token_created
+from django_rest_passwordreset.signals import *
 from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives
 
@@ -73,7 +73,7 @@ class Register(generics.CreateAPIView):
 
 
 @receiver(reset_password_token_created)
-def password_reset_token_created(sender, instance, reset_password_token, *args, **kwargs):
+def send_password_reset_link(sender, instance, reset_password_token, *args, **kwargs):
     context = {
         'current_user': reset_password_token.user,
         'username': reset_password_token.user.username,
