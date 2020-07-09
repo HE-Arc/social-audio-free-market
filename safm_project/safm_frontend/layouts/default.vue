@@ -62,11 +62,11 @@
                 </v-list>
             </v-menu>
         </v-app-bar>
-        <v-content>
+        <v-main>
             <v-container>
                 <nuxt />
             </v-container>
-        </v-content>
+        </v-main>
         <v-footer></v-footer>
         <v-snackbar
             v-model="snackbar"
@@ -139,6 +139,7 @@ export default {
 
     methods: {
         home () {
+            //FIXME: Not working ; causes an infinite loop
             this.$router.push('/')
         },
 

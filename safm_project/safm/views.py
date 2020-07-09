@@ -13,13 +13,15 @@ from rest_framework import status
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.filters import OrderingFilter
+from django.dispatch import receiver
+from django_rest_passwordreset.signals import *
+from django.template.loader import render_to_string
+from django.core.mail import EmailMultiAlternatives
 
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from .models import *
 from .serializers import *
-
-from rest_framework.decorators import api_view, permission_classes
 
 # Create your views here.
 
@@ -68,6 +70,33 @@ class Register(generics.CreateAPIView):
             'userid': user.id,
             'username': user.username
         }, status=status.HTTP_201_CREATED)
+
+
+@receiver(reset_password_token_created)
+def send_password_reset_link(sender, instance, reset_password_token, *args, **kwargs):
+    context = {
+        'current_user': reset_password_token.user,
+        'username': reset_password_token.user.username,
+        'email': reset_password_token.user.email,
+        'reset_password_url': '{0}/reset_password/{1}'.format(settings.CLIENT_APP_URL, reset_password_token.key),
+        'token_expiration': settings.DJANGO_REST_MULTITOKENAUTH_RESET_TOKEN_EXPIRY_TIME,
+    }
+    
+    email_html_message = render_to_string('email/user_reset_password.html', context)
+    email_plaintext_message = render_to_string('email/user_reset_password.txt', context)
+
+    msg = EmailMultiAlternatives(
+        # Title
+        'SAFMarket - Password Reset',
+        # Message
+        email_plaintext_message,
+        # From
+        'noreply@safmarket.com',
+        # To
+        [reset_password_token.user.email]
+    )
+    msg.attach_alternative(email_html_message, 'text/html')
+    msg.send()
 
 
 class UserUpdate(generics.GenericAPIView, UpdateModelMixin):
