@@ -251,7 +251,7 @@ class SampleView(generics.GenericAPIView):
         '''
         Adds the Tag relations - based on the request - to the given Sample.
         '''
-        tags_str = re.escape(request.data.get('tags', ''))
+        tags_str = re.escape(request.data.get('tags', '')).replace('\\', '') # re.escape can add backslashes in Python < 3.7
         tags_list = list(filter(self.regex_tags.match, [tag.strip() for tag in tags_str.split(',')]))
         
         for tag_name in tags_list:

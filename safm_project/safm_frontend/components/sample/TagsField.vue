@@ -25,11 +25,11 @@
 
 <script>
 export default {
-    props: ['loadFromStore'],
+    props: ['tags', 'loadFromStore'],
 
     data () {
         return {
-            tagsList: [],
+            tagsList: this.tags ? [...this.tags] : [],
             tagInput: '',
             tagInputErrors: ''
         }
