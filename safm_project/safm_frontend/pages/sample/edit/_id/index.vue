@@ -34,7 +34,7 @@
                         ></v-select>
                     </v-col>
                     <v-col cols="12">
-                        <TagsField />
+                        <TagsField :tags="tags" />
                     </v-col>
                     <v-col cols="12">
                         <v-btn
@@ -113,6 +113,12 @@ export default {
             if (sample.user.id != store.state.user.id) {
                 error({ statusCode: 401, message: 'Unauthorised to update this sample' })
             }
+
+            // COnverts the tags objects into an array of tags names (string)
+            let tags = []
+            for (let tag of sample.tags) {
+                tags.push(tag.name)
+            }
             
             return {
                 id: sample.id,
@@ -122,7 +128,7 @@ export default {
                 description: sample.description,
                 key: sample.key,
                 mode: sample.mode,
-                tags: sample.tags
+                tags: tags
             }
         } catch (e) {
             error({ statusCode: 404, message: 'Sample not found' })
