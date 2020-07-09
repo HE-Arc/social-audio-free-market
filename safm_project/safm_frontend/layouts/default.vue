@@ -186,7 +186,7 @@ h2 {
     margin: 0 0 1em 0;
 }
 h3 {
-    font-size: 2em;
+    font-size: 1.8em;
     margin: 0 0 0.7em 0;
 }
 section {

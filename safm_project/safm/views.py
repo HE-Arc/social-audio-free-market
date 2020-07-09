@@ -262,7 +262,7 @@ class SampleView(generics.GenericAPIView):
         '''
         Adds the Sample fork relations - based on the request - to the given Sample.
         '''
-        forks_str = re.escape(request.data.get('forks', ''))
+        forks_str = re.escape(request.data.get('forks_from', ''))
         forks_list = list(filter(self.regex_forks.match, [fork.strip() for fork in forks_str.split(',')]))
 
         for fork_id in forks_list:
@@ -308,18 +308,15 @@ class ListSampleForkFrom(generics.ListAPIView):
 
     def get_queryset(self):
         # lookup_field only used in detail views
-        return Sample.objects.filter(forks=self.kwargs['sample_id'])
+        return Sample.objects.filter(forks_to=self.kwargs['sample_id'])
     
 
 class ListSampleForkTo(generics.ListAPIView):
     serializer_class = SampleSerializer
 
     def get_queryset(self):
-
-        #FIXME
-
         # lookup_field only used in detail views
-        return Sample.objects.filter(forks=self.kwargs['sample_id'])#.values('forks')
+        return Sample.objects.filter(forks=self.kwargs['sample_id'])
 
 
 class UserDownloads(APIView):

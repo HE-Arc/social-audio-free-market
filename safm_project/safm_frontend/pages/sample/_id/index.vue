@@ -119,7 +119,6 @@
                 </v-row>
             </section>
             <section>
-                <h2>Fork</h2>
                 <div v-if="forkFrom.length > 0 || forkTo.length > 0">
                     <SampleForkContainer
                         :forkFrom="forkFrom"
