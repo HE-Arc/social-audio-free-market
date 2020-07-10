@@ -163,7 +163,6 @@ export default {
     async asyncData ({ $axios }) {
         try {
             const downloadedSamples = await $axios.$get('/user/downloads')
-            console.log(downloadedSamples)
 
             return { downloadedSamples }
         } catch (e) {
