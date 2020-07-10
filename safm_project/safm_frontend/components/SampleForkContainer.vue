@@ -1,9 +1,11 @@
 <template>
-    <div class="d-flex flex-row">
-        <v-layout column fill-width>
-            <div class="d-flex flex-column">
-                <div>Created with</div>
-                <div
+    <v-row>
+        <v-col cols="12" md="6">
+            <v-row>
+                <v-col cols="12">
+                    <h3>Created with</h3>
+                </v-col>
+                <v-col cols="12"
                     v-for="(sample, i) in forkFrom"
                     :key="i"
                 >
@@ -13,13 +15,15 @@
                         :userId="sample.user.id"
                         :username="sample.user.username"
                     />
-                </div>
-            </div>
-        </v-layout>
-        <v-layout column fill-width>
-            <div class="d-flex flex-column">
-                <div>Used by</div>
-                <!--div
+                </v-col>
+            </v-row>
+        </v-col>
+        <v-col cols="12" md="6">
+            <v-row>
+                <v-col cols="12">
+                    <h3>Used by</h3>
+                </v-col>
+                <v-col cols="12"
                     v-for="(sample, i) in forkTo"
                     :key="i"
                 >
@@ -29,10 +33,10 @@
                         :userId="sample.user.id"
                         :username="sample.user.username"
                     />
-                </div-->
-            </div>
-        </v-layout>
-    </div>
+                </v-col>
+            </v-row>
+        </v-col>
+    </v-row>
 </template>
 
 <script>
@@ -46,6 +50,18 @@ export default {
     props: [
         'forkFrom',
         'forkTo'
-    ]
+    ],
+
+    computed: {
+        flexOrientation () {
+            switch (this.$vuetify.breakpoint.name) {
+            case 'xs': return 'row'
+            case 'sm': return 'row'
+            case 'md': return 'column'
+            case 'lg': return 'column'
+            case 'xl': return 'column'
+            }
+        }
+    }
 }
 </script>

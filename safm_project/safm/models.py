@@ -49,7 +49,7 @@ class Sample(models.Model):
     datetime_upload = models.DateTimeField(auto_now_add=True) # auto now at creation
     number_downloads = models.PositiveIntegerField(default=0) # nb dl > 0
     tags = models.ManyToManyField(Tag) # a sample can have multiple tags
-    forks = models.ManyToManyField('self')
+    forks = models.ManyToManyField('self', related_name='forks_to', symmetrical=False)
 
     def deduce_properties(self):
         frames = 0

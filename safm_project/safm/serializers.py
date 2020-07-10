@@ -104,7 +104,7 @@ class SampleForkSerializer(serializers.ModelSerializer):
 class SampleSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     tags = TagSerializer(many=True, required=False)
-    forks = SampleForkSerializer( many=True, required=False)
+    forks = SampleForkSerializer(write_only=True, many=True, required=False)
 
     def create(self, validated_data):
         sample = Sample.objects.create(**validated_data)

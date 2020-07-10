@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="sample-fork">
         <v-card>
             <v-card-title class="headline">
                 <nuxt-link :to="`/sample/${id}`">{{ name }}</nuxt-link>
@@ -8,11 +8,11 @@
                 By <nuxt-link :to="`/profile/${userId}`">{{ username }}</nuxt-link>
             </v-card-text>
             <WaveForm :id="id" />
-            <v-card-text>
+            <v-card-text align="center">
                 <BtnPlayPause :sampleId="id" />
             </v-card-text>
             <v-card-text v-if="datetime_download">
-                Downloaded on {{ datetime_download }}
+                {{ `Downloaded on ${new Date(datetime_download).toLocaleDateString()}` }}
             </v-card-text>
         </v-card>
     </div>
@@ -37,3 +37,9 @@ export default {
     ]
 }
 </script>
+
+<style scoped>
+.sample-fork {
+    width: 100%;
+}
+</style>
