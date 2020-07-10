@@ -50,23 +50,33 @@
                     <v-col cols="12">
                         <TagsField />
                     </v-col>
-                    <v-col cols="12">
-                        <v-checkbox
-                            v-model="selectedForkFrom"
+                    <v-row v-if="downloadedSamples.length > 0">
+                        <v-col cols="12">
+                            <p>Have you used one or some of the following samples to create yours ?</p>
+                        </v-col>
+                        <v-col
                             v-for="(downloaded, i) in downloadedSamples"
                             :key="i"
-                            :value="downloaded.sample.id"
+                            cols="12"
+                            lg="3"
+                            md="4"
+                            sm="6"
                         >
-                            <template v-slot:label>
-                                <SampleFork
-                                    :id="downloaded.sample.id"
-                                    :name="downloaded.sample.name"
-                                    :username="downloaded.sample.user.username"
-                                    :downloaded_datetime="downloaded.datetime_download"
-                                />
-                            </template>
-                        </v-checkbox>
-                    </v-col>
+                            <v-checkbox
+                                v-model="selectedForkFrom"
+                                :value="downloaded.sample.id"
+                            >
+                                <template v-slot:label>
+                                    <SampleFork
+                                        :id="downloaded.sample.id"
+                                        :name="downloaded.sample.name"
+                                        :username="downloaded.sample.user.username"
+                                        :datetime_download="downloaded.datetime_download"
+                                    />
+                                </template>
+                            </v-checkbox>
+                        </v-col>
+                    </v-row>
                     <v-col cols="12">
                         <v-btn
                             block
@@ -152,7 +162,8 @@ export default {
 
     async asyncData ({ $axios }) {
         try {
-            let downloadedSamples = await $axios.$get('/user/downloads')
+            const downloadedSamples = await $axios.$get('/user/downloads')
+            console.log(downloadedSamples)
 
             return { downloadedSamples }
         } catch (e) {
