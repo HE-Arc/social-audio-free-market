@@ -1,5 +1,5 @@
 <template>
-    <div class="sample-fork">
+    <div :class="`sample-fork${checkbox ? ' with-checkbox' : ''}`">
         <div class="d-flex flex-row mb-6">
             <BtnPlayPause :sampleId="id" />
             <div class="pl-4">
@@ -17,6 +17,14 @@
         </div>
         <div v-if="datetime_download" class="mt-4">
             <span>{{ `Downloaded on ${new Date(datetime_download).toLocaleDateString()}` }}</span>
+        </div>
+        <div v-if="checkbox">
+            <v-checkbox
+                v-model="selected"
+                class="checkbox"
+                @change="checkboxChange"
+            >
+            </v-checkbox>
         </div>
     </div>
 </template>
@@ -36,8 +44,22 @@ export default {
         'name',
         'userId',
         'username',
-        'datetime_download'
-    ]
+        'datetime_download',
+        'checkbox',
+        'checked'
+    ],
+
+    data () {
+        return {
+            selected: this.checked ? this.checked : false
+        }
+    },
+
+    methods: {
+        checkboxChange () {
+            this.$nuxt.$emit('forkCheckbox', this.id, this.selected)
+        }
+    }
 }
 </script>
 
@@ -46,9 +68,20 @@ export default {
     background: #1c1c1c;
     border-radius: 5px;
     padding: 1em;
+    position: relative;
     transition: all 0.2s;
 }
 .sample-fork:hover {
     box-shadow: 1px 1px 15px 5px #111111;
+}
+.sample-fork.with-checkbox {
+    padding: 1.5em 1em 1em 1em;
+}
+.checkbox {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0.8em 0 0 0;
+    padding: 0;
 }
 </style>

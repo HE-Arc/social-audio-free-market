@@ -46,19 +46,14 @@
                             md="4"
                             sm="6"
                         >
-                            <v-checkbox
-                                v-model="forksFrom"
-                                :value="fork.id"
-                            >
-                                <template v-slot:label>
-                                    <SampleFork
-                                        :id="fork.id"
-                                        :name="fork.name"
-                                        :username="fork.user.username"
-                                        :datetime_download="fork.datetime_download"
-                                    />
-                                </template>
-                            </v-checkbox>
+                            <SampleFork
+                                :id="fork.id"
+                                :name="fork.name"
+                                :username="fork.user.username"
+                                :datetime_download="fork.datetime_download"
+                                checkbox="true"
+                                checked="true"
+                            />
                         </v-col>
                     </v-row>
                     <v-col cols="12">
@@ -132,6 +127,16 @@ export default {
         this.$nuxt.$on('updateTagsField', (tagsList) => {
             this.tags = tagsList
         })
+
+        // On Fork checkbox change
+        this.$nuxt.$on('forkCheckbox', (forkId, selected) => {
+            if (selected) {
+                this.forksFromId.push(forkId)
+            } else {
+                const index = this.forksFromId.indexOf(forkId)
+                this.forksFromId.splice(index, 1)
+            }
+        })
     },
 
     async asyncData ({ $axios, params, error, store }) {
@@ -144,10 +149,16 @@ export default {
 
             const forksFrom = await $axios.$get(`/forks/from/${params.id}`)
 
-            // COnverts the tags objects into an array of tags names (string)
+            // Converts the tags objects into an array of tags names (string)
             let tags = []
             for (let tag of sample.tags) {
                 tags.push(tag.name)
+            }
+
+            // Array of forks from ID
+            let forksFromId = []
+            for (let fork of forksFrom) {
+                forksFromId.push(fork.id)
             }
             
             return {
@@ -159,7 +170,8 @@ export default {
                 key: sample.key,
                 mode: sample.mode,
                 tags: tags,
-                forksFrom: forksFrom
+                forksFrom: forksFrom,
+                forksFromId: forksFromId
             }
         } catch (e) {
             error({ statusCode: 404, message: 'Sample not found' })
@@ -197,6 +209,10 @@ export default {
                 
                 if (this.tags) {
                     body.set('tags', this.tags)
+                }
+
+                if (this.forksFromId) {
+                    body.set('forks_from', this.forksFromId)
                 }
 
                 try {
