@@ -16,6 +16,7 @@
                         <v-textarea
                             v-model="description"
                             label="Description"
+                            outlined
                             @keypress.enter="update"
                         ></v-textarea>
                     </v-col>
@@ -36,6 +37,30 @@
                     <v-col cols="12">
                         <TagsField :tags="tags" />
                     </v-col>
+                    <v-row>
+                        <v-col
+                            v-for="(fork, i) in forksFrom"
+                            :key="i"
+                            cols="12"
+                            lg="3"
+                            md="4"
+                            sm="6"
+                        >
+                            <v-checkbox
+                                v-model="forksFrom"
+                                :value="fork.id"
+                            >
+                                <template v-slot:label>
+                                    <SampleFork
+                                        :id="fork.id"
+                                        :name="fork.name"
+                                        :username="fork.user.username"
+                                        :datetime_download="fork.datetime_download"
+                                    />
+                                </template>
+                            </v-checkbox>
+                        </v-col>
+                    </v-row>
                     <v-col cols="12">
                         <v-btn
                             block
@@ -70,12 +95,14 @@
 
 <script>
 import TagsField from '~/components/sample/TagsField'
+import SampleFork from '~/components/SampleFork.vue'
 
 export default {
     middleware: 'authenticated',
     
     components: {
-        TagsField
+        TagsField,
+        SampleFork
     },
 
     data () {
@@ -93,6 +120,7 @@ export default {
                 { text: 'Major', value: 'maj' }
             ],
             tags: [],
+            forksFrom: [],
             loadingUpdate: false,
             removeEnable: false,
             loadingRemove: false
@@ -114,6 +142,8 @@ export default {
                 error({ statusCode: 401, message: 'Unauthorised to update this sample' })
             }
 
+            const forksFrom = await $axios.$get(`/forks/from/${params.id}`)
+
             // COnverts the tags objects into an array of tags names (string)
             let tags = []
             for (let tag of sample.tags) {
@@ -128,7 +158,8 @@ export default {
                 description: sample.description,
                 key: sample.key,
                 mode: sample.mode,
-                tags: tags
+                tags: tags,
+                forksFrom: forksFrom
             }
         } catch (e) {
             error({ statusCode: 404, message: 'Sample not found' })

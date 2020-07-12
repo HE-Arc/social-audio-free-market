@@ -1,20 +1,23 @@
 <template>
     <div class="sample-fork">
-        <v-card>
-            <v-card-title class="headline">
-                <nuxt-link :to="`/sample/${id}`">{{ name }}</nuxt-link>
-            </v-card-title>
-            <v-card-text>
-                By <nuxt-link :to="`/profile/${userId}`">{{ username }}</nuxt-link>
-            </v-card-text>
-            <WaveForm :id="id" />
-            <v-card-text align="center">
-                <BtnPlayPause :sampleId="id" />
-            </v-card-text>
-            <v-card-text v-if="datetime_download">
-                {{ `Downloaded on ${new Date(datetime_download).toLocaleDateString()}` }}
-            </v-card-text>
-        </v-card>
+        <div class="d-flex flex-row mb-6">
+            <BtnPlayPause :sampleId="id" />
+            <div class="pl-4">
+                <div>
+                    <nuxt-link :to="`/sample/${id}`">{{ name }}</nuxt-link>
+                </div>
+                <div>
+                    <span>By</span>
+                    <nuxt-link :to="`/profile/${userId}`">{{ username }}</nuxt-link>
+                </div>
+            </div>
+        </div>
+        <div>
+            <WaveForm :id="id" height="50" />
+        </div>
+        <div v-if="datetime_download" class="mt-4">
+            <span>{{ `Downloaded on ${new Date(datetime_download).toLocaleDateString()}` }}</span>
+        </div>
     </div>
 </template>
 
@@ -40,6 +43,12 @@ export default {
 
 <style scoped>
 .sample-fork {
-    width: 100%;
+    background: #1c1c1c;
+    border-radius: 5px;
+    padding: 1em;
+    transition: all 0.2s;
+}
+.sample-fork:hover {
+    box-shadow: 1px 1px 15px 5px #111111;
 }
 </style>

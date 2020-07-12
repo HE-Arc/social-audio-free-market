@@ -9,7 +9,8 @@ if (process.browser) {
 
 export default {
     props: [
-        'id'
+        'id',
+        'height'
     ],
 
     data () {
@@ -50,11 +51,12 @@ export default {
                 progressColor: 'purple',
                 barWidth: 2,
                 barHeight: 1,
-                barGap: null
+                barGap: null,
+                height: this.height ? this.height : 128
             })
 
             // Loads the sample audio file
-            let audioFileUrl = `${this.$axios.defaults.baseURL}/sample/file/${this.id}/0`
+            const audioFileUrl = `${this.$axios.defaults.baseURL}/sample/file/${this.id}/0`
             this.wavesurfer.load(audioFileUrl)
 
             // On play event
