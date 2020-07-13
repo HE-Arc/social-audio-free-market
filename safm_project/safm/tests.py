@@ -433,6 +433,62 @@ class UserProfileTest(TestCase):
         user_profile = UserProfile.objects.get(user=self.user)
         expected_filename = 'users/{0}/pp.jpg'.format(self.user.id)
         self.assertEqual(user_profile.profile_picture, expected_filename)
+
+
+class UserSamplesTest(TestCase):
+    '''
+    User Samples unit testing
+    '''
+    fixtures = ['users.json', 'samples.json', 'tags.json']
+
+    def setUp(self):
+        settings.MEDIA_ROOT = tempfile.mkdtemp()
+
+        self.client = Client()
+
+        # Reads the users fixture file
+        with open('./safm/fixtures/users.json') as json_users:
+            self.users = json.load(json_users)
+
+        # Reads the samples fixture file
+        with open('./safm/fixtures/samples.json') as json_samples:
+            self.samples = json.load(json_samples)
+
+    @tag('user_samples')
+    def test_user_samples(self):
+        '''
+        Checks wether the user/samples route returns the user samples.
+        '''
+        for user in self.users:
+            user_id = user['pk']
+            response = self.client.get('/api/user/samples/{0}'.format(user_id))
+            user_samples = json.loads(response.content)
+
+            user_samples_names = []
+            for user_sample in user_samples:
+                user_samples_names.append(user_sample['name'])
+            
+            for sample in self.samples:
+                sample_name = sample['fields']['name']
+                self.assertIn(sample_name, user_samples_names)
+
+    @tag('user_samples_count')
+    def test_user_samples_count(self):
+        '''
+        Checks wether the user/samples/count route returns the correct
+        number of samples based on the user.
+        '''
+        for user in self.users:
+            user_id = user['pk']
+            count = 0
+
+            for sample in self.samples:
+                if sample['fields']['user'] == user_id:
+                    count += 1
+
+            response = self.client.get('/api/user/samples/count/{0}'.format(user_id))
+            samples_count = json.loads(response.content)['count']
+            self.assertEqual(samples_count, count)
             
 
 class QuickSearchTest(TestCase):
