@@ -51,19 +51,20 @@ export default {
         BtnPlayPause
     },
 
-    props: [
-        'id',
-        'name',
-        'userId',
-        'username',
-        'datetime_download',
-        'checkbox',
-        'addable'
-    ],
+    props: {
+        id: Number,
+        name: String,
+        userId: Number,
+        username: String,
+        datetime_download: String,
+        checkbox: Boolean,
+        checked: Boolean,
+        addable: Boolean
+    },
 
     data () {
         return {
-            selected: this.checkbox ? true : false
+            selected: this.checked ? this.checked : false
         }
     },
 

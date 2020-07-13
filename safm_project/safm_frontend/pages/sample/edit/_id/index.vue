@@ -53,7 +53,8 @@
                                 :id="fork.id"
                                 :name="fork.name"
                                 :username="fork.user.username"
-                                checkbox="true"
+                                checkbox
+                                checked
                             />
                         </v-col>
                         <v-col cols="12">
@@ -71,7 +72,7 @@
                                 :id="fork.id"
                                 :name="fork.name"
                                 :username="fork.user.username"
-                                addable="true"
+                                addable
                             />
                         </v-col>
                     </v-row>
