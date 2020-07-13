@@ -1,5 +1,5 @@
 <template>
-    <div :class="`sample-fork${checkbox ? ' with-checkbox' : ''}`">
+    <div :class="`sample-fork${checkbox || addable ? ' with-abs' : ''}`">
         <div class="d-flex flex-row mb-6">
             <BtnPlayPause :sampleId="id" />
             <div class="pl-4">
@@ -26,6 +26,16 @@
             >
             </v-checkbox>
         </div>
+        <div v-if="addable">
+            <v-btn
+                fab
+                class="addable"
+                color="accent"
+                @click="add"
+            >
+                <v-icon>mdi-plus</v-icon>
+            </v-btn>
+        </div>
     </div>
 </template>
 
@@ -34,6 +44,8 @@ import WaveForm from '~/components/WaveForm.vue'
 import BtnPlayPause from '~/components/sample/BtnPlayPause'
 
 export default {
+    name: 'sample-fork',
+
     components: {
         WaveForm,
         BtnPlayPause
@@ -46,18 +58,23 @@ export default {
         'username',
         'datetime_download',
         'checkbox',
-        'checked'
+        'addable'
     ],
 
     data () {
         return {
-            selected: this.checked ? this.checked : false
+            selected: this.checkbox ? true : false
         }
     },
 
     methods: {
         checkboxChange () {
             this.$nuxt.$emit('forkCheckbox', this.id, this.selected)
+        },
+
+        add () {
+            this.selected = true
+            this.$nuxt.$emit('forkAdd', this.id)
         }
     }
 }
@@ -74,10 +91,11 @@ export default {
 .sample-fork:hover {
     box-shadow: 1px 1px 15px 5px #111111;
 }
-.sample-fork.with-checkbox {
+.sample-fork.with-abs {
     padding: 1.5em 1em 1em 1em;
 }
-.checkbox {
+.checkbox,
+.addable {
     position: absolute;
     top: 0;
     right: 0;
