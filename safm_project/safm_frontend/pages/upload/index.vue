@@ -58,23 +58,17 @@
                             v-for="(downloaded, i) in downloadedSamples"
                             :key="i"
                             cols="12"
-                            lg="3"
-                            md="4"
                             sm="6"
+                            md="4"
+                            lg="3"
                         >
-                            <v-checkbox
-                                v-model="selectedForkFrom"
-                                :value="downloaded.sample.id"
-                            >
-                                <template v-slot:label>
-                                    <SampleFork
-                                        :id="downloaded.sample.id"
-                                        :name="downloaded.sample.name"
-                                        :username="downloaded.sample.user.username"
-                                        :datetime_download="downloaded.datetime_download"
-                                    />
-                                </template>
-                            </v-checkbox>
+                            <SampleFork
+                                :id="downloaded.sample.id"
+                                :name="downloaded.sample.name"
+                                :username="downloaded.sample.user.username"
+                                :datetime_download="downloaded.datetime_download"
+                                checkbox
+                            />
                         </v-col>
                     </v-row>
                     <v-col cols="12">
@@ -157,6 +151,16 @@ export default {
         // On Tags Field update
         this.$nuxt.$on('updateTagsField', (tagsList) => {
             this.tags = tagsList
+        })
+
+        // On Fork checkbox change
+        this.$nuxt.$on('forkCheckbox', (forkId, selected) => {
+            if (selected) {
+                this.selectedForkFrom.push(forkId)
+            } else {
+                const index = this.selectedForkFrom.indexOf(forkId)
+                this.selectedForkFrom.splice(index, 1)
+            }
         })
     },
 

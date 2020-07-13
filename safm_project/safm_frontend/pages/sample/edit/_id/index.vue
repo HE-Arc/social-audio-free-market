@@ -16,6 +16,7 @@
                         <v-textarea
                             v-model="description"
                             label="Description"
+                            outlined
                             @keypress.enter="update"
                         ></v-textarea>
                     </v-col>
@@ -36,6 +37,45 @@
                     <v-col cols="12">
                         <TagsField :tags="tags" />
                     </v-col>
+                    <v-row>
+                        <v-col cols="12">
+                            <p>Sample created with:</p>
+                        </v-col>
+                        <v-col
+                            v-for="fork in forksFrom"
+                            :key="fork.id"
+                            cols="12"
+                            sm="6"
+                            md="4"
+                            lg="3"
+                        >
+                            <SampleFork
+                                :id="fork.id"
+                                :name="fork.name"
+                                :username="fork.user.username"
+                                checkbox
+                                checked
+                            />
+                        </v-col>
+                        <v-col cols="12">
+                            <SearchSampleFork />
+                        </v-col>
+                        <v-col
+                            v-for="fork in searchForkResults"
+                            :key="fork.id"
+                            cols="12"
+                            sm="6"
+                            md="4"
+                            lg="3"
+                        >
+                            <SampleFork
+                                :id="fork.id"
+                                :name="fork.name"
+                                :username="fork.user.username"
+                                addable
+                            />
+                        </v-col>
+                    </v-row>
                     <v-col cols="12">
                         <v-btn
                             block
@@ -70,12 +110,16 @@
 
 <script>
 import TagsField from '~/components/sample/TagsField'
+import SampleFork from '~/components/SampleFork.vue'
+import SearchSampleFork from '~/components/sample/SearchSampleFork.vue'
 
 export default {
     middleware: 'authenticated',
     
     components: {
-        TagsField
+        TagsField,
+        SampleFork,
+        SearchSampleFork
     },
 
     data () {
@@ -93,6 +137,8 @@ export default {
                 { text: 'Major', value: 'maj' }
             ],
             tags: [],
+            forksFrom: [],
+            searchForkResults: [],
             loadingUpdate: false,
             removeEnable: false,
             loadingRemove: false
@@ -104,6 +150,54 @@ export default {
         this.$nuxt.$on('updateTagsField', (tagsList) => {
             this.tags = tagsList
         })
+
+        // On Fork checkbox change
+        this.$nuxt.$on('forkCheckbox', (forkId, selected) => {
+            if (selected) {
+                this.forksFromId.push(forkId)
+            } else {
+                const index = this.forksFromId.indexOf(forkId)
+                this.forksFromId.splice(index, 1)
+            }
+        })
+
+        // On Search Forks event
+        this.$nuxt.$on('searchForks', (results) => {
+            this.searchForkResults = []
+
+            // Filters the results
+            for (let fork of results) {
+                let forkId = fork.id
+
+                // Current fork is different from this page sample
+                if (forkId != this.id) {
+                    for (let forkFrom of this.forksFrom) {
+                        // Current fork is not already a fork from this page sample
+                        if (forkFrom.id == forkId) {
+                            forkId = -1
+                            break
+                        }
+                    }
+
+                    if (forkId > 0) {
+                        this.searchForkResults.push(fork)
+                    }
+                }
+            }
+        })
+
+        // On Fork Add event
+        this.$nuxt.$on('forkAdd', (id) => {
+            for (let i = 0; i < this.searchForkResults.length; i++) {
+                let forkFromId = this.searchForkResults[i].id
+
+                if (forkFromId == id) {
+                    this.forksFrom.push(this.searchForkResults[i])
+                    this.forksFromId.push(forkFromId)
+                    this.searchForkResults.splice(i, 1)
+                }
+            }
+        })
     },
 
     async asyncData ({ $axios, params, error, store }) {
@@ -114,10 +208,18 @@ export default {
                 error({ statusCode: 401, message: 'Unauthorised to update this sample' })
             }
 
-            // COnverts the tags objects into an array of tags names (string)
+            const forksFrom = await $axios.$get(`/forks/from/${params.id}`)
+
+            // Converts the tags objects into an array of tags names (string)
             let tags = []
             for (let tag of sample.tags) {
                 tags.push(tag.name)
+            }
+
+            // Array of forks from ID
+            let forksFromId = []
+            for (let fork of forksFrom) {
+                forksFromId.push(fork.id)
             }
             
             return {
@@ -128,7 +230,9 @@ export default {
                 description: sample.description,
                 key: sample.key,
                 mode: sample.mode,
-                tags: tags
+                tags: tags,
+                forksFrom: forksFrom,
+                forksFromId: forksFromId
             }
         } catch (e) {
             error({ statusCode: 404, message: 'Sample not found' })
@@ -166,6 +270,10 @@ export default {
                 
                 if (this.tags) {
                     body.set('tags', this.tags)
+                }
+
+                if (this.forksFromId) {
+                    body.set('forks_from', this.forksFromId)
                 }
 
                 try {

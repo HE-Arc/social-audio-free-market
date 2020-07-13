@@ -32,7 +32,6 @@
                 v-else
                 open-on-hover
                 offset-y
-                transition="scale-transition"
             >
                 <template v-slot:activator="{ on }">
                     <v-btn

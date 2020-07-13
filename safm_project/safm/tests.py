@@ -305,17 +305,14 @@ class UploadSampleTest(TestCase):
     @tag('sample_upload_fork')
     def test_sample_upload_fork(self):
         '''
-        Checks that the SampleForkFrom/To models are correctly created when
-        there is a sample from at a Sample upload.
+        Checks that the Sample forks property (and its inverse) are correct
+        when there is a sample fork from at a Sample upload.
         '''
         # Login
         loginResponse = self.client.post('/api/login', { 'username': USERNAME, 'password': PASSWORD })
         self.assertEqual(200, loginResponse.status_code)
         token = json.loads(loginResponse.content)['token']
-
-        #FIXME
         
-        '''
         headers = {
             'HTTP_AUTHORIZATION': 'Token ' + token
         }
@@ -324,7 +321,7 @@ class UploadSampleTest(TestCase):
         sample01_id = -1
         sample_name = 'Test Sample Fork #1'
         with open(self.test_file, 'rb') as f:    
-            response = self.client.post('/api/upload_sample', {
+            response = self.client.post('/api/sample', {
                 'name': sample_name,
                 'file': f
             }, **headers)
@@ -336,7 +333,7 @@ class UploadSampleTest(TestCase):
         sample02_id = -1
         sample_name = 'Test Sample Fork #2'
         with open(self.test_file, 'rb') as f:    
-            response = self.client.post('/api/upload_sample', {
+            response = self.client.post('/api/sample', {
                 'name': sample_name,
                 'file': f,
                 'forks_from': sample01_id
@@ -346,15 +343,16 @@ class UploadSampleTest(TestCase):
             self.assertTrue(sample02_id > 0)
 
         # Second Sample is from the first one
-        sample_fork_from = SampleForkFrom.objects.get(pk=1)
-        self.assertEqual(sample_fork_from.sample.id, sample02_id)
-        self.assertEqual(sample_fork_from.sample_from.id, sample01_id)
-
+        response = self.client.get('/api/forks/from/{0}'.format(sample02_id))
+        forks_from = json.loads(response.content)
+        self.assertEqual(len(forks_from), 1)
+        self.assertEqual(forks_from[0]['id'], sample01_id)
+        
         # First Sample is to the second one
-        sample_fork_to = SampleForkTo.objects.get(pk=1)
-        self.assertEqual(sample_fork_to.sample.id, sample01_id)
-        self.assertEqual(sample_fork_to.sample_to.id, sample02_id)
-        '''
+        response = self.client.get('/api/forks/to/{0}'.format(sample01_id))
+        forks_to = json.loads(response.content)
+        self.assertEqual(len(forks_to), 1)
+        self.assertEqual(forks_to[0]['id'], sample02_id)
 
 
 class DownloadSampleTest(TestCase):

@@ -5,7 +5,9 @@
                 <v-col cols="12">
                     <h3>Created with</h3>
                 </v-col>
-                <v-col cols="12"
+                <v-col
+                    cols="12"
+                    sm="6"
                     v-for="(sample, i) in forkFrom"
                     :key="i"
                 >
@@ -23,7 +25,9 @@
                 <v-col cols="12">
                     <h3>Used by</h3>
                 </v-col>
-                <v-col cols="12"
+                <v-col
+                    cols="12"
+                    sm="6"
                     v-for="(sample, i) in forkTo"
                     :key="i"
                 >

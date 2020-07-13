@@ -64,10 +64,15 @@ export default {
     */
     vuetify: {
         customVariables: ['~/assets/variables.scss'],
+        treeShake: true,
         theme: {
+            options: {
+                customProperties: true
+            },
             dark: true,
             themes: {
                 dark: {
+                    background: '#222222',
                     primary: colors.teal.accent4,
                     accent: colors.pink.darken1,
                     secondary: colors.amber.darken3,
