@@ -399,7 +399,7 @@ class DownloadSampleTest(TestCase):
         self.assertEqual(user_downloads[0].id, 1)
 
         # Does not create a UserSampleDownload model if not authenticated
-        self.client.get('/api/sample_file/1/0')
+        self.client.get('/api/sample/file/1/0')
         user_downloads = UserSampleDownload.objects.all()
         # There are still one UserSampleDownload models
         self.assertEqual(len(user_downloads), 1)
