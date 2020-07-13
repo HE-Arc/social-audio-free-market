@@ -412,6 +412,60 @@ class UploadSampleTest(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(json_response['detail'], 'Sample not found.')
 
+    @tag('sample_patch_delete_requires_authentication')
+    def test_sample_patch_delete_requires_authentication(self):
+        # Creates a Sample
+        sample_name = 'Sample Test'
+        Sample.objects.create(
+            name=sample_name,
+            file=self.test_file
+        )
+        sample_id = Sample.objects.get(name=sample_name).id
+
+        # Cannot patch Sample if not authenticated
+        response = self.client.patch('/api/sample/{0}'.format(sample_id))
+        json_response = json.loads(response.content)
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(json_response['detail'], 'Authentication credentials were not provided.')
+
+        # Cannot delete Sample if not authenticated
+        response = self.client.delete('/api/sample/{0}'.format(sample_id))
+        json_response = json.loads(response.content)
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(json_response['detail'], 'Authentication credentials were not provided.')
+
+    @tag('sample_patch_delete_unauthorised_user')
+    def test_sample_patch_delete_unauthorised_user(self):
+        # Creates another user
+        other_user = User.objects.create(
+            username='Unauthorised',
+            email='not@authorised.com'
+        )
+
+        # Creates a Sample which belongs to the other user
+        sample_name = 'Sample Test'
+        Sample.objects.create(
+            name=sample_name,
+            file=self.test_file,
+            user=other_user
+        )
+        sample_id = Sample.objects.get(name=sample_name).id
+
+        # Login
+        headers = _login_user_and_get_token(self)   
+
+        # Cannot patch Sample if not from user
+        response = self.client.patch('/api/sample/{0}'.format(sample_id), **headers)
+        json_response = json.loads(response.content)
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(json_response['detail'], 'Sample does not belong to the user.')
+
+        # Cannot delete Sample if not from user
+        response = self.client.delete('/api/sample/{0}'.format(sample_id), **headers)
+        json_response = json.loads(response.content)
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(json_response['detail'], 'Sample does not belong to the user.')
+
 
 class DownloadSampleTest(TestCase):
     '''
