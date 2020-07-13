@@ -391,24 +391,20 @@ class DownloadSampleTest(TestCase):
             'HTTP_AUTHORIZATION': 'Token ' + token
         }
 
-
-        # TODO: problem with the /api/sample_file API route
-        
-
         # Creates a UserSampleDownload model if the user is authenticated
         # when downloading a sample file
-        '''
-        self.client.get('/api/sample_file/1/1', **headers)
+        self.client.get('/api/sample/file/1/1', **headers)
         user_downloads = UserSampleDownload.objects.all()
         self.assertEqual(len(user_downloads), 1)
+        self.assertEqual(user_downloads[0].id, 1)
 
         # Does not create a UserSampleDownload model if not authenticated
-        self.client.get('/api/sample_file/1/1')
+        self.client.get('/api/sample_file/1/0')
         user_downloads = UserSampleDownload.objects.all()
-        # There are still len(self.samples) UserSampleDownload models
+        # There are still one UserSampleDownload models
         self.assertEqual(len(user_downloads), 1)
-        '''
-
+        self.assertEqual(user_downloads[0].id, 1)
+        
 
 class UserProfileTest(TestCase):
     '''
