@@ -4,6 +4,7 @@ import json
 import tempfile
 from django.http import HttpResponseNotFound
 from rest_framework import status
+from rest_framework.test import APIClient
 from django.test import TestCase
 from django.test import Client
 from django.test import tag
@@ -344,6 +345,72 @@ class UploadSampleTest(TestCase):
         forks_to = json.loads(response.content)
         self.assertEqual(len(forks_to), 1)
         self.assertEqual(forks_to[0]['id'], sample02_id)
+
+    @tag('patch_sample')
+    def test_patch_sample(self):
+        '''
+        Checks wether a Sampel is correctly patched.
+        '''
+        # Login
+        headers = _login_user_and_get_token(self)
+
+        # Creates a Sample
+        with open(self.test_file, 'rb') as f:    
+            response = self.client.post('/api/sample', {
+                'name': 'Test Sample',
+                'file': f
+            }, **headers)
+            self.assertEqual(201, response.status_code)
+            sample_id = json.loads(response.content)['id']
+
+        # Patches the Sample
+        new_name = 'Patched Sample'
+        new_description = 'Test description'
+        new_key = 'C'
+        new_mode = 'maj'
+
+        api_client = APIClient()
+        response = api_client.patch('/api/sample/{0}'.format(sample_id), {
+            'name': new_name,
+            'description': new_description,
+            'key': new_key,
+            'mode': new_mode
+        }, format='json', **headers)
+        self.assertEqual(response.status_code, 200)
+
+        sample = Sample.objects.get(pk=sample_id)
+        self.assertEqual(sample.user.username, USERNAME)
+        self.assertEqual(sample.name, new_name)
+        self.assertEqual(sample.description, new_description)
+        self.assertEqual(sample.key, new_key)
+        self.assertEqual(sample.mode, new_mode)
+
+    @tag('delete_sample')
+    def test_delete_sample(self):
+        '''
+        Checks wether a Sample is correctly deleted.
+        '''
+        # Login
+        headers = _login_user_and_get_token(self)
+
+        # Creates a Sample
+        with open(self.test_file, 'rb') as f:    
+            response = self.client.post('/api/sample', {
+                'name': 'Test Sample',
+                'file': f
+            }, **headers)
+            self.assertEqual(201, response.status_code)
+            sample_id = json.loads(response.content)['id']
+        
+        # Removes the Sample
+        response = self.client.delete('/api/sample/{0}'.format(sample_id), **headers)
+        self.assertEqual(response.status_code, 200)
+
+        # Sample does not exist anymore
+        response = self.client.get('/api/sample/{0}'.format(sample_id))
+        json_response = json.loads(response.content)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(json_response['detail'], 'Sample not found.')
 
 
 class DownloadSampleTest(TestCase):
