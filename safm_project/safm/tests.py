@@ -2,6 +2,7 @@ import os
 import re
 import json
 import tempfile
+from django.http import HttpResponseNotFound
 from rest_framework import status
 from django.test import TestCase
 from django.test import Client
@@ -30,6 +31,20 @@ def _create_test_user():
 
     return user
 
+def _login_user_and_get_token(instance):
+    '''
+    Logs in the test user and returns its authentication token.
+    '''
+    login_response = instance.client.post('/api/login', { 'username': USERNAME, 'password': PASSWORD })
+    instance.assertEqual(200, login_response.status_code)
+    token = json.loads(login_response.content)['token']
+
+    headers = {
+        'HTTP_AUTHORIZATION': 'Token ' + token
+    }
+
+    return headers
+
 # Create your tests here.
 
 class AuthTest(TestCase):
@@ -47,17 +62,17 @@ class AuthTest(TestCase):
         response = self.client.post('/api/login', { 'username': USERNAME, 'password': PASSWORD })
         self.assertEqual(200, response.status_code)
         # Successful login returns an authentication token and the username
-        jsonResponse = json.loads(response.content)
-        self.assertIn('token', jsonResponse)
-        self.assertEqual(jsonResponse['username'], USERNAME)
+        json_response = json.loads(response.content)
+        self.assertIn('token', json_response)
+        self.assertEqual(json_response['username'], USERNAME)
 
         # Login with email address
         response = self.client.post('/api/login', { 'email': EMAIL, 'password': PASSWORD })
         self.assertEqual(200, response.status_code)
         # Successful login returns an authentication token and the username
-        jsonResponse = json.loads(response.content)
-        self.assertIn('token', jsonResponse)
-        self.assertEqual(jsonResponse['username'], USERNAME)
+        json_response = json.loads(response.content)
+        self.assertIn('token', json_response)
+        self.assertEqual(json_response['username'], USERNAME)
 
         # Wrong credentials
         response = self.client.post('/api/login', { 'username': USERNAME, 'password': 'password' })
@@ -65,12 +80,8 @@ class AuthTest(TestCase):
 
     @tag('logout')
     def test_logout(self):
-        response = self.client.post('/api/login', { 'username': USERNAME, 'password': PASSWORD })
-        token = json.loads(response.content)['token']
-        
-        headers = {
-            'HTTP_AUTHORIZATION': 'Token ' + token
-        }
+        # Login
+        headers = _login_user_and_get_token(self)
         response = self.client.post('/api/logout', **headers)
         self.assertEqual(200, response.status_code)
 
@@ -85,13 +96,13 @@ class AuthTest(TestCase):
         self.assertEqual(201, response.status_code)
 
         # Successful registration returns an authentication token
-        jsonResponse = json.loads(response.content)
-        self.assertIn('token', jsonResponse)
-        self.assertIn('userid', jsonResponse)
-        self.assertIn('username', jsonResponse)
+        json_response = json.loads(response.content)
+        self.assertIn('token', json_response)
+        self.assertIn('userid', json_response)
+        self.assertIn('username', json_response)
 
         # User Profile creation at registration
-        user_id = jsonResponse['userid']
+        user_id = json_response['userid']
         user_profile = UserProfile.objects.get(user=user_id)
         self.assertEqual(user_profile.user.id, user_id)
         self.assertEqual(user_profile.description, 'No description provided.')
@@ -230,15 +241,8 @@ class UploadSampleTest(TestCase):
         Checks that a user can upload a sample if logged in and that
         it creates a new Sample model and returns its ID.
         '''
-         # Login
-        loginResponse = self.client.post('/api/login', { 'username': USERNAME, 'password': PASSWORD })
-        self.assertEqual(200, loginResponse.status_code)
-        token = json.loads(loginResponse.content)['token']
-        
-        # Can upload when logged in
-        headers = {
-            'HTTP_AUTHORIZATION': 'Token ' + token
-        }
+        # Login
+        headers = _login_user_and_get_token(self)
         with open(self.test_file, 'rb') as f:    
             response = self.client.post('/api/sample', {
                 'name': 'Test Sample',
@@ -247,8 +251,8 @@ class UploadSampleTest(TestCase):
             self.assertEqual(201, response.status_code)
 
             # Checks that the response contains the newly created Sample model ID
-            jsonResponse = json.loads(response.content)
-            self.assertIn('id', jsonResponse)
+            json_response = json.loads(response.content)
+            self.assertIn('id', json_response)
 
     @tag('sample_upload_properties')
     def test_sample_upload_properties(self):
@@ -258,10 +262,7 @@ class UploadSampleTest(TestCase):
         are also correct.
         '''
         # Login
-        loginResponse = self.client.post('/api/login', { 'username': USERNAME, 'password': PASSWORD })
-        self.assertEqual(200, loginResponse.status_code)
-        token = json.loads(loginResponse.content)['token']
-        
+        headers = _login_user_and_get_token(self)
         # Can upload when logged in
         sample_id = -1
         sample_name = 'Test Sample'
@@ -269,9 +270,6 @@ class UploadSampleTest(TestCase):
         sample_tags = 'acid,techno,kick'
         sample_key = 'C'
         sample_mode = 'maj'
-        headers = {
-            'HTTP_AUTHORIZATION': 'Token ' + token
-        }
         with open(self.test_file, 'rb') as f:    
             response = self.client.post('/api/sample', {
                 'name': sample_name,
@@ -309,14 +307,7 @@ class UploadSampleTest(TestCase):
         when there is a sample fork from at a Sample upload.
         '''
         # Login
-        loginResponse = self.client.post('/api/login', { 'username': USERNAME, 'password': PASSWORD })
-        self.assertEqual(200, loginResponse.status_code)
-        token = json.loads(loginResponse.content)['token']
-        
-        headers = {
-            'HTTP_AUTHORIZATION': 'Token ' + token
-        }
-
+        headers = _login_user_and_get_token(self)
         # First Sample
         sample01_id = -1
         sample_name = 'Test Sample Fork #1'
@@ -383,14 +374,7 @@ class DownloadSampleTest(TestCase):
         sample.save()
 
         # Login
-        loginResponse = self.client.post('/api/login', { 'username': USERNAME, 'password': PASSWORD })
-        self.assertEqual(200, loginResponse.status_code)
-        token = json.loads(loginResponse.content)['token']
-
-        headers = {
-            'HTTP_AUTHORIZATION': 'Token ' + token
-        }
-
+        headers = _login_user_and_get_token(self)
         # Creates a UserSampleDownload model if the user is authenticated
         # when downloading a sample file
         self.client.get('/api/sample/file/1/1', **headers)
@@ -491,6 +475,43 @@ class UserSamplesTest(TestCase):
             self.assertEqual(samples_count, count)
             
 
+class UserEmailTest(TestCase):
+    '''
+    User get email unit testing
+    '''
+    
+    def setUp(self):
+        settings.MEDIA_ROOT = tempfile.mkdtemp()
+
+        self.client = Client()
+
+        self.user = _create_test_user()
+
+        self.profile = UserProfile.objects.create(user=self.user)
+
+    @tag('get_user_email')
+    def test_get_user_email(self):
+        # By default, email_public is False
+        user_id = self.user.id
+        response = self.client.get('/api/user/email/{0}'.format(user_id))
+        self.assertEqual(type(response), HttpResponseNotFound)
+
+        # Sets email_public to True
+        self.profile.email_public = True
+        self.profile.save()
+        response = self.client.get('/api/user/email/{0}'.format(user_id))
+        json_response = json.loads(response.content)
+        self.assertEqual(json_response['email'], self.user.email)
+
+    @tag('get_authenticated_user_email')
+    def test_get_authenticated_user_email(self):
+        # Login
+        headers = _login_user_and_get_token(self)
+        response = self.client.get('/api/user/email/{0}'.format(self.user.id), **headers)
+        json_response = json.loads(response.content)
+        self.assertEqual(json_response['email'], self.user.email)
+
+
 class QuickSearchTest(TestCase):
     '''
     Quick Search unit testing
@@ -561,10 +582,10 @@ class QuickSearchTest(TestCase):
 
         for search_query in [USERNAME, '130', 'techno']:
             response = self.client.get('/api/quick?search=' + search_query)
-            jsonResponse = json.loads(response.content)
+            json_response = json.loads(response.content)
 
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(len(jsonResponse), results_len_from_fixtures(search_query))
+            self.assertEqual(len(json_response), results_len_from_fixtures(search_query))
 
     @tag('quick_search_no_results')
     def test_quick_search_no_results(self):
@@ -573,10 +594,11 @@ class QuickSearchTest(TestCase):
         search query matches no sample.
         '''
         response = self.client.get('/api/quick?search=whoistheafterking')
-        jsonResponse = json.loads(response.content)
+        json_response = json.loads(response.content)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(jsonResponse), 0)
+        self.assertEqual(len(json_response), 0)
+
 
 class AdvancedSearchTest(TestCase):
     '''
@@ -614,10 +636,10 @@ class AdvancedSearchTest(TestCase):
             
             url = '/api/ad_search?name__icontains={0}'.format(n)
             response = self.client.get(url)
-            jsonResponse = json.loads(response.content)
+            json_response = json.loads(response.content)
 
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(len(jsonResponse), count)
+            self.assertEqual(len(json_response), count)
 
     @tag('advanced_search_username')
     def test_advanced_search_username(self):
@@ -635,10 +657,10 @@ class AdvancedSearchTest(TestCase):
 
             url = '/api/ad_search?user__username__icontains={0}'.format(username)
             response = self.client.get(url)
-            jsonResponse = json.loads(response.content)
+            json_response = json.loads(response.content)
 
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(len(jsonResponse), count)
+            self.assertEqual(len(json_response), count)
 
     @tag('advanced_search_duration')
     def test_advanced_search_duration(self):
@@ -657,10 +679,10 @@ class AdvancedSearchTest(TestCase):
         
         url = '/api/ad_search?duration__lte={0}&duration__gte={1}'.format(duration__lte, duration__gte)
         response = self.client.get(url)
-        jsonResponse = json.loads(response.content)
+        json_response = json.loads(response.content)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(jsonResponse), count)
+        self.assertEqual(len(json_response), count)
 
     @tag('advanced_search_tempo')
     def test_advanced_search_tempo(self):
@@ -679,10 +701,10 @@ class AdvancedSearchTest(TestCase):
         
         url = '/api/ad_search?tempo__lte={0}&tempo__gte={1}'.format(tempo__lte, tempo__gte)
         response = self.client.get(url)
-        jsonResponse = json.loads(response.content)
+        json_response = json.loads(response.content)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(jsonResponse), count)
+        self.assertEqual(len(json_response), count)
 
     @tag('advanced_search_key')
     def test_advanced_search_key(self):
@@ -700,10 +722,10 @@ class AdvancedSearchTest(TestCase):
 
             url = '/api/ad_search?key={0}'.format(k)
             response = self.client.get(url)
-            jsonResponse = json.loads(response.content)
+            json_response = json.loads(response.content)
 
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(len(jsonResponse), count)
+            self.assertEqual(len(json_response), count)
 
     @tag('advanced_search_mode')
     def test_advanced_search_mode(self):
@@ -722,10 +744,10 @@ class AdvancedSearchTest(TestCase):
 
             url = '/api/ad_search?mode={0}'.format(m)
             response = self.client.get(url)
-            jsonResponse = json.loads(response.content)
+            json_response = json.loads(response.content)
 
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(len(jsonResponse), count)
+            self.assertEqual(len(json_response), count)
         
 
     # TODO: tags advanced search test ; depends on AND or OR condition
