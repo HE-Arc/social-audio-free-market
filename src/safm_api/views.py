@@ -303,11 +303,18 @@ class SampleFile(APIView):
             return HttpResponseNotFound('No matching file found.')
 
 
+class ListLastUploadedSamples(generics.ListAPIView):
+    serializer_class = SampleSerializer
+    limit = 6 # Number of Samples to return
+
+    def get_queryset(self):
+        return Sample.objects.order_by('-datetime_upload')[:self.limit]
+
+
 class ListSampleForkFrom(generics.ListAPIView):
     serializer_class = SampleSerializer
 
     def get_queryset(self):
-        # lookup_field only used in detail views
         return Sample.objects.filter(forks_to=self.kwargs['sample_id'])
     
 
@@ -315,7 +322,6 @@ class ListSampleForkTo(generics.ListAPIView):
     serializer_class = SampleSerializer
 
     def get_queryset(self):
-        # lookup_field only used in detail views
         return Sample.objects.filter(forks=self.kwargs['sample_id'])
 
 
