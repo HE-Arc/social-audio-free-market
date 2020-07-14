@@ -3,7 +3,7 @@ from rest_framework.validators import UniqueValidator
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
-from .models import *
+from .models import Tag, Sample, UserProfile, UserSampleDownload
 
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(write_only=True, validators=[UniqueValidator(queryset=User.objects.all())])

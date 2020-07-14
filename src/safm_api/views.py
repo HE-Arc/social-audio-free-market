@@ -20,8 +20,8 @@ from django.core.mail import EmailMultiAlternatives
 
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
-from .models import *
-from .serializers import *
+from .models import Tag, Sample, UserProfile, UserSampleDownload
+from .serializers import UserSerializer, LoginSerializer, TagSerializer, SampleForkSerializer, SampleSerializer, UserDownloadSerializer, UserProfileSerializer
 
 # Create your views here.
 

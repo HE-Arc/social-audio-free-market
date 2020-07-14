@@ -89,7 +89,7 @@ export default {
     computed: {
         usernameEmailErrors () {
             const errors = []
-            if (!this.$v.usernameEmail.$dirty) return errors
+            if (!this.$v.usernameEmail.$dirty) return []
             !this.$v.usernameEmail.required && errors.push('Username / Email is required')
 
             return errors
@@ -97,7 +97,7 @@ export default {
 
         passwordErrors () {
             const errors = []
-            if (!this.$v.password.$dirty) return errors
+            if (!this.$v.password.$dirty) return []
             !this.$v.password.required && errors.push('Password is required')
 
             return errors

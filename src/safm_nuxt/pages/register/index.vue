@@ -92,7 +92,7 @@ export default {
     computed: {
         usernameErrors () {
             const errors = []
-            if (!this.$v.username.$dirty) return errors
+            if (!this.$v.username.$dirty) return []
             !this.$v.username.required && errors.push('Username is required')
 
             return errors
@@ -100,7 +100,7 @@ export default {
 
         emailErrors () {
             const errors = []
-            if (!this.$v.email.$dirty) return errors
+            if (!this.$v.email.$dirty) return []
             !this.$v.email.email && errors.push('Must be valid email')
             !this.$v.email.required && errors.push('Email is required')
 
@@ -109,7 +109,7 @@ export default {
 
         passwordErrors () {
             const errors = []
-            if (!this.$v.password.$dirty) return errors
+            if (!this.$v.password.$dirty) return []
             !this.$v.password.required && errors.push('Password is required')
             !this.$v.password.minLength && errors.push('Password must be at least 8 characters')
 
@@ -118,7 +118,7 @@ export default {
         
         passwordConfirmErrors () {
             const errors = []
-            if (!this.$v.password_confirm.$dirty) return errors
+            if (!this.$v.password_confirm.$dirty) return []
             !this.$v.password_confirm.required && errors.push('Confirm Password is required')
             !this.$v.password_confirm.minLength && errors.push('Password Confirm must be at least 8 characters')
             !this.$v.password_confirm.sameAs && errors.push('Password confirmation does not match')

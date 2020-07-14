@@ -55,7 +55,7 @@ export default {
     computed: {
         emailErrors () {
             const errors = []
-            if (!this.$v.email.$dirty) return errors
+            if (!this.$v.email.$dirty) return []
             !this.$v.email.email && errors.push('Must be valid email')
             !this.$v.email.required && errors.push('Email is required')
 

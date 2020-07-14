@@ -42,8 +42,8 @@
                 </form>
             </div>
             <div v-else>
-                <p align="center">This token is no longer valid.</p>
-                <p align=center>
+                <p class="text-center">This token is no longer valid.</p>
+                <p class=text-center>
                     <v-btn
                         to="/reset_password"
                         color="accent"
@@ -82,7 +82,7 @@ export default {
     computed: {
         passwordErrors () {
             const errors = []
-            if (!this.$v.password.$dirty) return errors
+            if (!this.$v.password.$dirty) return []
             !this.$v.password.required && errors.push('Password is required')
             !this.$v.password.minLength && errors.push('Password must be at least 8 characters')
 
@@ -91,7 +91,7 @@ export default {
         
         passwordConfirmErrors () {
             const errors = []
-            if (!this.$v.password_confirm.$dirty) return errors
+            if (!this.$v.password_confirm.$dirty) return []
             !this.$v.password_confirm.required && errors.push('Confirm Password is required')
             !this.$v.password_confirm.minLength && errors.push('Password Confirm must be at least 8 characters')
             !this.$v.password_confirm.sameAs && errors.push('Password confirmation does not match')

@@ -2,7 +2,7 @@
     <v-app dark>
         <v-container>
             <h1>Error</h1>
-            <p align="center">{{ error.message }}</p>
+            <p class="text-center">{{ error.message }}</p>
         </v-container>
     </v-app>
 </template>

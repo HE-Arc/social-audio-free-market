@@ -87,7 +87,7 @@ export default {
     pwa: {
         manifest: {
             name: 'Social Audio Free Market',
-            short_name: 'SAFM',
+            short_name: 'SAFMarket',
             display: 'standalone',
             background_color: '#333'
         },

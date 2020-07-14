@@ -10,7 +10,7 @@ from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from django.contrib.auth.models import User
-from .models import *
+from .models import Tag, Sample, UserProfile, UserSampleDownload
 
 # Test user properties
 USERNAME = 'test'

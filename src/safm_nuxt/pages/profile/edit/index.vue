@@ -221,7 +221,7 @@ export default {
 
         usernameErrors () {
             const errors = []
-            if (!this.$v.formUsername.username.$dirty) return errors
+            if (!this.$v.formUsername.username.$dirty) return []
             !this.$v.formUsername.username.required && errors.push('Username is required')
 
             return errors
@@ -229,7 +229,7 @@ export default {
 
         emailErrors () {
             const errors = []
-            if (!this.$v.formEmail.email.$dirty) return errors
+            if (!this.$v.formEmail.email.$dirty) return []
             !this.$v.formEmail.email.email && errors.push('Must be valid email')
             !this.$v.formEmail.email.required && errors.push('Email is required')
 
@@ -238,7 +238,7 @@ export default {
 
         passwordCurrentErrors () {
             const errors = []
-            if (!this.$v.formPassword.password_current.$dirty) return errors
+            if (!this.$v.formPassword.password_current.$dirty) return []
             !this.$v.formPassword.password_current.required && errors.push('Current Password is required')
             !this.$v.formPassword.password_current.minLength && errors.push('Current Password must be at least 8 characters')
 
@@ -247,7 +247,7 @@ export default {
 
         passwordErrors () {
             const errors = []
-            if (!this.$v.formPassword.password.$dirty) return errors
+            if (!this.$v.formPassword.password.$dirty) return []
             !this.$v.formPassword.password.required && errors.push('New Password is required')
             !this.$v.formPassword.password.minLength && errors.push('New Password must be at least 8 characters')
             !this.$v.formPassword.password.notSameAs && errors.push('New Password must be different than the current one')
@@ -257,7 +257,7 @@ export default {
         
         passwordConfirmErrors () {
             const errors = []
-            if (!this.$v.formPassword.password_confirm.$dirty) return errors
+            if (!this.$v.formPassword.password_confirm.$dirty) return []
             !this.$v.formPassword.password_confirm.required && errors.push('Confirm Password is required')
             !this.$v.formPassword.password_confirm.minLength && errors.push('Confirm Password must be at least 8 characters')
             !this.$v.formPassword.password_confirm.sameAs && errors.push('Password confirmation does not match')

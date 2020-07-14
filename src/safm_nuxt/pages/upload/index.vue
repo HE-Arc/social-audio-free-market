@@ -132,7 +132,7 @@ export default {
     computed: {
         fileErrors () {
             const errors = []
-            if (!this.$v.file.$dirty) return errors
+            if (!this.$v.file.$dirty) return []
             !this.$v.file.required && errors.push('File is required')
 
             return errors
@@ -140,7 +140,7 @@ export default {
 
         nameErrors () {
             const errors = []
-            if (!this.$v.name.$dirty) return errors
+            if (!this.$v.name.$dirty) return []
             !this.$v.name.required && errors.push('Name is required')
 
             return errors
