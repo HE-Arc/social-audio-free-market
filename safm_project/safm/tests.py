@@ -177,6 +177,9 @@ class UserPatchTest(TestCase):
 
     @tag('user_patch_requires_authentication')
     def test_user_patch_requires_authentication(self):
+        '''
+        Checks that patching a user requires authentication.
+        '''
         response = self.client.patch('/api/user/{0}'.format(self.user.id))
         json_response = json.loads(response.content)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -184,6 +187,9 @@ class UserPatchTest(TestCase):
 
     @tag('user_patch_unauthorized_user')
     def test_user_patch_unauthorized_user(self):
+        '''
+        Checks that only the current user can patch itself.
+        '''
         # Login
         headers = _login_user_and_get_token(self)
         response = self.client.patch('/api/user/{0}'.format(self.other_user.id), **headers)
@@ -193,6 +199,9 @@ class UserPatchTest(TestCase):
 
     @tag('user_patch_username')
     def test_user_patch_username(self):
+        '''
+        Checks wether a user username is correctly patched.
+        '''
         # Login
         headers = _login_user_and_get_token(self)
         new_username = 'Solomun'
@@ -210,6 +219,9 @@ class UserPatchTest(TestCase):
 
     @tag('user_patch_email')
     def test_user_patch_email(self):
+        '''
+        Checks wether a user email is correctly patched.
+        '''
         # Login
         headers = _login_user_and_get_token(self)
         new_email = 'new@email.com'
@@ -227,6 +239,9 @@ class UserPatchTest(TestCase):
 
     @tag('user_patch_password')
     def test_user_patch_password(self):
+        '''
+        Checks wether a user password is correctly patched.
+        '''
         # Login
         headers = _login_user_and_get_token(self)
 
@@ -450,7 +465,7 @@ class SampleTest(TestCase):
     @tag('patch_sample')
     def test_patch_sample(self):
         '''
-        Checks wether a Sampel is correctly patched.
+        Checks that a Sampel is correctly patched.
         '''
         # Login
         headers = _login_user_and_get_token(self)
@@ -515,6 +530,9 @@ class SampleTest(TestCase):
 
     @tag('sample_patch_delete_requires_authentication')
     def test_sample_patch_delete_requires_authentication(self):
+        '''
+        Checks that patching/deleting a sample requires authentication.
+        '''
         # Creates a Sample
         sample_name = 'Sample Test'
         Sample.objects.create(
@@ -537,6 +555,9 @@ class SampleTest(TestCase):
 
     @tag('sample_patch_delete_unauthorized_user')
     def test_sample_patch_delete_unauthorized_user(self):
+        '''
+        Checks that only an authorized user can patch/delete a sample.
+        '''
         # Creates another user
         other_user = User.objects.create(
             username='Unauthorized',
@@ -583,6 +604,9 @@ class DownloadSampleTest(TestCase):
 
     @tag('download_sample')
     def test_download_sample(self):
+        '''
+        Checks that downloading a sample file returns an audio file.
+        '''
          # Login
         headers = _login_user_and_get_token(self)
         # Creates a Sample
@@ -677,14 +701,12 @@ class UserProfileTest(TestCase):
         Checks that the filename of an uploaded profile picture is correctly converted.
         '''
         file = SimpleUploadedFile('test.jpg', b'This is the file content.')
-
-        user_profile = UserProfile(
+        UserProfile.objects.create(
             user=self.user,
             description='This is a random description.',
             profile_picture=file,
             email_public=True
         )
-        user_profile.save()
 
         user_profile = UserProfile.objects.get(user=self.user)
         expected_filename = 'users/{0}/pp.jpg'.format(self.user.id)
@@ -692,6 +714,9 @@ class UserProfileTest(TestCase):
 
     @tag('user_profile_patch')
     def test_user_profile_patch(self):
+        '''
+        Checks that a user profile is correctly patched.
+        '''
         # Login
         headers = _login_user_and_get_token(self)
         UserProfile.objects.create(user=self.user)
@@ -725,6 +750,21 @@ class UserProfileTest(TestCase):
         patched_profile = UserProfile.objects.get(pk=self.user.id)
         self.assertEqual(patched_profile.description, new_description)
         self.assertEqual(patched_profile.email_public, False)
+
+    @tag('user_profile_picture_download')
+    def test_user_profile_picture_download(self):
+        '''
+        Checks that downloading a user profile picture returns an image.
+        '''
+        file = SimpleUploadedFile('test.jpg', b'This is the file content.')
+        UserProfile.objects.create(
+            user=self.user,
+            profile_picture=file
+        )
+
+        response = self.client.get('/api/user/picture/{0}'.format(self.user.id))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('image', response['content-type'])
 
 
 class UserSamplesTest(TestCase):
