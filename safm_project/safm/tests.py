@@ -36,9 +36,9 @@ def _login_user_and_get_token(instance):
     '''
     Logs in the test user and returns its authentication token.
     '''
-    login_response = instance.client.post('/api/login', { 'username': USERNAME, 'password': PASSWORD })
-    instance.assertEqual(200, login_response.status_code)
-    token = json.loads(login_response.content)['token']
+    response = instance.client.post('/api/login', { 'username': USERNAME, 'password': PASSWORD })
+    instance.assertEqual(response.status_code, status.HTTP_200_OK)
+    token = json.loads(response.content)['token']
 
     headers = {
         'HTTP_AUTHORIZATION': 'Token ' + token
@@ -61,7 +61,7 @@ class AuthTest(TestCase):
     def test_login(self):
         # Login with username
         response = self.client.post('/api/login', { 'username': USERNAME, 'password': PASSWORD })
-        self.assertEqual(200, response.status_code)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Successful login returns an authentication token and the username
         json_response = json.loads(response.content)
         self.assertIn('token', json_response)
@@ -69,7 +69,7 @@ class AuthTest(TestCase):
 
         # Login with email address
         response = self.client.post('/api/login', { 'email': EMAIL, 'password': PASSWORD })
-        self.assertEqual(200, response.status_code)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Successful login returns an authentication token and the username
         json_response = json.loads(response.content)
         self.assertIn('token', json_response)
@@ -77,14 +77,14 @@ class AuthTest(TestCase):
 
         # Wrong credentials
         response = self.client.post('/api/login', { 'username': USERNAME, 'password': 'password' })
-        self.assertEqual(400, response.status_code)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     @tag('logout')
     def test_logout(self):
         # Login
         headers = _login_user_and_get_token(self)
         response = self.client.post('/api/logout', **headers)
-        self.assertEqual(200, response.status_code)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     @tag('registration')
     def test_registration(self):
@@ -94,7 +94,7 @@ class AuthTest(TestCase):
             'password': PASSWORD,
             'password_confirm': PASSWORD
         })
-        self.assertEqual(201, response.status_code)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         # Successful registration returns an authentication token
         json_response = json.loads(response.content)
@@ -117,7 +117,7 @@ class AuthTest(TestCase):
             'password': PASSWORD,
             'password_confirm': PASSWORD
         })
-        self.assertEqual(400, response.status_code)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     @tag('registration_unique_username')
     def test_registration_unique_username(self):
@@ -127,7 +127,7 @@ class AuthTest(TestCase):
             'password': PASSWORD,
             'password_confirm': PASSWORD
         })
-        self.assertEqual(400, response.status_code)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     @tag('registration_unique_email')
     def test_registration_unique_email(self):
@@ -137,7 +137,7 @@ class AuthTest(TestCase):
             'password': PASSWORD,
             'password_confirm': PASSWORD
         })
-        self.assertEqual(400, response.status_code)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     @tag('registration_password_min_length')
     def test_registration_password_min_length(self):
@@ -147,7 +147,7 @@ class AuthTest(TestCase):
             'password': 'foo',
             'password_confirm': 'foo'
         })
-        self.assertEqual(400, response.status_code)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     @tag('registration_confirm_password')
     def test_registration_confirm_password(self):
@@ -157,10 +157,10 @@ class AuthTest(TestCase):
             'password': PASSWORD,
             'password_confirm': PASSWORD + PASSWORD
         })
-        self.assertEqual(400, response.status_code)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
-class SampleTest(TestCase):
+class SampleModelTest(TestCase):
     '''
     Sample model unit testing
     '''
@@ -210,9 +210,9 @@ class SampleTest(TestCase):
         self.assertTrue(sample.user == None)
             
 
-class UploadSampleTest(TestCase):
+class SampleViewTest(TestCase):
     '''
-    Upload sample unit testing
+    Sample View unit testing (CRUD)
     '''
     def setUp(self):
         settings.MEDIA_ROOT = tempfile.mkdtemp()
@@ -230,11 +230,11 @@ class UploadSampleTest(TestCase):
         '''
         # Cannot upload when not logged in
         with open(self.test_file, 'rb') as f:
-            unauthorizedResponse = self.client.post('/api/sample', {
+            response = self.client.post('/api/sample', {
                 'name': 'Test Sample',
                 'file': f
             })
-            self.assertEqual(401, unauthorizedResponse.status_code)
+            self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     @tag('sample_upload')
     def test_sample_upload(self):
@@ -249,11 +249,11 @@ class UploadSampleTest(TestCase):
                 'name': 'Test Sample',
                 'file': f
             }, **headers)
-            self.assertEqual(201, response.status_code)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-            # Checks that the response contains the newly created Sample model ID
-            json_response = json.loads(response.content)
-            self.assertIn('id', json_response)
+        # Checks that the response contains the newly created Sample model ID
+        json_response = json.loads(response.content)
+        self.assertIn('id', json_response)
 
     @tag('sample_upload_properties')
     def test_sample_upload_properties(self):
@@ -280,8 +280,8 @@ class UploadSampleTest(TestCase):
                 'mode': sample_mode,
                 'tags': sample_tags
             }, **headers)
-            self.assertEqual(201, response.status_code)
-            sample_id = json.loads(response.content)['id']
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        sample_id = json.loads(response.content)['id']
 
         self.assertTrue(sample_id > 0)
         # Gets the newly created Sample model and checks its properties
@@ -317,9 +317,9 @@ class UploadSampleTest(TestCase):
                 'name': sample_name,
                 'file': f
             }, **headers)
-            self.assertEqual(201, response.status_code)
-            sample01_id = json.loads(response.content)['id']
-            self.assertTrue(sample01_id > 0)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        sample01_id = json.loads(response.content)['id']
+        self.assertTrue(sample01_id > 0)
 
         # Second Sample
         sample02_id = -1
@@ -330,9 +330,9 @@ class UploadSampleTest(TestCase):
                 'file': f,
                 'forks_from': sample01_id
             }, **headers)
-            self.assertEqual(201, response.status_code)
-            sample02_id = json.loads(response.content)['id']
-            self.assertTrue(sample02_id > 0)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        sample02_id = json.loads(response.content)['id']
+        self.assertTrue(sample02_id > 0)
 
         # Second Sample is from the first one
         response = self.client.get('/api/forks/from/{0}'.format(sample02_id))
@@ -360,8 +360,8 @@ class UploadSampleTest(TestCase):
                 'name': 'Test Sample',
                 'file': f
             }, **headers)
-            self.assertEqual(201, response.status_code)
-            sample_id = json.loads(response.content)['id']
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        sample_id = json.loads(response.content)['id']
 
         # Patches the Sample
         new_name = 'Patched Sample'
@@ -376,7 +376,7 @@ class UploadSampleTest(TestCase):
             'key': new_key,
             'mode': new_mode
         }, format='json', **headers)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         sample = Sample.objects.get(pk=sample_id)
         self.assertEqual(sample.user.username, USERNAME)
@@ -399,17 +399,17 @@ class UploadSampleTest(TestCase):
                 'name': 'Test Sample',
                 'file': f
             }, **headers)
-            self.assertEqual(201, response.status_code)
-            sample_id = json.loads(response.content)['id']
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        sample_id = json.loads(response.content)['id']
         
         # Removes the Sample
         response = self.client.delete('/api/sample/{0}'.format(sample_id), **headers)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Sample does not exist anymore
         response = self.client.get('/api/sample/{0}'.format(sample_id))
         json_response = json.loads(response.content)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(json_response['detail'], 'Sample not found.')
 
     @tag('sample_patch_delete_requires_authentication')
@@ -425,13 +425,13 @@ class UploadSampleTest(TestCase):
         # Cannot patch Sample if not authenticated
         response = self.client.patch('/api/sample/{0}'.format(sample_id))
         json_response = json.loads(response.content)
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(json_response['detail'], 'Authentication credentials were not provided.')
 
         # Cannot delete Sample if not authenticated
         response = self.client.delete('/api/sample/{0}'.format(sample_id))
         json_response = json.loads(response.content)
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(json_response['detail'], 'Authentication credentials were not provided.')
 
     @tag('sample_patch_delete_unauthorised_user')
@@ -457,13 +457,13 @@ class UploadSampleTest(TestCase):
         # Cannot patch Sample if not from user
         response = self.client.patch('/api/sample/{0}'.format(sample_id), **headers)
         json_response = json.loads(response.content)
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(json_response['detail'], 'Sample does not belong to the user.')
 
         # Cannot delete Sample if not from user
         response = self.client.delete('/api/sample/{0}'.format(sample_id), **headers)
         json_response = json.loads(response.content)
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(json_response['detail'], 'Sample does not belong to the user.')
 
 
@@ -471,7 +471,6 @@ class DownloadSampleTest(TestCase):
     '''
     Download Samples unit testing
     '''
-
     def setUp(self):
         settings.MEDIA_ROOT = tempfile.mkdtemp()
 
@@ -479,36 +478,69 @@ class DownloadSampleTest(TestCase):
 
         self.user = _create_test_user()
 
+        self.test_file = './safm/test/Test_Sample.wav'
+
     @tag('download_sample_count')
     def test_download_sample_count(self):
+        '''
+        Checks that the Sample number_downloads property is correct
+        based on the number of times it is downloaded.
+        '''
+        # Login
+        headers = _login_user_and_get_token(self)
+        # Creates a Sample
+        with open(self.test_file, 'rb') as f:    
+            response = self.client.post('/api/sample', {
+                'name': 'Download_Count',
+                'file': f
+            }, **headers)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        sample_id = json.loads(response.content)['id']
+
+        count = 5
+        for i in range(0, count):
+            # Increments the number_downloads property (manual download by a user)
+            self.client.get('/api/sample/file/{0}/1'.format(sample_id))
+
+        sample = Sample.objects.get(pk=sample_id)
+        self.assertEqual(sample.number_downloads, count)
+
+        for i in range(0, count):
+            # Does not increment the number_downloads property (automatic download for a waveform)
+            self.client.get('/api/sample/file/{0}/0'.format(sample_id))
+
+        sample = Sample.objects.get(pk=sample_id)
+        # number_downloads property still the same
+        self.assertEqual(sample.number_downloads, count)
+
+    @tag('user_sample_downloads')
+    def test_user_sample_downloads(self):
         '''
         Checks that the UserSampleDownload model is correctly created when
         an authenticated user downloads a Sample.
         '''
-        # Creates a Sample model (in order to create a file in the media directory)
-        file = SimpleUploadedFile('test.wav', b'This is the file content.')
-        sample = Sample(
-            user=self.user,
-            name='Sample_Test',
-            file=file
-        )
-        sample.save()
-
         # Login
         headers = _login_user_and_get_token(self)
-        # Creates a UserSampleDownload model if the user is authenticated
-        # when downloading a sample file
-        self.client.get('/api/sample/file/1/1', **headers)
-        user_downloads = UserSampleDownload.objects.all()
-        self.assertEqual(len(user_downloads), 1)
-        self.assertEqual(user_downloads[0].id, 1)
+        # Creates a Sample
+        with open(self.test_file, 'rb') as f:    
+            response = self.client.post('/api/sample', {
+                'name': 'User_Sample_Downloads',
+                'file': f
+            }, **headers)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        sample_id = json.loads(response.content)['id']
 
-        # Does not create a UserSampleDownload model if not authenticated
-        self.client.get('/api/sample/file/1/0')
+        # Does not create a UserSampleDownload model if the user is not authenticated
+        self.client.get('/api/sample/file/{0}/1'.format(sample_id))
         user_downloads = UserSampleDownload.objects.all()
         # There are still one UserSampleDownload models
+        self.assertEqual(len(user_downloads), 0)
+
+        # Creates a UserSampleDownload model if the user is authenticated
+        # when downloading a sample file
+        self.client.get('/api/sample/file/{0}/1'.format(sample_id), **headers)
+        user_downloads = UserSampleDownload.objects.all()
         self.assertEqual(len(user_downloads), 1)
-        self.assertEqual(user_downloads[0].id, 1)
         
 
 class UserProfileTest(TestCase):
@@ -517,6 +549,8 @@ class UserProfileTest(TestCase):
     '''
     def setUp(self):
         settings.MEDIA_ROOT = tempfile.mkdtemp()
+
+        self.client = Client()
 
         self.user = _create_test_user()
 
@@ -538,6 +572,42 @@ class UserProfileTest(TestCase):
         user_profile = UserProfile.objects.get(user=self.user)
         expected_filename = 'users/{0}/pp.jpg'.format(self.user.id)
         self.assertEqual(user_profile.profile_picture, expected_filename)
+
+    @tag('user_profile_patch')
+    def test_user_profile_patch(self):
+        # Login
+        headers = _login_user_and_get_token(self)
+        UserProfile.objects.create(user=self.user)
+
+        # Cannot patch UserProfile if user is not authenticated
+        response = self.client.patch('/api/user/profile/{0}'.format(self.user.id))
+        json_response = json.loads(response.content)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(json_response['detail'], 'Authentication credentials were not provided.')
+
+        # Cannot patch UserProfile if not from user
+        other_user = User.objects.create(
+            username='Unauthorised',
+            email='not@authorised.com'
+        )
+        UserProfile.objects.create(user=other_user)
+        response = self.client.patch('/api/user/profile/{0}'.format(other_user.id), **headers)
+        json_response = json.loads(response.content)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(json_response['detail'], 'Profile does not belong to the user.')
+
+        # UserProfile patch
+        new_description = 'This is a new profile description.'
+        client = APIClient()
+        response = client.patch('/api/user/profile/{0}'.format(self.user.id), {
+            'description': new_description,
+            'email_public': False
+        }, **headers)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        patched_profile = UserProfile.objects.get(pk=self.user.id)
+        self.assertEqual(patched_profile.description, new_description)
+        self.assertEqual(patched_profile.email_public, False)
 
 
 class UserSamplesTest(TestCase):
