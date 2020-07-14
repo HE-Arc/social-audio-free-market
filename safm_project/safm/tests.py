@@ -1,7 +1,4 @@
-import os
-import re
-import json
-import tempfile
+import os, re, json, tempfile
 from django.http import HttpResponseNotFound
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -86,6 +83,10 @@ class AuthTest(TestCase):
         response = self.client.post('/api/logout', **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+        # Unauthorized route if user is not logged in
+        response = self.client.post('/api/logout')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
     @tag('registration')
     def test_registration(self):
         response = self.client.post('/api/register', {
@@ -160,15 +161,129 @@ class AuthTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
-class SampleModelTest(TestCase):
+class UserPatchTest(TestCase):
+    '''
+    User patch unit testing
+    '''
+    def setUp(self):
+        self.client = APIClient()
+
+        self.user = _create_test_user()
+
+        self.other_user = User.objects.create(
+            username='Other',
+            email='other@user.com'
+        )
+
+    @tag('user_patch_requires_authentication')
+    def test_user_patch_requires_authentication(self):
+        response = self.client.patch('/api/user/{0}'.format(self.user.id))
+        json_response = json.loads(response.content)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(json_response['detail'], 'Authentication credentials were not provided.')
+
+    @tag('user_patch_unauthorized_user')
+    def test_user_patch_unauthorized_user(self):
+        # Login
+        headers = _login_user_and_get_token(self)
+        response = self.client.patch('/api/user/{0}'.format(self.other_user.id), **headers)
+        json_response = json.loads(response.content)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(json_response['detail'], 'User does not belong to the user.')
+
+    @tag('user_patch_username')
+    def test_user_patch_username(self):
+        # Login
+        headers = _login_user_and_get_token(self)
+        new_username = 'Solomun'
+        response = self.client.patch('/api/user/{0}'.format(self.user.id), {
+            'username': new_username
+        }, **headers)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(User.objects.get(pk=self.user.id).username, new_username)
+
+        # Username must be unique
+        response = self.client.patch('/api/user/{0}'.format(self.user.id), {
+            'username': self.other_user.username
+        }, **headers)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    @tag('user_patch_email')
+    def test_user_patch_email(self):
+        # Login
+        headers = _login_user_and_get_token(self)
+        new_email = 'new@email.com'
+        response = self.client.patch('/api/user/{0}'.format(self.user.id), {
+            'email': new_email
+        }, **headers)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(User.objects.get(pk=self.user.id).email, new_email)
+
+        # Email must be unique
+        response = self.client.patch('/api/user/{0}'.format(self.user.id), {
+            'email': self.other_user.email
+        }, **headers)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    @tag('user_patch_password')
+    def test_user_patch_password(self):
+        # Login
+        headers = _login_user_and_get_token(self)
+
+        # Invalid current password
+        response = self.client.patch('/api/user/{0}'.format(self.user.id), {
+            'password_current': PASSWORD + PASSWORD,
+            'password': PASSWORD,
+            'password_confirm': PASSWORD
+        }, **headers)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # New password must be different than current one
+        response = self.client.patch('/api/user/{0}'.format(self.user.id), {
+            'password_current': PASSWORD,
+            'password': PASSWORD,
+            'password_confirm': PASSWORD
+        }, **headers)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # Password min length
+        response = self.client.patch('/api/user/{0}'.format(self.user.id), {
+            'password_current': PASSWORD,
+            'password': 'foo',
+            'password_confirm': 'foo'
+        }, **headers)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        
+        # Password confirmation match
+        response = self.client.patch('/api/user/{0}'.format(self.user.id), {
+            'password_current': PASSWORD,
+            'password': PASSWORD + PASSWORD,
+            'password_confirm': PASSWORD
+        }, **headers)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        
+        # Patch password
+        response = self.client.patch('/api/user/{0}'.format(self.user.id), {
+            'password_current': PASSWORD,
+            'password': PASSWORD + PASSWORD,
+            'password_confirm': PASSWORD + PASSWORD
+        }, **headers)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class SampleTest(TestCase):
     '''
     Sample model unit testing
     '''
     def setUp(self):
         settings.MEDIA_ROOT = tempfile.mkdtemp()
 
+        self.client = Client()
+
         self.user = _create_test_user()
-       
+
+        self.test_file = './safm/test/Test_Sample.wav'
+
     @tag('sample_filename')
     def test_sample_filename(self):
         '''
@@ -208,20 +323,6 @@ class SampleModelTest(TestCase):
         self.user.delete()
         sample = Sample.objects.get(name=name)
         self.assertTrue(sample.user == None)
-            
-
-class SampleViewTest(TestCase):
-    '''
-    Sample View unit testing (CRUD)
-    '''
-    def setUp(self):
-        settings.MEDIA_ROOT = tempfile.mkdtemp()
-
-        self.client = Client()
-
-        self.user = _create_test_user()
-
-        self.test_file = './safm/test/Test_Sample.wav'
 
     @tag('sample_upload_requires_authentication')
     def test_sample_upload_requires_authentication(self):
@@ -434,11 +535,11 @@ class SampleViewTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(json_response['detail'], 'Authentication credentials were not provided.')
 
-    @tag('sample_patch_delete_unauthorised_user')
-    def test_sample_patch_delete_unauthorised_user(self):
+    @tag('sample_patch_delete_unauthorized_user')
+    def test_sample_patch_delete_unauthorized_user(self):
         # Creates another user
         other_user = User.objects.create(
-            username='Unauthorised',
+            username='Unauthorized',
             email='not@authorised.com'
         )
 
@@ -469,7 +570,7 @@ class SampleViewTest(TestCase):
 
 class DownloadSampleTest(TestCase):
     '''
-    Download Samples unit testing
+    Download Sample unit testing
     '''
     def setUp(self):
         settings.MEDIA_ROOT = tempfile.mkdtemp()
@@ -533,11 +634,10 @@ class DownloadSampleTest(TestCase):
         # Does not create a UserSampleDownload model if the user is not authenticated
         self.client.get('/api/sample/file/{0}/1'.format(sample_id))
         user_downloads = UserSampleDownload.objects.all()
-        # There are still one UserSampleDownload models
+        # There is still no UserSampleDownload model
         self.assertEqual(len(user_downloads), 0)
 
-        # Creates a UserSampleDownload model if the user is authenticated
-        # when downloading a sample file
+        # Creates a UserSampleDownload model if the user is authenticated when downloading a sample file
         self.client.get('/api/sample/file/{0}/1'.format(sample_id), **headers)
         user_downloads = UserSampleDownload.objects.all()
         self.assertEqual(len(user_downloads), 1)
@@ -587,7 +687,7 @@ class UserProfileTest(TestCase):
 
         # Cannot patch UserProfile if not from user
         other_user = User.objects.create(
-            username='Unauthorised',
+            username='Unauthorized',
             email='not@authorised.com'
         )
         UserProfile.objects.create(user=other_user)
