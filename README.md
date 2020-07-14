@@ -12,10 +12,10 @@ You can visit the master version of the project [here](https://safmarket.srvz-we
 
 ### Backend
 
-First, you need to add a file for your local settings in *safm_project/safm_project/settings/local_settings.py*. This file is ignored by Git and allows you to overwrite some configurations for you development environment :
+First, you need to add a file for your local settings in *src/safm/settings/local_settings.py*. This file is ignored by Git and allows you to overwrite some configurations for you development environment :
 
 ```
-from safm_project.settings.common import *
+from safm.settings.common import *
 
 SECRET_KEY = 'YOUR SECRET KEY'
 
@@ -41,8 +41,8 @@ pip install -r requirements.txt
 At last, apply the migrations and run the server :
 
 ```
-python safm_project/manage.py migrate
-python safm_project/manage.py runserver
+python safm/manage.py migrate
+python safm/manage.py runserver
 ```
 
 ### Frontend
@@ -50,7 +50,7 @@ python safm_project/manage.py runserver
 Go to the frontend application :
 
 ```
-cd safm_project/safm_frontend
+cd safm/safm_nuxt
 ```
 
 Once there, install the npm dependencies :
