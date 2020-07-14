@@ -46,7 +46,7 @@ namespace :migrations do
   desc 'Run migrations'
   task :run_migrations do
     on roles(:web) do |h|
-      execute "source #{venv_path}/bin/activate && cd #{release_path}/safm_project && python manage.py migrate"
+      execute "source #{venv_path}/bin/activate && cd #{release_path}/src && python manage.py migrate"
     end
   end
 end
@@ -57,10 +57,10 @@ namespace :nuxt do
   desc 'Install node packages, build and start Nuxt application'
   task :install_start_build do
     on roles(:web) do |h|
-      execute "cd #{release_path}/safm_project/safm_frontend && npm install"
-      execute "cd #{release_path}/safm_project/safm_frontend && npm run build"
+      execute "cd #{release_path}/src/safm_nuxt && npm install"
+      execute "cd #{release_path}/src/safm_nuxt && npm run build"
       execute "kill -9 $(lsof -t -i tcp:3000)"
-      execute "cd #{release_path}/safm_project/safm_frontend && npm run start &"
+      execute "cd #{release_path}/src/safm_nuxt && npm run start &"
     end
   end
 end
