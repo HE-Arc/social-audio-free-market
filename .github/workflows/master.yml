@@ -88,10 +88,10 @@ jobs:
       run: |
         cd src/safm_nuxt
         npm install
-    #- name: Nuxt Linter
-    #  run: |
-    #    cd src/safm_nuxt
-    #    npm run lint
+    - name: Nuxt Linter
+      run: |
+        cd src/safm_nuxt
+        npm run lint
     - name: Test Nuxt application
       run: |
         cd src/safm_nuxt
