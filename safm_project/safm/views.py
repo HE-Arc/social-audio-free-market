@@ -270,33 +270,32 @@ class SampleView(generics.GenericAPIView):
 class SampleFile(APIView):
     
     def get(self, request, sample_id, download):
-        sample = Sample.objects.get(pk=sample_id)
-        sample_file = sample.file
+        try:
+            sample = Sample.objects.get(pk=sample_id)
 
-        if sample:
             if download == 1:
+                # Increments the sample number of downloads
+                sample.number_downloads += 1
+                sample.save()
+
                 if request.auth:
                     # If the user is authenticated, adds this sample to its downloads
                     UserSampleDownload.objects.get_or_create(
                         user=request.user,
                         sample=sample
                     )
-
-                # Increments the sample number of downloads
-                sample.number_downloads += 1
-                sample.save()
                 
             # Returns the audio file as a file attachment
-            path_to_file = os.path.join(settings.MEDIA_ROOT, sample_file.name)
+            path_to_file = os.path.join(settings.MEDIA_ROOT, sample.file.name)
             with open(path_to_file, 'rb') as f:
-                mime_type = mimetypes.MimeTypes().guess_type(sample_file.name)
+                mime_type = mimetypes.MimeTypes().guess_type(sample.file.name)
                 response = HttpResponse(f, content_type=mime_type)
-                filename = sample_file.name.split('/')[-1]
+                filename = sample.file.name.split('/')[-1]
                 response['Content-Disposition'] = f'attachement; filename="{filename}"'
                 response['Access-Control-Expose-Headers'] = 'Content-Disposition' # To allow the client to read it
 
             return response
-        else:
+        except:
             return HttpResponseNotFound('No matching file found.')
 
 

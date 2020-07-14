@@ -581,8 +581,25 @@ class DownloadSampleTest(TestCase):
 
         self.test_file = './safm/test/Test_Sample.wav'
 
-    @tag('download_sample_count')
-    def test_download_sample_count(self):
+    @tag('download_sample')
+    def test_download_sample(self):
+         # Login
+        headers = _login_user_and_get_token(self)
+        # Creates a Sample
+        with open(self.test_file, 'rb') as f:    
+            response = self.client.post('/api/sample', {
+                'name': 'Download_Count',
+                'file': f
+            }, **headers)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        sample_id = json.loads(response.content)['id']
+
+        response = self.client.get('/api/sample/file/{0}/1'.format(sample_id))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('audio', response['content-type'])
+
+    @tag('download_sample_count_property')
+    def test_download_sample_count_property(self):
         '''
         Checks that the Sample number_downloads property is correct
         based on the number of times it is downloaded.
@@ -614,8 +631,8 @@ class DownloadSampleTest(TestCase):
         # number_downloads property still the same
         self.assertEqual(sample.number_downloads, count)
 
-    @tag('user_sample_downloads')
-    def test_user_sample_downloads(self):
+    @tag('download_sample_user_is_authenticated')
+    def test_download_sample_user_is_authenticated(self):
         '''
         Checks that the UserSampleDownload model is correctly created when
         an authenticated user downloads a Sample.
