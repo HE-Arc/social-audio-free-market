@@ -6,14 +6,14 @@
                 <h2>Profile</h2>
                 <form @submit.prevent>
                     <v-row align="center">
-                        <v-col cols="2">
+                        <v-col cols="4" sm="2" md="3">
                             <v-img
                                 :src="profilePictureSrc"
                                 :width="profilePictureSize"
                                 :height="profilePictureSize"
                             ></v-img>
                         </v-col>
-                        <v-col cols="10">
+                        <v-col cols="8"sm="10" md="9">
                             <v-file-input
                                 v-model="profile_picture"
                                 label="Profile picture"
@@ -212,7 +212,7 @@ export default {
         profilePictureSize () {
             switch (this.$vuetify.breakpoint.name) {
             case 'xs': return '75px'
-            case 'sm': return '100px'
+            case 'sm': return '90px'
             case 'md': return '125px'
             case 'lg': return '150px'
             case 'xl': return '175px'
