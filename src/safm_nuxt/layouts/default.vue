@@ -90,18 +90,23 @@
             </v-card>
         </v-footer>
         <v-snackbar
-            v-model="snackbar"
             app
+            v-model="snackbar"
+            top
+            multi-line
             :timeout="snackbarTimeout"
         >
             {{ snackbarText }}
-            <v-btn
-                text
-                color="accent"
-                @click="snackbar = false"
-            >
-                Close
-            </v-btn>
+            <template v-slot:action="{ attrs }">
+                <v-btn
+                    text
+                    color="accent"
+                    v-bind="attrs"
+                    @click="snackbar = false"
+                >
+                    Close
+                </v-btn>
+            </template>
         </v-snackbar>
     </v-app>
 </template>
