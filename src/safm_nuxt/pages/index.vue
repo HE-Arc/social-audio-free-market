@@ -23,7 +23,12 @@
             </section>
             <section>
                 <h2>Last Samples</h2>
-                <SampleList :samples="lastSamples" />
+                <div v-if="lastSamples.length > 0">
+                    <SampleList :samples="lastSamples" />
+                </div>
+                <div v-else>
+                    <p>Could not load latest samples</p>
+                </div>
             </section>
         </v-container>
     </div>
@@ -50,13 +55,13 @@ export default {
         }
     },
 
-    async asyncData ({ $axios, params }) {
+    async asyncData ({ $axios }) {
         try {
             const lastSamples = await $axios.$get('/samples/last')
 
             return { lastSamples }
         } catch (e) {
-            this.$nuxt.$emit('snackbar', 'Problem while downloading last samples')
+            return { lastSamples: [] }
         }
     },
 
