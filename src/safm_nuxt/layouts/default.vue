@@ -30,7 +30,6 @@
             </v-tooltip>
             <v-menu
                 v-else
-                open-on-hover
                 offset-y
             >
                 <template v-slot:activator="{ on }">
@@ -72,15 +71,15 @@
                 class="text-center v-card-footer"
             >
                 <v-card-text>
-                    <p>Bachelor project realised at the Haute-École ARC, Switzerland.</p>
+                    <p>Bachelor project developed at the Haute-École ARC, Switzerland.</p>
                     <v-btn
-                        text
-                        small
+                        x-large
+                        icon
                         color="primary"
                         href="https://github.com/HE-Arc/social-audio-free-market"
                         target="_blank"
                     >
-                        Project Github
+                        <v-icon>mdi-github</v-icon>
                     </v-btn>
                 </v-card-text>
                 <v-divider></v-divider>

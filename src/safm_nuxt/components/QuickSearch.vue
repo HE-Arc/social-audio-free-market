@@ -24,7 +24,7 @@
                     <v-container>
                         <v-text-field
                             v-model="quickSearchInput"
-                            label="Tag, tempo, user, ..."
+                            label="Search anything"
                             autofocus
                             outlined
                             hide-details
@@ -44,7 +44,7 @@
                             text
                             @click="advancedSearch"
                         >
-                            Advanced Form
+                            Advanced Search
                         </v-btn>
                     </v-container>
                 </v-card-actions>
