@@ -5,41 +5,58 @@
             <section>
                 <v-text-field
                     v-model="quickSearchInput"
-                    label="Tag, tempo, user, ..."
+                    label="Search anything"
                     outlined
-                    hide-details
-                    single-line
                     @keypress.enter="quickSearch"
-                >
-                    <template v-slot:append>
-                        <v-icon @click="quickSearch">{{ quickSearchIcon }}</v-icon>
-                    </template>
-                </v-text-field>
-                <v-btn
-                    color="primary"
-                    text
-                    @click="advancedSearch"
-                >
-                    Advanced Form
-                </v-btn>
+                    :append-icon="quickSearchIcon"
+                    @click:append="quickSearch"
+                ></v-text-field>
+                <div class="text-center">
+                    <v-btn
+                        color="primary"
+                        text
+                        @click="advancedSearch"
+                    >
+                        Advanced Search
+                    </v-btn>
+                </div>
+            </section>
+            <section>
+                <h2>Last Samples</h2>
+                <SampleList :samples="lastSamples" />
             </section>
         </v-container>
     </div>
 </template>
 
 <script>
+import SampleList from '~/components/SampleList.vue'
+
 export default {
-    middleware: 'authenticated',
+    components: {
+        SampleList
+    },
 
     data () {
         return {
-            quickSearchInput: ''
+            quickSearchInput: '',
+            lastSamples: []
         }
     },
 
     computed: {
         quickSearchIcon () {
             return this.quickSearchInput.length > 0 ? 'mdi-magnify' : ''
+        }
+    },
+
+    async asyncData ({ $axios, params }) {
+        try {
+            const lastSamples = await $axios.$get('/samples/last')
+
+            return { lastSamples }
+        } catch (e) {
+            this.$nuxt.$emit('snackbar', 'Problem while downloading last samples')
         }
     },
 
