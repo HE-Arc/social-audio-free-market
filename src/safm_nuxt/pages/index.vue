@@ -5,41 +5,63 @@
             <section>
                 <v-text-field
                     v-model="quickSearchInput"
-                    label="Tag, tempo, user, ..."
+                    label="Search anything"
                     outlined
-                    hide-details
-                    single-line
                     @keypress.enter="quickSearch"
-                >
-                    <template v-slot:append>
-                        <v-icon @click="quickSearch">{{ quickSearchIcon }}</v-icon>
-                    </template>
-                </v-text-field>
-                <v-btn
-                    color="primary"
-                    text
-                    @click="advancedSearch"
-                >
-                    Advanced Form
-                </v-btn>
+                    :append-icon="quickSearchIcon"
+                    @click:append="quickSearch"
+                ></v-text-field>
+                <div class="text-center">
+                    <v-btn
+                        color="primary"
+                        text
+                        @click="advancedSearch"
+                    >
+                        Advanced Search
+                    </v-btn>
+                </div>
+            </section>
+            <section>
+                <h2>Last Samples</h2>
+                <div v-if="lastSamples.length > 0">
+                    <SampleList :samples="lastSamples" />
+                </div>
+                <div v-else>
+                    <p>Could not load latest samples</p>
+                </div>
             </section>
         </v-container>
     </div>
 </template>
 
 <script>
+import SampleList from '~/components/SampleList.vue'
+
 export default {
-    middleware: 'authenticated',
+    components: {
+        SampleList
+    },
 
     data () {
         return {
-            quickSearchInput: ''
+            quickSearchInput: '',
+            lastSamples: []
         }
     },
 
     computed: {
         quickSearchIcon () {
             return this.quickSearchInput.length > 0 ? 'mdi-magnify' : ''
+        }
+    },
+
+    async asyncData ({ $axios }) {
+        try {
+            const lastSamples = await $axios.$get('/samples/last')
+
+            return { lastSamples }
+        } catch (e) {
+            return { lastSamples: [] }
         }
     },
 
