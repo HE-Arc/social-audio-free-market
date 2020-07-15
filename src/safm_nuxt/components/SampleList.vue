@@ -28,10 +28,10 @@
             fab
             fixed
             bottom
+            right
             :disabled="stopAllDisabled"
             color="error"
             @click="stopAll"
-            :style="{left: '50%', transform:'translateX(-50%)'}"
         >
             <v-icon>mdi-stop</v-icon>
         </v-btn>

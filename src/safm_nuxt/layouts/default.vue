@@ -66,7 +66,29 @@
                 <nuxt />
             </v-container>
         </v-main>
-        <v-footer></v-footer>
+        <v-footer padless class="mt-12">
+            <v-card
+                flat
+                class="text-center v-card-footer"
+            >
+                <v-card-text>
+                    <p>Bachelor project realised at the Haute-École ARC, Switzerland.</p>
+                    <v-btn
+                        text
+                        small
+                        color="primary"
+                        href="https://github.com/HE-Arc/social-audio-free-market"
+                        target="_blank"
+                    >
+                        Project Github
+                    </v-btn>
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-text>
+                    {{ new Date().getFullYear() }} - <strong>Social Audio Free Market</strong>
+                </v-card-text>
+            </v-card>
+        </v-footer>
         <v-snackbar
             v-model="snackbar"
             app
@@ -191,41 +213,7 @@ h3 {
 section {
     padding: 3em 0;
 }
-
-.custom-loader {
-    animation: loader 1s infinite;
-    display: flex;
-}
-@-moz-keyframes loader {
-    from {
-        transform: rotate(0);
-    }
-    to {
-        transform: rotate(360deg);
-    }
-}
-@-webkit-keyframes loader {
-    from {
-        transform: rotate(0);
-    }
-    to {
-        transform: rotate(360deg);
-    }
-}
-@-o-keyframes loader {
-    from {
-        transform: rotate(0);
-    }
-    to {
-        transform: rotate(360deg);
-    }
-}
-@keyframes loader {
-    from {
-        transform: rotate(0);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+.v-card-footer {
+    width: 100%;
 }
 </style>
