@@ -3,16 +3,11 @@
         <v-card-title class="headline">
             <nuxt-link :to="`/sample/${id}`">{{ name }}</nuxt-link>
         </v-card-title>
-        <v-btn
-            v-if="canEdit"
+        <BtnEdit
+            :sampleId="id"
+            :sampleUserId="userId"
             absolute
-            top
-            right
-            fab
-            :to="`/sample/edit/${this.id}`"
-        >
-            <v-icon>mdi-pencil</v-icon>
-        </v-btn>
+        />
         <WaveForm
             ref="waveform"
             :id="id"
@@ -78,11 +73,13 @@
 
 <script>
 import WaveForm from '~/components/WaveForm.vue'
+import BtnEdit from '~/components/sample/BtnEdit.vue'
 import SampleActions from '~/components/sample/SampleActions.vue'
 
 export default {
     components: {
         WaveForm,
+        BtnEdit,
         SampleActions
     },
 

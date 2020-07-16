@@ -3,6 +3,7 @@
         <BtnPlayPause :sampleId="sampleId" />
         <BtnRepeat :sampleId="sampleId" />
         <BtnDownload :sampleId="sampleId" />
+        <BtnLike :sampleId="sampleId" />
     </div>
 </template>
 
@@ -10,12 +11,14 @@
 import BtnPlayPause from '~/components/sample/BtnPlayPause'
 import BtnRepeat from '~/components/sample/BtnRepeat'
 import BtnDownload from '~/components/sample/BtnDownload'
+import BtnLike from '~/components/sample/BtnLike'
 
 export default {
     components: {
         BtnPlayPause,
         BtnRepeat,
-        BtnDownload
+        BtnDownload,
+        BtnLike
     },
 
     props: [

@@ -2,6 +2,12 @@
     <div>
         <v-container>
             <h1>{{ sample.name }}</h1>
+            <BtnEdit
+                :sampleId="sample.id"
+                :sampleUserId="userId"
+                fixed
+                bigMargin
+            />
             <section>
                 <WaveForm
                     ref="waveform"
@@ -11,25 +17,6 @@
             <v-card>
                 <v-card-text>
                     <SampleActions :sampleId="sample.id" />
-                    <v-spacer></v-spacer>
-                    <v-btn
-                        v-if="$store.state.user"
-                        fab
-                        x-large
-                        class="pink--text"
-                        :loading="loadingLike"
-                        @click="likeUnlikeSample"
-                    >
-                        <v-icon>{{ likeSampleIcon }}</v-icon>
-                    </v-btn>
-                    <v-btn
-                        v-if="canEdit"
-                        fab
-                        x-large
-                        :to="`/sample/edit/${this.sample.id}`"
-                    >
-                        <v-icon>mdi-pencil</v-icon>
-                    </v-btn>
                 </v-card-text>
             </v-card>
             <section>
@@ -137,12 +124,14 @@
 <script>
 import WaveForm from '~/components/WaveForm.vue'
 import SampleActions from '~/components/sample/SampleActions.vue'
+import BtnEdit from '~/components/sample/BtnEdit.vue'
 import SampleForkContainer from '~/components/SampleForkContainer.vue'
 
 export default {
     components: {
         WaveForm,
         SampleActions,
+        BtnEdit,
         SampleForkContainer
     },
 
@@ -152,8 +141,6 @@ export default {
             userId: '',
             username: '',
             numberSamples: '',
-            likedSample: '',
-            loadingLike: false,
             forkFrom: [],
             forkTo: []
         }
@@ -162,18 +149,6 @@ export default {
     computed: {
         profilePictureSrc () {
             return `${this.$axios.defaults.baseURL}/user/picture/${this.userId}`
-        },
-
-        likeSampleIcon () {
-            return this.likedSample ? 'mdi-heart' : 'mdi-heart-outline'
-        },
-
-        canEdit () {
-            if (this.$store.state.user) {
-                return this.userId == this.$store.state.user.id
-            }
-            
-            return false
         },
 
         keyMode () {
@@ -185,25 +160,18 @@ export default {
         }
     },
 
-    async asyncData({ $axios, params, store, error }) {
+    async asyncData({ $axios, params, error }) {
         try {
             const sample = await $axios.$get(`/sample/${params.id}`)
             const numberSamples = await $axios.$get(`/user/samples/count/${sample.user.id}`)
             const forkFrom = await $axios.$get(`/forks/from/${params.id}`)
             const forkTo = await $axios.$get(`/forks/to/${params.id}`)
-            
-            let likedSample = false
-            if (store.state.user) {
-                const response = await $axios.$get(`/sample/like/${params.id}`)
-                likedSample = response.liked
-            }
 
             return {
                 sample: sample,
                 userId: sample.user.id,
                 username: sample.user.username,
                 numberSamples: numberSamples.count,
-                likedSample: likedSample,
                 forkFrom: forkFrom,
                 forkTo: forkTo
             }
@@ -216,31 +184,7 @@ export default {
         return {
             title: this.sample.name
         }
-    },
-
-    methods: {
-        async likeUnlikeSample () {
-            if (!this.loadingLike && this.$store.state.user) {
-                this.loadingLike = true
-                this.likedSample = !this.likedSample
-
-                try {
-                    let response = ''
-                    if (this.likedSample) {
-                        response = await this.$axios.post(`/sample/like/${this.sample.id}`)
-                    } else {
-                        response = await this.$axios.delete(`/sample/like/${this.sample.id}`)
-                    }
-
-                    this.$nuxt.$emit('snackbar', response.data.detail)
-                } catch (e) {
-                    this.$nuxt.$emit('snackbar', this.$errorArrayToString(e.response.data))
-                }
-
-                this.loadingLike = false
-            }
-        }  
-    },
+    }
 }
 </script>
 
