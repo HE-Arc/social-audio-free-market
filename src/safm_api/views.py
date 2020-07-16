@@ -457,8 +457,6 @@ class SampleLikeView(generics.GenericAPIView):
 
                 return JsonResponse({'liked': False}, status=status.HTTP_200_OK)
 
-                return JsonResponse({'detail': 'This sample is added to your likes.'}, status=status.HTTP_201_CREATED)
-
             return self.sample_not_found
 
         return self.unauthenticated
