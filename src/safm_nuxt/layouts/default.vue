@@ -124,6 +124,7 @@ export default {
             accountMenu: [
                 { icon: 'mdi-cloud-upload', title: 'Upload', method: 'upload' },
                 { icon: 'mdi-account', title: 'Profile', method: 'profile' },
+                { icon: 'mdi-heart', title: 'Likes', method: 'likes' },
                 { icon: 'mdi-cogs', title: 'Settings', method: 'settings' },
                 { icon: 'mdi-logout', title: 'Logout', method: 'logout' }
             ],
@@ -178,7 +179,11 @@ export default {
 
         profile () {
             this.$router.push(`/profile/${this.userid}`)
-        },        
+        },
+        
+        likes () {
+            this.$router.push('/likes')
+        },
 
         settings () {
             this.$router.push('/profile/edit')

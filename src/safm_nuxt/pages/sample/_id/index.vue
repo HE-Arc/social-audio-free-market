@@ -2,6 +2,12 @@
     <div>
         <v-container>
             <h1>{{ sample.name }}</h1>
+            <BtnEdit
+                :sampleId="sample.id"
+                :sampleUserId="userId"
+                fixed
+                bigMargin
+            />
             <section>
                 <WaveForm
                     ref="waveform"
@@ -11,24 +17,6 @@
             <v-card>
                 <v-card-text>
                     <SampleActions :sampleId="sample.id" />
-                    <v-spacer></v-spacer>
-                    <v-btn
-                        fab
-                        x-large
-                        @click="likedSample = !likedSample"
-                        class="pink--text"
-                        disabled
-                    >
-                        <v-icon>{{ likeSampleIcon }}</v-icon>
-                    </v-btn>
-                    <v-btn
-                        v-if="canEdit"
-                        fab
-                        x-large
-                        :to="`/sample/edit/${this.sample.id}`"
-                    >
-                        <v-icon>mdi-pencil</v-icon>
-                    </v-btn>
                 </v-card-text>
             </v-card>
             <section>
@@ -136,12 +124,14 @@
 <script>
 import WaveForm from '~/components/WaveForm.vue'
 import SampleActions from '~/components/sample/SampleActions.vue'
+import BtnEdit from '~/components/sample/BtnEdit.vue'
 import SampleForkContainer from '~/components/SampleForkContainer.vue'
 
 export default {
     components: {
         WaveForm,
         SampleActions,
+        BtnEdit,
         SampleForkContainer
     },
 
@@ -151,7 +141,6 @@ export default {
             userId: '',
             username: '',
             numberSamples: '',
-            likedSample: false,
             forkFrom: [],
             forkTo: []
         }
@@ -160,18 +149,6 @@ export default {
     computed: {
         profilePictureSrc () {
             return `${this.$axios.defaults.baseURL}/user/picture/${this.userId}`
-        },
-
-        likeSampleIcon () {
-            return this.likedSample ? 'mdi-heart' : 'mdi-heart-outline'
-        },
-
-        canEdit () {
-            if (this.$store.state.user) {
-                return this.userId == this.$store.state.user.id
-            }
-            
-            return false
         },
 
         keyMode () {
@@ -207,7 +184,7 @@ export default {
         return {
             title: this.sample.name
         }
-    },
+    }
 }
 </script>
 

@@ -1,5 +1,6 @@
 <template>
     <v-btn
+        fab
         large
         :color="repeat ? 'accent' : ''"
         @click="click"
