@@ -13,11 +13,12 @@
                     <SampleActions :sampleId="sample.id" />
                     <v-spacer></v-spacer>
                     <v-btn
+                        v-if="$store.state.user"
                         fab
                         x-large
-                        @click="likedSample = !likedSample"
                         class="pink--text"
-                        disabled
+                        :loading="loadingLike"
+                        @click="likeUnlikeSample"
                     >
                         <v-icon>{{ likeSampleIcon }}</v-icon>
                     </v-btn>
@@ -151,7 +152,8 @@ export default {
             userId: '',
             username: '',
             numberSamples: '',
-            likedSample: false,
+            likedSample: '',
+            loadingLike: false,
             forkFrom: [],
             forkTo: []
         }
@@ -183,18 +185,25 @@ export default {
         }
     },
 
-    async asyncData({ $axios, params, error }) {
+    async asyncData({ $axios, params, store, error }) {
         try {
             const sample = await $axios.$get(`/sample/${params.id}`)
             const numberSamples = await $axios.$get(`/user/samples/count/${sample.user.id}`)
             const forkFrom = await $axios.$get(`/forks/from/${params.id}`)
             const forkTo = await $axios.$get(`/forks/to/${params.id}`)
+            
+            let likedSample = false
+            if (store.state.user) {
+                const response = await $axios.$get(`/sample/like/${params.id}`)
+                likedSample = response.liked
+            }
 
             return {
                 sample: sample,
                 userId: sample.user.id,
                 username: sample.user.username,
                 numberSamples: numberSamples.count,
+                likedSample: likedSample,
                 forkFrom: forkFrom,
                 forkTo: forkTo
             }
@@ -207,6 +216,30 @@ export default {
         return {
             title: this.sample.name
         }
+    },
+
+    methods: {
+        async likeUnlikeSample () {
+            if (!this.loadingLike && this.$store.state.user) {
+                this.loadingLike = true
+                this.likedSample = !this.likedSample
+
+                try {
+                    let response = ''
+                    if (this.likedSample) {
+                        response = await this.$axios.post(`/sample/like/${this.sample.id}`)
+                    } else {
+                        response = await this.$axios.delete(`/sample/like/${this.sample.id}`)
+                    }
+
+                    this.$nuxt.$emit('snackbar', response.data.detail)
+                } catch (e) {
+                    this.$nuxt.$emit('snackbar', this.$errorArrayToString(e.response.data))
+                }
+
+                this.loadingLike = false
+            }
+        }  
     },
 }
 </script>
