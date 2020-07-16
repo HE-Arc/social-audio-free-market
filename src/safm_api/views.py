@@ -20,8 +20,8 @@ from django.core.mail import EmailMultiAlternatives
 
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
-from .models import Tag, Sample, UserProfile, UserSampleDownload
-from .serializers import UserSerializer, LoginSerializer, TagSerializer, SampleForkSerializer, SampleSerializer, UserDownloadSerializer, UserProfileSerializer
+from .models import Tag, Sample, UserProfile, UserSampleDownload, SampleLike
+from .serializers import UserSerializer, LoginSerializer, TagSerializer, SampleForkSerializer, SampleSerializer, UserDownloadSerializer, UserProfileSerializer, SampleLikeSerializer
 
 # Create your views here.
 
@@ -438,3 +438,93 @@ class UserEmail(APIView):
             return JsonResponse({'email': user_email}, status=status.HTTP_200_OK)
 
         return HttpResponseNotFound('No matching user found.')
+
+
+class SampleLikeView(generics.GenericAPIView):
+    unauthenticated = JsonResponse({'detail': 'Authentication credentials were not provided.'}, status=status.HTTP_401_UNAUTHORIZED)
+    sample_not_found = JsonResponse({'detail': 'Sample not found.'}, status=status.HTTP_400_BAD_REQUEST)
+    sample_not_authorized = JsonResponse({'detail': 'Sample does not belong to the user.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    def get(self, request, *args, **kwargs):
+        if self._is_authenticated(request):
+            sample = self._sample_by_id(kwargs)
+
+            if sample:
+                sample_like = self._sample_like(sample, request.user)
+
+                if sample_like.exists():
+                    return JsonResponse({'liked': True}, status=status.HTTP_200_OK)
+
+                return JsonResponse({'liked': False}, status=status.HTTP_200_OK)
+
+                return JsonResponse({'detail': 'This sample is added to your likes.'}, status=status.HTTP_201_CREATED)
+
+            return self.sample_not_found
+
+        return self.unauthenticated
+
+    def post(self, request, *args, **kwargs):
+        if self._is_authenticated(request):
+            sample = self._sample_by_id(kwargs)
+
+            if sample:
+                SampleLike.objects.get_or_create(
+                    user=request.user,
+                    sample=sample
+                )
+
+                return JsonResponse({'detail': 'This sample is added to your likes.'}, status=status.HTTP_201_CREATED)
+
+            return self.sample_not_found
+
+        return self.unauthenticated
+
+    def delete(self, request, *args, **kwargs):
+        if self._is_authenticated(request):
+            sample = self._sample_by_id(kwargs)
+
+            if sample:
+                if sample.user == request.user:
+                    sample_like = self._sample_like(sample, request.user)
+                    sample_like.delete()
+
+                    return JsonResponse({'detail': 'This sample is removed from your likes.'}, status=status.HTTP_200_OK)
+
+                return self.sample_not_authorized
+
+            return self.sample_not_found
+
+        return self.unauthenticated
+
+    def _is_authenticated(self, request):
+        '''
+        Returns wether the current user is authenticated or not.
+        '''
+        return request.user.is_authenticated
+
+    def _sample_by_id(self, kwargs):
+        '''
+        Returns the Sample model associated to the pk parameter or None.
+        '''
+        try:
+            return Sample.objects.get(pk=kwargs['pk'])
+        except:
+            return None
+
+    def _sample_like(self, sample, user):
+        '''
+        Returns the SampleLike model associated to the given sample and user.
+        '''
+        return SampleLike.objects.filter(sample=sample).filter(user=user)
+
+
+class UserSampleLikes(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        user_likes = SampleLike.objects.filter(user=user).order_by('-datetime_like')
+        user_likes_serializer = SampleLikeSerializer(user_likes, many=True)
+
+        return JsonResponse(user_likes_serializer.data, safe=False)

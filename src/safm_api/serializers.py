@@ -3,7 +3,7 @@ from rest_framework.validators import UniqueValidator
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
-from .models import Tag, Sample, UserProfile, UserSampleDownload
+from .models import Tag, Sample, UserProfile, UserSampleDownload, SampleLike
 
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(write_only=True, validators=[UniqueValidator(queryset=User.objects.all())])
@@ -133,3 +133,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = '__all__'
+
+
+class SampleLikeSerializer(serializers.ModelSerializer):
+    sample = SampleSerializer()
+
+    class Meta:
+        model = SampleLike
+        fields = ['sample', 'datetime_like']

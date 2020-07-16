@@ -103,3 +103,9 @@ class UserSampleDownload(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     sample = models.ForeignKey(Sample, on_delete=models.CASCADE)
     datetime_download = models.DateTimeField(auto_now_add=True) # auto now at creation
+
+
+class SampleLike(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    sample = models.ForeignKey(Sample, on_delete=models.CASCADE)
+    datetime_like = models.DateTimeField(auto_now_add=True) # auto now at creation
