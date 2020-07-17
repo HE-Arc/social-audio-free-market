@@ -1,4 +1,4 @@
-import os, re, json, tempfile
+import os, re, json, tempfile, shutil
 from django.http import HttpResponseNotFound
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -9,7 +9,7 @@ from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from django.contrib.auth.models import User
-from .models import Tag, Sample, UserProfile, UserSampleDownload
+from .models import Tag, Sample, UserProfile, UserSampleDownload, SampleLike
 
 # API routes
 ROUTE_LOGIN = '/api/login'
@@ -311,7 +311,7 @@ class SampleTest(TestCase):
 
         self.user = _create_test_user()
 
-        self.test_file = './safm/test/Test_Sample.wav'
+        self.test_file = './safm_api/test/Test_Sample.wav'
 
     @tag('sample_filename')
     def test_sample_filename(self):
@@ -352,23 +352,6 @@ class SampleTest(TestCase):
         self.user.delete()
         sample = Sample.objects.get(name=name)
         self.assertTrue(sample.user == None)
-<<<<<<< HEAD:safm_project/safm/tests.py
-=======
-            
-
-class UploadSampleTest(TestCase):
-    '''
-    Upload sample unit testing
-    '''
-    def setUp(self):
-        settings.MEDIA_ROOT = tempfile.mkdtemp()
-
-        self.client = Client()
-
-        self.user = _create_test_user()
-
-        self.test_file = './safm_api/test/Test_Sample.wav'
->>>>>>> 2e08bf31e006d0aa23b8d52d41a281681a2f3c4c:src/safm_api/tests.py
 
     @tag('sample_upload_requires_authentication')
     def test_sample_upload_requires_authentication(self):
@@ -631,7 +614,7 @@ class DownloadSampleTest(TestCase):
 
         self.user = _create_test_user()
 
-        self.test_file = './safm/test/Test_Sample.wav'
+        self.test_file = './safm_api/test/Test_Sample.wav'
 
     @tag('download_sample')
     def test_download_sample(self):
@@ -726,12 +709,23 @@ class UserProfileTest(TestCase):
 
         self.user = _create_test_user()
 
+    def _clear_user_directory(self):
+        '''
+        Removes the user directory in order to avoid file name problems when
+        running all the tests.
+        '''
+        path_user_directoy = os.path.join(settings.MEDIA_ROOT, 'users/{0}'.format(self.user.id))
+        if os.path.exists(path_user_directoy):
+            shutil.rmtree(path_user_directoy)
+
     @tag('user_profile_creation')
     def test_user_profile_creation(self):
         '''
         Checks that the filename of an uploaded profile picture is correctly converted.
         '''
-        file = SimpleUploadedFile('test.jpg', b'This is the file content.')
+        self._clear_user_directory()
+
+        file = SimpleUploadedFile('test_user_profile_creation.jpg', b'This is the file content.')
         UserProfile.objects.create(
             user=self.user,
             description='This is a random description.',
@@ -748,6 +742,8 @@ class UserProfileTest(TestCase):
         '''
         Checks that a user profile is correctly patched.
         '''
+        self._clear_user_directory()
+
         # Login
         headers = _login_user_and_get_token(self)
         UserProfile.objects.create(user=self.user)
@@ -787,12 +783,14 @@ class UserProfileTest(TestCase):
         '''
         Checks that downloading a user profile picture returns an image.
         '''
-        file = SimpleUploadedFile('test.jpg', b'This is the file content.')
+        self._clear_user_directory()
+
+        file = SimpleUploadedFile('test_user_profile_picture_download.jpg', b'This is the file content.')
         UserProfile.objects.create(
             user=self.user,
             profile_picture=file
         )
-
+        
         response = self.client.get('/api/user/picture/{0}'.format(self.user.id))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('image', response['content-type'])
@@ -810,11 +808,11 @@ class UserSamplesTest(TestCase):
         self.client = Client()
 
         # Reads the users fixture file
-        with open('./safm/fixtures/users.json') as json_users:
+        with open('./safm_api/fixtures/users.json') as json_users:
             self.users = json.load(json_users)
 
         # Reads the samples fixture file
-        with open('./safm/fixtures/samples.json') as json_samples:
+        with open('./safm_api/fixtures/samples.json') as json_samples:
             self.samples = json.load(json_samples)
 
     @tag('user_samples')
@@ -1130,4 +1128,79 @@ class AdvancedSearchTest(TestCase):
         
 
     # TODO: tags advanced search test ; depends on AND or OR condition
-    
+
+
+class SampleLikeTest(TestCase):
+    '''
+    SampleLike model unit testing
+    '''
+    def setUp(self):
+        settings.MEDIA_ROOT = tempfile.mkdtemp()
+
+        self.client = Client()
+
+        self.user = _create_test_user()
+
+        self.test_file = './safm_api/test/Test_Sample.wav'
+            
+    @tag('sample_like_requires_authentication')
+    def test_sample_like_requires_authentication(self):
+        # Createa a Sample
+        sample = Sample.objects.create(
+            name='Test Sample',
+            file=self.test_file
+        )
+
+        response = self.client.post('/api/sample/like/{0}'.format(sample.id))
+        json_response = json.loads(response.content)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertIn('Authentication credentials were not provided.', json_response['detail'])
+
+    @tag('sample_like_not_found')
+    def test_sample_like_not_found(self):
+        # Login
+        headers = _login_user_and_get_token(self)
+        response = self.client.post('/api/sample/like/999', **headers)
+        json_response = json.loads(response.content)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('Sample not found.', json_response['detail'])
+
+    @tag('sample_like')
+    def test_sample_like(self):
+        # Login
+        headers = _login_user_and_get_token(self)
+
+        # Creates a Sample
+        sample = Sample.objects.create(
+            name='Test Sample',
+            file=self.test_file,
+            user=self.user
+        )
+
+        # No Sample likes
+        response = self.client.get('/api/user/samples/likes', **headers)
+        json_response = json.loads(response.content)
+        self.assertEqual(len(json_response), 0)
+
+        # Like a Sample
+        response = self.client.post('/api/sample/like/{0}'.format(sample.id), **headers)
+        json_response = json.loads(response.content)
+        self.assertIn('This sample is added to your likes.', json_response['detail'])
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        sample_like = SampleLike.objects.filter(user=self.user).get()
+        self.assertEqual(sample_like.sample, sample)
+
+        response = self.client.get('/api/user/samples/likes', **headers)
+        json_response = json.loads(response.content)
+        self.assertEqual(len(json_response), 1)
+
+        # Dislike a Sample
+        response = self.client.delete('/api/sample/like/{0}'.format(sample.id), **headers)
+        json_response = json.loads(response.content)
+        self.assertIn('This sample is removed from your likes.', json_response['detail'])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.client.get('/api/user/samples/likes', **headers)
+        json_response = json.loads(response.content)
+        self.assertEqual(len(json_response), 0)
