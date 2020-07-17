@@ -7,7 +7,7 @@
         top
         right
         :to="`/sample/edit/${this.sampleId}`"
-        :class="`mt-${this.bigMargin ? '16' : '4'}`"
+        :class="`mt-${this.bigMargin ? '16' : '1'}`"
     >
         <v-icon>mdi-pencil</v-icon>
     </v-btn>

@@ -3,7 +3,6 @@
         fab
         large
         class="pink--text"
-        :disabled="!$store.state.user"
         :loading="loading"
         @click="click"
     >
@@ -36,30 +35,37 @@ export default {
 
     methods: {
         async loadLikeState () {
-            try {
-                const response = await this.$axios.$get(`/sample/like/${this.sampleId}`)
-                this.liked = response.liked
-            } catch (e) {
-                this.$nuxt.$emit('snackbar', 'An error occured')
+            if (this.$store.state.user) {
+                try {
+                    const response = await this.$axios.$get(`/sample/like/${this.sampleId}`)
+                    this.liked = response.liked
+                } catch (e) {
+                    this.$nuxt.$emit('snackbar', 'An error occured')
+                }
             }
         },
 
         async click () {
             if (!this.loading) {
                 this.loading = true
-                this.liked = !this.liked
 
-                try {
-                    let response = ''
-                    if (this.liked) {
-                        response = await this.$axios.post(`/sample/like/${this.sampleId}`)
-                    } else {
-                        response = await this.$axios.delete(`/sample/like/${this.sampleId}`)
+                if (this.$store.state.user) {
+                    this.liked = !this.liked
+
+                    try {
+                        let response = ''
+                        if (this.liked) {
+                            response = await this.$axios.post(`/sample/like/${this.sampleId}`)
+                        } else {
+                            response = await this.$axios.delete(`/sample/like/${this.sampleId}`)
+                        }
+
+                        this.$nuxt.$emit('snackbar', response.data.detail)
+                    } catch (e) {
+                        this.$nuxt.$emit('snackbar', this.$errorArrayToString(e.response.data))
                     }
-
-                    this.$nuxt.$emit('snackbar', response.data.detail)
-                } catch (e) {
-                    this.$nuxt.$emit('snackbar', this.$errorArrayToString(e.response.data))
+                } else {
+                    this.$nuxt.$emit('snackbar', 'You first need to log in.')
                 }
 
                 this.loading = false

@@ -1,7 +1,4 @@
-import os
-import re
-import mimetypes
-import wave
+import os, re, mimetypes
 from django.conf import settings
 from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
 from rest_framework import filters, generics
@@ -273,33 +270,32 @@ class SampleView(generics.GenericAPIView):
 class SampleFile(APIView):
     
     def get(self, request, sample_id, download):
-        sample = Sample.objects.get(pk=sample_id)
-        sample_file = sample.file
+        try:
+            sample = Sample.objects.get(pk=sample_id)
 
-        if sample:
             if download == 1:
+                # Increments the sample number of downloads
+                sample.number_downloads += 1
+                sample.save()
+
                 if request.auth:
                     # If the user is authenticated, adds this sample to its downloads
                     UserSampleDownload.objects.get_or_create(
                         user=request.user,
                         sample=sample
                     )
-
-                # Increments the sample number of downloads
-                sample.number_downloads += 1
-                sample.save()
                 
             # Returns the audio file as a file attachment
-            path_to_file = os.path.join(settings.MEDIA_ROOT, sample_file.name)
+            path_to_file = os.path.join(settings.MEDIA_ROOT, sample.file.name)
             with open(path_to_file, 'rb') as f:
-                mime_type = mimetypes.MimeTypes().guess_type(sample_file.name)
+                mime_type = mimetypes.MimeTypes().guess_type(sample.file.name)
                 response = HttpResponse(f, content_type=mime_type)
-                filename = sample_file.name.split('/')[-1]
+                filename = sample.file.name.split('/')[-1]
                 response['Content-Disposition'] = f'attachement; filename="{filename}"'
                 response['Access-Control-Expose-Headers'] = 'Content-Disposition' # To allow the client to read it
 
             return response
-        else:
+        except:
             return HttpResponseNotFound('No matching file found.')
 
 
@@ -391,20 +387,6 @@ class UserProfileView(generics.GenericAPIView):
             return None
               
 
-class UserSamples(generics.ListAPIView):
-    serializer_class = SampleSerializer
-
-    def get_queryset(self):
-        return Sample.objects.filter(user=self.kwargs['user_id'])
-        
-
-class UserSamplesCount(APIView):
-
-    def get(self, request, user_id):
-        count = len(Sample.objects.filter(user=self.kwargs['user_id']))
-        return JsonResponse({'count': count}, status=status.HTTP_200_OK)
-
-
 class UserProfilePicture(APIView):
 
     def get(self, request, user_id):
@@ -423,6 +405,20 @@ class UserProfilePicture(APIView):
             return response
 
         return HttpResponseNotFound('No matching file found.')
+
+
+class UserSamples(generics.ListAPIView):
+    serializer_class = SampleSerializer
+
+    def get_queryset(self):
+        return Sample.objects.filter(user=self.kwargs['user_id'])
+        
+
+class UserSamplesCount(APIView):
+
+    def get(self, request, user_id):
+        count = len(Sample.objects.filter(user=self.kwargs['user_id']))
+        return JsonResponse({'count': count}, status=status.HTTP_200_OK)
 
 
 class UserEmail(APIView):

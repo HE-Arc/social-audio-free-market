@@ -1,8 +1,7 @@
-import os
-import re
-import json
-import tempfile
+import os, re, json, tempfile, shutil
+from django.http import HttpResponseNotFound
 from rest_framework import status
+from rest_framework.test import APIClient
 from django.test import TestCase
 from django.test import Client
 from django.test import tag
@@ -10,12 +9,26 @@ from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from django.contrib.auth.models import User
-from .models import Tag, Sample, UserProfile, UserSampleDownload
+from .models import Tag, Sample, UserProfile, UserSampleDownload, SampleLike
+
+# API routes
+ROUTE_LOGIN = '/api/login'
+ROUTE_REGISTER = '/api/register'
+ROUTE_SAMPLE_GET = '/api/sample'
+ROUTE_SAMPLE_PATCH_DELETE = '/api/sample/{0}'
+ROUTE_SAMPLE_FILE_DOWNLOAD = '/api/sample/file/{0}/1'
+ROUTE_USER_PATCH = '/api/user/{0}'
+ROUTE_USER_PROFILE = '/api/user/profile/{0}'
+ROUTE_USER_EMAIL = '/api/user/email/{0}'
+
+# API responses
+NOT_AUTHENTICATED = 'Authentication credentials were not provided.'
 
 # Test user properties
 USERNAME = 'test'
 EMAIL = 'test@test.com'
 PASSWORD = 'foobar2020'
+PASSWORD_TOO_SHORT = 'foobar'
 
 def _create_test_user():
     '''
@@ -29,6 +42,20 @@ def _create_test_user():
     user.save()
 
     return user
+
+def _login_user_and_get_token(instance):
+    '''
+    Logs in the test user and returns its authentication token.
+    '''
+    response = instance.client.post(ROUTE_LOGIN, { 'username': USERNAME, 'password': PASSWORD })
+    instance.assertEqual(response.status_code, status.HTTP_200_OK)
+    token = json.loads(response.content)['token']
+
+    headers = {
+        'HTTP_AUTHORIZATION': 'Token ' + token
+    }
+
+    return headers
 
 # Create your tests here.
 
@@ -44,54 +71,54 @@ class AuthTest(TestCase):
     @tag('login')
     def test_login(self):
         # Login with username
-        response = self.client.post('/api/login', { 'username': USERNAME, 'password': PASSWORD })
-        self.assertEqual(200, response.status_code)
+        response = self.client.post(ROUTE_LOGIN, { 'username': USERNAME, 'password': PASSWORD })
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Successful login returns an authentication token and the username
-        jsonResponse = json.loads(response.content)
-        self.assertIn('token', jsonResponse)
-        self.assertEqual(jsonResponse['username'], USERNAME)
+        json_response = json.loads(response.content)
+        self.assertIn('token', json_response)
+        self.assertEqual(json_response['username'], USERNAME)
 
         # Login with email address
-        response = self.client.post('/api/login', { 'email': EMAIL, 'password': PASSWORD })
-        self.assertEqual(200, response.status_code)
+        response = self.client.post(ROUTE_LOGIN, { 'email': EMAIL, 'password': PASSWORD })
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Successful login returns an authentication token and the username
-        jsonResponse = json.loads(response.content)
-        self.assertIn('token', jsonResponse)
-        self.assertEqual(jsonResponse['username'], USERNAME)
+        json_response = json.loads(response.content)
+        self.assertIn('token', json_response)
+        self.assertEqual(json_response['username'], USERNAME)
 
         # Wrong credentials
-        response = self.client.post('/api/login', { 'username': USERNAME, 'password': 'password' })
-        self.assertEqual(400, response.status_code)
+        response = self.client.post(ROUTE_LOGIN, { 'username': USERNAME, 'password': 'password' })
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     @tag('logout')
     def test_logout(self):
-        response = self.client.post('/api/login', { 'username': USERNAME, 'password': PASSWORD })
-        token = json.loads(response.content)['token']
-        
-        headers = {
-            'HTTP_AUTHORIZATION': 'Token ' + token
-        }
+        # Login
+        headers = _login_user_and_get_token(self)
         response = self.client.post('/api/logout', **headers)
-        self.assertEqual(200, response.status_code)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Unauthorized route if user is not logged in
+        response = self.client.post('/api/logout')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     @tag('registration')
     def test_registration(self):
-        response = self.client.post('/api/register', {
+        response = self.client.post(ROUTE_REGISTER, {
             'username': 'foo',
             'email': 'foobar@safmarket.com',
             'password': PASSWORD,
             'password_confirm': PASSWORD
         })
-        self.assertEqual(201, response.status_code)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         # Successful registration returns an authentication token
-        jsonResponse = json.loads(response.content)
-        self.assertIn('token', jsonResponse)
-        self.assertIn('userid', jsonResponse)
-        self.assertIn('username', jsonResponse)
+        json_response = json.loads(response.content)
+        self.assertIn('token', json_response)
+        self.assertIn('userid', json_response)
+        self.assertIn('username', json_response)
 
         # User Profile creation at registration
-        user_id = jsonResponse['userid']
+        user_id = json_response['userid']
         user_profile = UserProfile.objects.get(user=user_id)
         self.assertEqual(user_profile.user.id, user_id)
         self.assertEqual(user_profile.description, 'No description provided.')
@@ -99,53 +126,178 @@ class AuthTest(TestCase):
 
     @tag('registration_valid_username')
     def test_registration_valid_username(self):
-        response = self.client.post('/api/register', {
+        response = self.client.post(ROUTE_REGISTER, {
             'username': 'not valid',
             'email': 'foobar@safmarket.com',
             'password': PASSWORD,
             'password_confirm': PASSWORD
         })
-        self.assertEqual(400, response.status_code)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     @tag('registration_unique_username')
     def test_registration_unique_username(self):
-        response = self.client.post('/api/register', {
+        response = self.client.post(ROUTE_REGISTER, {
             'username': USERNAME,
             'email': 'foobar@safmarket.com',
             'password': PASSWORD,
             'password_confirm': PASSWORD
         })
-        self.assertEqual(400, response.status_code)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     @tag('registration_unique_email')
     def test_registration_unique_email(self):
-        response = self.client.post('/api/register', {
+        response = self.client.post(ROUTE_REGISTER, {
             'username': 'foo',
             'email': EMAIL,
             'password': PASSWORD,
             'password_confirm': PASSWORD
         })
-        self.assertEqual(400, response.status_code)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     @tag('registration_password_min_length')
     def test_registration_password_min_length(self):
-        response = self.client.post('/api/register', {
+        response = self.client.post(ROUTE_REGISTER, {
             'username': 'foo',
             'email': 'foobar@safmarket.com',
-            'password': 'foo',
-            'password_confirm': 'foo'
+            'password': PASSWORD_TOO_SHORT,
+            'password_confirm': PASSWORD_TOO_SHORT
         })
-        self.assertEqual(400, response.status_code)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     @tag('registration_confirm_password')
     def test_registration_confirm_password(self):
-        response = self.client.post('/api/register', {
+        response = self.client.post(ROUTE_REGISTER, {
             'username': 'foo',
             'email': 'foobar@safmarket.com',
             'password': PASSWORD,
             'password_confirm': PASSWORD + PASSWORD
         })
-        self.assertEqual(400, response.status_code)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class UserPatchTest(TestCase):
+    '''
+    User patch unit testing
+    '''
+    def setUp(self):
+        self.client = APIClient()
+
+        self.user = _create_test_user()
+
+        self.other_user = User.objects.create(
+            username='Other',
+            email='other@user.com'
+        )
+
+    @tag('user_patch_requires_authentication')
+    def test_user_patch_requires_authentication(self):
+        '''
+        Checks that patching a user requires authentication.
+        '''
+        response = self.client.patch(ROUTE_USER_PATCH.format(self.user.id))
+        json_response = json.loads(response.content)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(json_response['detail'], NOT_AUTHENTICATED)
+
+    @tag('user_patch_unauthorized_user')
+    def test_user_patch_unauthorized_user(self):
+        '''
+        Checks that only the current user can patch itself.
+        '''
+        # Login
+        headers = _login_user_and_get_token(self)
+        response = self.client.patch(ROUTE_USER_PATCH.format(self.other_user.id), **headers)
+        json_response = json.loads(response.content)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(json_response['detail'], 'User does not belong to the user.')
+
+    @tag('user_patch_username')
+    def test_user_patch_username(self):
+        '''
+        Checks wether a user username is correctly patched.
+        '''
+        # Login
+        headers = _login_user_and_get_token(self)
+        new_username = 'Solomun'
+        response = self.client.patch(ROUTE_USER_PATCH.format(self.user.id), {
+            'username': new_username
+        }, **headers)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(User.objects.get(pk=self.user.id).username, new_username)
+
+        # Username must be unique
+        response = self.client.patch(ROUTE_USER_PATCH.format(self.user.id), {
+            'username': self.other_user.username
+        }, **headers)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    @tag('user_patch_email')
+    def test_user_patch_email(self):
+        '''
+        Checks wether a user email is correctly patched.
+        '''
+        # Login
+        headers = _login_user_and_get_token(self)
+        new_email = 'new@email.com'
+        response = self.client.patch(ROUTE_USER_PATCH.format(self.user.id), {
+            'email': new_email
+        }, **headers)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(User.objects.get(pk=self.user.id).email, new_email)
+
+        # Email must be unique
+        response = self.client.patch(ROUTE_USER_PATCH.format(self.user.id), {
+            'email': self.other_user.email
+        }, **headers)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    @tag('user_patch_password')
+    def test_user_patch_password(self):
+        '''
+        Checks wether a user password is correctly patched.
+        '''
+        # Login
+        headers = _login_user_and_get_token(self)
+
+        # Invalid current password
+        response = self.client.patch(ROUTE_USER_PATCH.format(self.user.id), {
+            'password_current': PASSWORD + PASSWORD,
+            'password': PASSWORD,
+            'password_confirm': PASSWORD
+        }, **headers)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # New password must be different than current one
+        response = self.client.patch(ROUTE_USER_PATCH.format(self.user.id), {
+            'password_current': PASSWORD,
+            'password': PASSWORD,
+            'password_confirm': PASSWORD
+        }, **headers)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # Password min length
+        response = self.client.patch(ROUTE_USER_PATCH.format(self.user.id), {
+            'password_current': PASSWORD,
+            'password': PASSWORD_TOO_SHORT,
+            'password_confirm': PASSWORD_TOO_SHORT
+        }, **headers)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        
+        # Password confirmation match
+        response = self.client.patch(ROUTE_USER_PATCH.format(self.user.id), {
+            'password_current': PASSWORD,
+            'password': PASSWORD + PASSWORD,
+            'password_confirm': PASSWORD
+        }, **headers)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        
+        # Patch password
+        response = self.client.patch(ROUTE_USER_PATCH.format(self.user.id), {
+            'password_current': PASSWORD,
+            'password': PASSWORD + PASSWORD,
+            'password_confirm': PASSWORD + PASSWORD
+        }, **headers)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class SampleTest(TestCase):
@@ -155,8 +307,12 @@ class SampleTest(TestCase):
     def setUp(self):
         settings.MEDIA_ROOT = tempfile.mkdtemp()
 
+        self.client = Client()
+
         self.user = _create_test_user()
-       
+
+        self.test_file = './safm_api/test/Test_Sample.wav'
+
     @tag('sample_filename')
     def test_sample_filename(self):
         '''
@@ -196,20 +352,6 @@ class SampleTest(TestCase):
         self.user.delete()
         sample = Sample.objects.get(name=name)
         self.assertTrue(sample.user == None)
-            
-
-class UploadSampleTest(TestCase):
-    '''
-    Upload sample unit testing
-    '''
-    def setUp(self):
-        settings.MEDIA_ROOT = tempfile.mkdtemp()
-
-        self.client = Client()
-
-        self.user = _create_test_user()
-
-        self.test_file = './safm_api/test/Test_Sample.wav'
 
     @tag('sample_upload_requires_authentication')
     def test_sample_upload_requires_authentication(self):
@@ -218,11 +360,11 @@ class UploadSampleTest(TestCase):
         '''
         # Cannot upload when not logged in
         with open(self.test_file, 'rb') as f:
-            unauthorizedResponse = self.client.post('/api/sample', {
+            response = self.client.post(ROUTE_SAMPLE_GET, {
                 'name': 'Test Sample',
                 'file': f
             })
-            self.assertEqual(401, unauthorizedResponse.status_code)
+            self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     @tag('sample_upload')
     def test_sample_upload(self):
@@ -230,25 +372,18 @@ class UploadSampleTest(TestCase):
         Checks that a user can upload a sample if logged in and that
         it creates a new Sample model and returns its ID.
         '''
-         # Login
-        loginResponse = self.client.post('/api/login', { 'username': USERNAME, 'password': PASSWORD })
-        self.assertEqual(200, loginResponse.status_code)
-        token = json.loads(loginResponse.content)['token']
-        
-        # Can upload when logged in
-        headers = {
-            'HTTP_AUTHORIZATION': 'Token ' + token
-        }
+        # Login
+        headers = _login_user_and_get_token(self)
         with open(self.test_file, 'rb') as f:    
-            response = self.client.post('/api/sample', {
+            response = self.client.post(ROUTE_SAMPLE_GET, {
                 'name': 'Test Sample',
                 'file': f
             }, **headers)
-            self.assertEqual(201, response.status_code)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-            # Checks that the response contains the newly created Sample model ID
-            jsonResponse = json.loads(response.content)
-            self.assertIn('id', jsonResponse)
+        # Checks that the response contains the newly created Sample model ID
+        json_response = json.loads(response.content)
+        self.assertIn('id', json_response)
 
     @tag('sample_upload_properties')
     def test_sample_upload_properties(self):
@@ -258,10 +393,7 @@ class UploadSampleTest(TestCase):
         are also correct.
         '''
         # Login
-        loginResponse = self.client.post('/api/login', { 'username': USERNAME, 'password': PASSWORD })
-        self.assertEqual(200, loginResponse.status_code)
-        token = json.loads(loginResponse.content)['token']
-        
+        headers = _login_user_and_get_token(self)
         # Can upload when logged in
         sample_id = -1
         sample_name = 'Test Sample'
@@ -269,11 +401,8 @@ class UploadSampleTest(TestCase):
         sample_tags = 'acid,techno,kick'
         sample_key = 'C'
         sample_mode = 'maj'
-        headers = {
-            'HTTP_AUTHORIZATION': 'Token ' + token
-        }
         with open(self.test_file, 'rb') as f:    
-            response = self.client.post('/api/sample', {
+            response = self.client.post(ROUTE_SAMPLE_GET, {
                 'name': sample_name,
                 'file': f,
                 'description': sample_description,
@@ -281,13 +410,13 @@ class UploadSampleTest(TestCase):
                 'mode': sample_mode,
                 'tags': sample_tags
             }, **headers)
-            self.assertEqual(201, response.status_code)
-            sample_id = json.loads(response.content)['id']
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        sample_id = json.loads(response.content)['id']
 
         self.assertTrue(sample_id > 0)
         # Gets the newly created Sample model and checks its properties
         #sample = Sample.objects.get(pk=sample_id)
-        sampleJson = self.client.get('/api/sample/{0}'.format(sample_id))
+        sampleJson = self.client.get(ROUTE_SAMPLE_PATCH_DELETE.format(sample_id))
         sample = json.loads(sampleJson.content)
         
         self.assertEqual(sample['user']['username'], USERNAME)
@@ -309,38 +438,31 @@ class UploadSampleTest(TestCase):
         when there is a sample fork from at a Sample upload.
         '''
         # Login
-        loginResponse = self.client.post('/api/login', { 'username': USERNAME, 'password': PASSWORD })
-        self.assertEqual(200, loginResponse.status_code)
-        token = json.loads(loginResponse.content)['token']
-        
-        headers = {
-            'HTTP_AUTHORIZATION': 'Token ' + token
-        }
-
+        headers = _login_user_and_get_token(self)
         # First Sample
         sample01_id = -1
         sample_name = 'Test Sample Fork #1'
         with open(self.test_file, 'rb') as f:    
-            response = self.client.post('/api/sample', {
+            response = self.client.post(ROUTE_SAMPLE_GET, {
                 'name': sample_name,
                 'file': f
             }, **headers)
-            self.assertEqual(201, response.status_code)
-            sample01_id = json.loads(response.content)['id']
-            self.assertTrue(sample01_id > 0)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        sample01_id = json.loads(response.content)['id']
+        self.assertTrue(sample01_id > 0)
 
         # Second Sample
         sample02_id = -1
         sample_name = 'Test Sample Fork #2'
         with open(self.test_file, 'rb') as f:    
-            response = self.client.post('/api/sample', {
+            response = self.client.post(ROUTE_SAMPLE_GET, {
                 'name': sample_name,
                 'file': f,
                 'forks_from': sample01_id
             }, **headers)
-            self.assertEqual(201, response.status_code)
-            sample02_id = json.loads(response.content)['id']
-            self.assertTrue(sample02_id > 0)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        sample02_id = json.loads(response.content)['id']
+        self.assertTrue(sample02_id > 0)
 
         # Second Sample is from the first one
         response = self.client.get('/api/forks/from/{0}'.format(sample02_id))
@@ -354,12 +476,137 @@ class UploadSampleTest(TestCase):
         self.assertEqual(len(forks_to), 1)
         self.assertEqual(forks_to[0]['id'], sample02_id)
 
+    @tag('patch_sample')
+    def test_patch_sample(self):
+        '''
+        Checks that a Sampel is correctly patched.
+        '''
+        # Login
+        headers = _login_user_and_get_token(self)
+
+        # Creates a Sample
+        with open(self.test_file, 'rb') as f:    
+            response = self.client.post(ROUTE_SAMPLE_GET, {
+                'name': 'Test Sample',
+                'file': f
+            }, **headers)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        sample_id = json.loads(response.content)['id']
+
+        # Patches the Sample
+        new_name = 'Patched Sample'
+        new_description = 'Test description'
+        new_key = 'C'
+        new_mode = 'maj'
+
+        api_client = APIClient()
+        response = api_client.patch(ROUTE_SAMPLE_PATCH_DELETE.format(sample_id), {
+            'name': new_name,
+            'description': new_description,
+            'key': new_key,
+            'mode': new_mode
+        }, format='json', **headers)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        sample = Sample.objects.get(pk=sample_id)
+        self.assertEqual(sample.user.username, USERNAME)
+        self.assertEqual(sample.name, new_name)
+        self.assertEqual(sample.description, new_description)
+        self.assertEqual(sample.key, new_key)
+        self.assertEqual(sample.mode, new_mode)
+
+    @tag('delete_sample')
+    def test_delete_sample(self):
+        '''
+        Checks wether a Sample is correctly deleted.
+        '''
+        # Login
+        headers = _login_user_and_get_token(self)
+
+        # Creates a Sample
+        with open(self.test_file, 'rb') as f:    
+            response = self.client.post(ROUTE_SAMPLE_GET, {
+                'name': 'Test Sample',
+                'file': f
+            }, **headers)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        sample_id = json.loads(response.content)['id']
+        
+        # Removes the Sample
+        response = self.client.delete(ROUTE_SAMPLE_PATCH_DELETE.format(sample_id), **headers)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Sample does not exist anymore
+        response = self.client.get(ROUTE_SAMPLE_PATCH_DELETE.format(sample_id))
+        json_response = json.loads(response.content)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(json_response['detail'], 'Sample not found.')
+
+    @tag('sample_patch_delete_requires_authentication')
+    def test_sample_patch_delete_requires_authentication(self):
+        '''
+        Checks that patching/deleting a sample requires authentication.
+        '''
+        # Creates a Sample
+        sample_name = 'Sample Test'
+        Sample.objects.create(
+            name=sample_name,
+            file=self.test_file
+        )
+        sample_id = Sample.objects.get(name=sample_name).id
+
+        # Cannot patch Sample if not authenticated
+        response = self.client.patch(ROUTE_SAMPLE_PATCH_DELETE.format(sample_id))
+        json_response = json.loads(response.content)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(json_response['detail'], NOT_AUTHENTICATED)
+
+        # Cannot delete Sample if not authenticated
+        response = self.client.delete(ROUTE_SAMPLE_PATCH_DELETE.format(sample_id))
+        json_response = json.loads(response.content)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(json_response['detail'], NOT_AUTHENTICATED)
+
+    @tag('sample_patch_delete_unauthorized_user')
+    def test_sample_patch_delete_unauthorized_user(self):
+        '''
+        Checks that only an authorized user can patch/delete a sample.
+        '''
+        # Creates another user
+        other_user = User.objects.create(
+            username='Unauthorized',
+            email='not@authorised.com'
+        )
+
+        # Creates a Sample which belongs to the other user
+        sample_name = 'Sample Test'
+        Sample.objects.create(
+            name=sample_name,
+            file=self.test_file,
+            user=other_user
+        )
+        sample_id = Sample.objects.get(name=sample_name).id
+
+        # Login
+        headers = _login_user_and_get_token(self)   
+
+        # Cannot patch Sample if not from user
+        response = self.client.patch(ROUTE_SAMPLE_PATCH_DELETE.format(sample_id), **headers)
+        json_response = json.loads(response.content)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(json_response['detail'], 'Sample does not belong to the user.')
+
+        # Cannot delete Sample if not from user
+        response = self.client.delete(ROUTE_SAMPLE_PATCH_DELETE.format(sample_id), **headers)
+        json_response = json.loads(response.content)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(json_response['detail'], 'Sample does not belong to the user.')
+
 
 class DownloadSampleTest(TestCase):
     '''
-    Download Samples unit testing
+    Download Sample unit testing
     '''
-
     def setUp(self):
         settings.MEDIA_ROOT = tempfile.mkdtemp()
 
@@ -367,48 +614,89 @@ class DownloadSampleTest(TestCase):
 
         self.user = _create_test_user()
 
-    @tag('download_sample_count')
-    def test_download_sample_count(self):
+        self.test_file = './safm_api/test/Test_Sample.wav'
+
+    @tag('download_sample')
+    def test_download_sample(self):
+        '''
+        Checks that downloading a sample file returns an audio file.
+        '''
+         # Login
+        headers = _login_user_and_get_token(self)
+        # Creates a Sample
+        with open(self.test_file, 'rb') as f:    
+            response = self.client.post(ROUTE_SAMPLE_GET, {
+                'name': 'Download_Count',
+                'file': f
+            }, **headers)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        sample_id = json.loads(response.content)['id']
+
+        response = self.client.get(ROUTE_SAMPLE_FILE_DOWNLOAD.format(sample_id))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('audio', response['content-type'])
+
+    @tag('download_sample_count_property')
+    def test_download_sample_count_property(self):
+        '''
+        Checks that the Sample number_downloads property is correct
+        based on the number of times it is downloaded.
+        '''
+        # Login
+        headers = _login_user_and_get_token(self)
+        # Creates a Sample
+        with open(self.test_file, 'rb') as f:    
+            response = self.client.post(ROUTE_SAMPLE_GET, {
+                'name': 'Download_Count',
+                'file': f
+            }, **headers)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        sample_id = json.loads(response.content)['id']
+
+        count = 5
+        for i in range(0, count):
+            # Increments the number_downloads property (manual download by a user)
+            self.client.get(ROUTE_SAMPLE_FILE_DOWNLOAD.format(sample_id))
+
+        sample = Sample.objects.get(pk=sample_id)
+        self.assertEqual(sample.number_downloads, count)
+
+        for i in range(0, count):
+            # Does not increment the number_downloads property (automatic download for a waveform)
+            self.client.get('/api/sample/file/{0}/0'.format(sample_id))
+
+        sample = Sample.objects.get(pk=sample_id)
+        # number_downloads property still the same
+        self.assertEqual(sample.number_downloads, count)
+
+    @tag('download_sample_user_is_authenticated')
+    def test_download_sample_user_is_authenticated(self):
         '''
         Checks that the UserSampleDownload model is correctly created when
         an authenticated user downloads a Sample.
         '''
-        # Creates a Sample model (in order to create a file in the media directory)
-        file = SimpleUploadedFile('test.wav', b'This is the file content.')
-        sample = Sample(
-            user=self.user,
-            name='Sample_Test',
-            file=file
-        )
-        sample.save()
-
         # Login
-        loginResponse = self.client.post('/api/login', { 'username': USERNAME, 'password': PASSWORD })
-        self.assertEqual(200, loginResponse.status_code)
-        token = json.loads(loginResponse.content)['token']
+        headers = _login_user_and_get_token(self)
+        # Creates a Sample
+        with open(self.test_file, 'rb') as f:    
+            response = self.client.post(ROUTE_SAMPLE_GET, {
+                'name': 'User_Sample_Downloads',
+                'file': f
+            }, **headers)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        sample_id = json.loads(response.content)['id']
 
-        headers = {
-            'HTTP_AUTHORIZATION': 'Token ' + token
-        }
+        # Does not create a UserSampleDownload model if the user is not authenticated
+        self.client.get(ROUTE_SAMPLE_FILE_DOWNLOAD.format(sample_id))
+        user_downloads = UserSampleDownload.objects.all()
+        # There is still no UserSampleDownload model
+        self.assertEqual(len(user_downloads), 0)
 
-
-        # TODO: problem with the /api/sample_file API route
+        # Creates a UserSampleDownload model if the user is authenticated when downloading a sample file
+        self.client.get(ROUTE_SAMPLE_FILE_DOWNLOAD.format(sample_id), **headers)
+        user_downloads = UserSampleDownload.objects.all()
+        self.assertEqual(len(user_downloads), 1)
         
-
-        # Creates a UserSampleDownload model if the user is authenticated
-        # when downloading a sample file
-        '''
-        self.client.get('/api/sample_file/1/1', **headers)
-        user_downloads = UserSampleDownload.objects.all()
-        self.assertEqual(len(user_downloads), 1)
-
-        # Does not create a UserSampleDownload model if not authenticated
-        self.client.get('/api/sample_file/1/1')
-        user_downloads = UserSampleDownload.objects.all()
-        # There are still len(self.samples) UserSampleDownload models
-        self.assertEqual(len(user_downloads), 1)
-        '''
-
 
 class UserProfileTest(TestCase):
     '''
@@ -417,27 +705,205 @@ class UserProfileTest(TestCase):
     def setUp(self):
         settings.MEDIA_ROOT = tempfile.mkdtemp()
 
+        self.client = Client()
+
         self.user = _create_test_user()
+
+    def _clear_user_directory(self):
+        '''
+        Removes the user directory in order to avoid file name problems when
+        running all the tests.
+        '''
+        path_user_directoy = os.path.join(settings.MEDIA_ROOT, 'users/{0}'.format(self.user.id))
+        if os.path.exists(path_user_directoy):
+            shutil.rmtree(path_user_directoy)
 
     @tag('user_profile_creation')
     def test_user_profile_creation(self):
         '''
         Checks that the filename of an uploaded profile picture is correctly converted.
         '''
-        file = SimpleUploadedFile('test.jpg', b'This is the file content.')
+        self._clear_user_directory()
 
-        user_profile = UserProfile(
+        file = SimpleUploadedFile('test_user_profile_creation.jpg', b'This is the file content.')
+        UserProfile.objects.create(
             user=self.user,
             description='This is a random description.',
             profile_picture=file,
             email_public=True
         )
-        user_profile.save()
 
         user_profile = UserProfile.objects.get(user=self.user)
         expected_filename = 'users/{0}/pp.jpg'.format(self.user.id)
         self.assertEqual(user_profile.profile_picture, expected_filename)
+
+    @tag('user_profile_patch')
+    def test_user_profile_patch(self):
+        '''
+        Checks that a user profile is correctly patched.
+        '''
+
+        # FIXME: NOT WORKING IN CI
+
+        self._clear_user_directory()
+        '''
+        # Login
+        headers = _login_user_and_get_token(self)
+        UserProfile.objects.create(user=self.user)
+
+        api_client = APIClient()
+        # Cannot patch UserProfile if user is not authenticated
+        response = api_client.patch(ROUTE_USER_PROFILE.format(self.user.id))
+        json_response = json.loads(response.content)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(json_response['detail'], NOT_AUTHENTICATED)
+
+        # Cannot patch UserProfile if not from user
+        other_user = User.objects.create(
+            username='Unauthorized',
+            email='not@authorised.com'
+        )
+        UserProfile.objects.create(user=other_user)
+        response = api_client.patch(ROUTE_USER_PROFILE.format(other_user.id), **headers)
+        json_response = json.loads(response.content)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(json_response['detail'], 'Profile does not belong to the user.')
+
+        # UserProfile patch
+        new_description = 'This is a new profile description.'
+        response = api_client.patch(ROUTE_USER_PROFILE.format(self.user.id), {
+            'description': new_description,
+            'email_public': False
+        }, **headers)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        patched_profile = UserProfile.objects.get(pk=self.user.id)
+        self.assertEqual(patched_profile.description, new_description)
+        self.assertEqual(patched_profile.email_public, False)
+        '''
+
+    @tag('user_profile_picture_download')
+    def test_user_profile_picture_download(self):
+        '''
+        Checks that downloading a user profile picture returns an image.
+        '''
+
+        # FIXME: NOT WORKING IN CI
+
+        self._clear_user_directory()
+
+        '''
+        file = SimpleUploadedFile('test_user_profile_picture_download.jpg', b'This is the file content.')
+        UserProfile.objects.create(
+            user=self.user,
+            profile_picture=file
+        )
+
+        response = self.client.get('/api/user/picture/{0}'.format(self.user.id))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('image', response['content-type'])
+        '''
+
+
+class UserSamplesTest(TestCase):
+    '''
+    User Samples unit testing
+    '''
+    fixtures = ['users.json', 'samples.json', 'tags.json']
+
+    def setUp(self):
+        settings.MEDIA_ROOT = tempfile.mkdtemp()
+
+        self.client = Client()
+
+        # Reads the users fixture file
+        with open('./safm_api/fixtures/users.json') as json_users:
+            self.users = json.load(json_users)
+
+        # Reads the samples fixture file
+        with open('./safm_api/fixtures/samples.json') as json_samples:
+            self.samples = json.load(json_samples)
+
+    @tag('user_samples')
+    def test_user_samples(self):
+        '''
+        Checks wether the user/samples route returns the user samples.
+        '''
+        for user in self.users:
+            user_id = user['pk']
+            response = self.client.get('/api/user/samples/{0}'.format(user_id))
+            user_samples = json.loads(response.content)
+
+            user_samples_names = []
+            for user_sample in user_samples:
+                user_samples_names.append(user_sample['name'])
             
+            for sample in self.samples:
+                sample_name = sample['fields']['name']
+                self.assertIn(sample_name, user_samples_names)
+
+    @tag('user_samples_count')
+    def test_user_samples_count(self):
+        '''
+        Checks wether the user/samples/count route returns the correct
+        number of samples based on the user.
+        '''
+        for user in self.users:
+            user_id = user['pk']
+            count = 0
+
+            for sample in self.samples:
+                if sample['fields']['user'] == user_id:
+                    count += 1
+
+            response = self.client.get('/api/user/samples/count/{0}'.format(user_id))
+            samples_count = json.loads(response.content)['count']
+            self.assertEqual(samples_count, count)
+            
+
+class UserEmailTest(TestCase):
+    '''
+    User get email unit testing
+    '''
+    
+    def setUp(self):
+        settings.MEDIA_ROOT = tempfile.mkdtemp()
+
+        self.client = Client()
+
+        self.user = _create_test_user()
+
+        self.profile = UserProfile.objects.create(user=self.user)
+
+    @tag('get_user_email')
+    def test_get_user_email(self):
+        # By default, email_public is False
+        user_id = self.user.id
+        response = self.client.get(ROUTE_USER_EMAIL.format(user_id))
+        self.assertEqual(type(response), HttpResponseNotFound)
+
+        # Sets email_public to True
+        self.profile.email_public = True
+        self.profile.save()
+        response = self.client.get(ROUTE_USER_EMAIL.format(user_id))
+        json_response = json.loads(response.content)
+        self.assertEqual(json_response['email'], self.user.email)
+
+    @tag('get_authenticated_user_email')
+    def test_get_authenticated_user_email(self):
+
+        # FIXME: NOT WORKING IN CI
+
+        # Login
+        headers = _login_user_and_get_token(self)
+        '''
+        response = self.client.get(ROUTE_USER_EMAIL.format(self.user.id), **headers)
+        print(response.content)
+        json_response = json.loads(response.content)
+        print(json_response)
+        self.assertEqual(json_response['email'], self.user.email)
+        '''
+
 
 class QuickSearchTest(TestCase):
     '''
@@ -509,10 +975,10 @@ class QuickSearchTest(TestCase):
 
         for search_query in [USERNAME, '130', 'techno']:
             response = self.client.get('/api/quick?search=' + search_query)
-            jsonResponse = json.loads(response.content)
+            json_response = json.loads(response.content)
 
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(len(jsonResponse), results_len_from_fixtures(search_query))
+            self.assertEqual(len(json_response), results_len_from_fixtures(search_query))
 
     @tag('quick_search_no_results')
     def test_quick_search_no_results(self):
@@ -521,10 +987,11 @@ class QuickSearchTest(TestCase):
         search query matches no sample.
         '''
         response = self.client.get('/api/quick?search=whoistheafterking')
-        jsonResponse = json.loads(response.content)
+        json_response = json.loads(response.content)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(jsonResponse), 0)
+        self.assertEqual(len(json_response), 0)
+
 
 class AdvancedSearchTest(TestCase):
     '''
@@ -562,10 +1029,10 @@ class AdvancedSearchTest(TestCase):
             
             url = '/api/ad_search?name__icontains={0}'.format(n)
             response = self.client.get(url)
-            jsonResponse = json.loads(response.content)
+            json_response = json.loads(response.content)
 
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(len(jsonResponse), count)
+            self.assertEqual(len(json_response), count)
 
     @tag('advanced_search_username')
     def test_advanced_search_username(self):
@@ -583,10 +1050,10 @@ class AdvancedSearchTest(TestCase):
 
             url = '/api/ad_search?user__username__icontains={0}'.format(username)
             response = self.client.get(url)
-            jsonResponse = json.loads(response.content)
+            json_response = json.loads(response.content)
 
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(len(jsonResponse), count)
+            self.assertEqual(len(json_response), count)
 
     @tag('advanced_search_duration')
     def test_advanced_search_duration(self):
@@ -605,10 +1072,10 @@ class AdvancedSearchTest(TestCase):
         
         url = '/api/ad_search?duration__lte={0}&duration__gte={1}'.format(duration__lte, duration__gte)
         response = self.client.get(url)
-        jsonResponse = json.loads(response.content)
+        json_response = json.loads(response.content)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(jsonResponse), count)
+        self.assertEqual(len(json_response), count)
 
     @tag('advanced_search_tempo')
     def test_advanced_search_tempo(self):
@@ -627,10 +1094,10 @@ class AdvancedSearchTest(TestCase):
         
         url = '/api/ad_search?tempo__lte={0}&tempo__gte={1}'.format(tempo__lte, tempo__gte)
         response = self.client.get(url)
-        jsonResponse = json.loads(response.content)
+        json_response = json.loads(response.content)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(jsonResponse), count)
+        self.assertEqual(len(json_response), count)
 
     @tag('advanced_search_key')
     def test_advanced_search_key(self):
@@ -648,10 +1115,10 @@ class AdvancedSearchTest(TestCase):
 
             url = '/api/ad_search?key={0}'.format(k)
             response = self.client.get(url)
-            jsonResponse = json.loads(response.content)
+            json_response = json.loads(response.content)
 
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(len(jsonResponse), count)
+            self.assertEqual(len(json_response), count)
 
     @tag('advanced_search_mode')
     def test_advanced_search_mode(self):
@@ -670,11 +1137,86 @@ class AdvancedSearchTest(TestCase):
 
             url = '/api/ad_search?mode={0}'.format(m)
             response = self.client.get(url)
-            jsonResponse = json.loads(response.content)
+            json_response = json.loads(response.content)
 
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(len(jsonResponse), count)
+            self.assertEqual(len(json_response), count)
         
 
     # TODO: tags advanced search test ; depends on AND or OR condition
-    
+
+
+class SampleLikeTest(TestCase):
+    '''
+    SampleLike model unit testing
+    '''
+    def setUp(self):
+        settings.MEDIA_ROOT = tempfile.mkdtemp()
+
+        self.client = Client()
+
+        self.user = _create_test_user()
+
+        self.test_file = './safm_api/test/Test_Sample.wav'
+            
+    @tag('sample_like_requires_authentication')
+    def test_sample_like_requires_authentication(self):
+        # Createa a Sample
+        sample = Sample.objects.create(
+            name='Test Sample',
+            file=self.test_file
+        )
+
+        response = self.client.post('/api/sample/like/{0}'.format(sample.id))
+        json_response = json.loads(response.content)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertIn('Authentication credentials were not provided.', json_response['detail'])
+
+    @tag('sample_like_not_found')
+    def test_sample_like_not_found(self):
+        # Login
+        headers = _login_user_and_get_token(self)
+        response = self.client.post('/api/sample/like/999', **headers)
+        json_response = json.loads(response.content)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('Sample not found.', json_response['detail'])
+
+    @tag('sample_like')
+    def test_sample_like(self):
+        # Login
+        headers = _login_user_and_get_token(self)
+
+        # Creates a Sample
+        sample = Sample.objects.create(
+            name='Test Sample',
+            file=self.test_file,
+            user=self.user
+        )
+
+        # No Sample likes
+        response = self.client.get('/api/user/samples/likes', **headers)
+        json_response = json.loads(response.content)
+        self.assertEqual(len(json_response), 0)
+
+        # Like a Sample
+        response = self.client.post('/api/sample/like/{0}'.format(sample.id), **headers)
+        json_response = json.loads(response.content)
+        self.assertIn('This sample is added to your likes.', json_response['detail'])
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        sample_like = SampleLike.objects.filter(user=self.user).get()
+        self.assertEqual(sample_like.sample, sample)
+
+        response = self.client.get('/api/user/samples/likes', **headers)
+        json_response = json.loads(response.content)
+        self.assertEqual(len(json_response), 1)
+
+        # Dislike a Sample
+        response = self.client.delete('/api/sample/like/{0}'.format(sample.id), **headers)
+        json_response = json.loads(response.content)
+        self.assertIn('This sample is removed from your likes.', json_response['detail'])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.client.get('/api/user/samples/likes', **headers)
+        json_response = json.loads(response.content)
+        self.assertEqual(len(json_response), 0)
