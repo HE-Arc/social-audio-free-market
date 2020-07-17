@@ -748,8 +748,9 @@ class UserProfileTest(TestCase):
         headers = _login_user_and_get_token(self)
         UserProfile.objects.create(user=self.user)
 
+        api_client = APIClient()
         # Cannot patch UserProfile if user is not authenticated
-        response = self.client.patch(ROUTE_USER_PROFILE.format(self.user.id))
+        response = api_client.patch(ROUTE_USER_PROFILE.format(self.user.id))
         json_response = json.loads(response.content)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(json_response['detail'], NOT_AUTHENTICATED)
@@ -760,15 +761,14 @@ class UserProfileTest(TestCase):
             email='not@authorised.com'
         )
         UserProfile.objects.create(user=other_user)
-        response = self.client.patch(ROUTE_USER_PROFILE.format(other_user.id), **headers)
+        response = api_client.patch(ROUTE_USER_PROFILE.format(other_user.id), **headers)
         json_response = json.loads(response.content)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(json_response['detail'], 'Profile does not belong to the user.')
 
         # UserProfile patch
         new_description = 'This is a new profile description.'
-        client = APIClient()
-        response = client.patch(ROUTE_USER_PROFILE.format(self.user.id), {
+        response = api_client.patch(ROUTE_USER_PROFILE.format(self.user.id), {
             'description': new_description,
             'email_public': False
         }, **headers)
@@ -790,7 +790,7 @@ class UserProfileTest(TestCase):
             user=self.user,
             profile_picture=file
         )
-        
+
         response = self.client.get('/api/user/picture/{0}'.format(self.user.id))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('image', response['content-type'])
@@ -885,7 +885,9 @@ class UserEmailTest(TestCase):
         # Login
         headers = _login_user_and_get_token(self)
         response = self.client.get(ROUTE_USER_EMAIL.format(self.user.id), **headers)
+        print(response.content)
         json_response = json.loads(response.content)
+        print(json_response)
         self.assertEqual(json_response['email'], self.user.email)
 
 
