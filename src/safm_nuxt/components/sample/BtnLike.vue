@@ -35,13 +35,11 @@ export default {
 
     methods: {
         async loadLikeState () {
-            if (this.$store.state.user) {
-                try {
-                    const response = await this.$axios.$get(`/sample/like/${this.sampleId}`)
-                    this.liked = response.liked
-                } catch (e) {
-                    this.$nuxt.$emit('snackbar', 'An error occured')
-                }
+            try {
+                const response = await this.$axios.$get(`/sample/like/${this.sampleId}`)
+                this.liked = response.liked
+            } catch (e) {
+                this.$nuxt.$emit('snackbar', 'An error occured')
             }
         },
 

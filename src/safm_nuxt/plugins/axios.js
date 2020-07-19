@@ -1,10 +1,13 @@
 
 export default function ({ $axios, store }, inject) {
-    // On Request event
-    $axios.onRequest(() => {
-        if (store.state.auth) {
-            $axios.setHeader('Authorization', `Token ${store.state.auth}`)
+    // Adds the authentication token to each Axios request if present in the store
+    $axios.interceptors.request.use(request => {
+        const token = store.state.auth
+        if (token) {
+            request.headers.common['Authorization'] = `Token ${token}`
         }
+        
+        return request
     })
 
     // Converts an array of errors into a String
