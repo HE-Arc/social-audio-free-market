@@ -108,7 +108,7 @@ export default {
                 // Images
                 {
                     urlPattern: `${API_BASE_URL}/user/picture/*`,
-                    handler: 'cacheFirst',
+                    handler: 'networkFirst',
                     method: 'GET',
                     strategyOptions: { cacheName: 'images', cacheableResponse: { statuses: [0, 200] } }
                 }
