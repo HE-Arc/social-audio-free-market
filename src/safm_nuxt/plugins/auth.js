@@ -23,7 +23,7 @@ export default ({ store, $axios }, inject) => {
     })
 
     // Removes the user authentication information
-    inject('deleteUserCredentials', async () => {
+    inject('deleteUserCredentials', () => {
         store.commit('setAuth', null)
         Cookie.remove('auth')
         store.commit('setUser', null)
