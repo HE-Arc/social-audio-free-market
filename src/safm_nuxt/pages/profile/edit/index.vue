@@ -183,7 +183,7 @@ export default {
     
     data () {
         return {
-            profile_picture: [],
+            profile_picture: null,
             description: '',
             email_public: '',
             loadingProfile: false,
@@ -302,7 +302,7 @@ export default {
                 this.loadingProfile = true
 
                 let body = new FormData()
-
+                
                 if (this.profile_picture) {
                     body.append('profile_picture', this.profile_picture)
                 }
@@ -322,6 +322,11 @@ export default {
                 }
 
                 this.loadingProfile = false
+
+                // Refreshes the page to get the new image
+                if (this.profile_picture) {
+                    this.$router.go(this.$nuxt.$route.path)
+                }
             }
         },
 

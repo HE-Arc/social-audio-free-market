@@ -54,8 +54,8 @@ export const mutations = {
 export const actions = {
     nuxtServerInit ({ commit }, { req }) {
         let auth = null
-        let userid = ''
-        let username = ''
+        let userid = null
+        let username = null
 
         if (req && req.headers.cookie) {
             const parsed = cookieparser.parse(req.headers.cookie)

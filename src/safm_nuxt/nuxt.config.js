@@ -111,6 +111,20 @@ export default {
                     handler: 'networkFirst',
                     method: 'GET',
                     strategyOptions: { cacheName: 'images', cacheableResponse: { statuses: [0, 200] } }
+                },
+                // Fonts
+                {
+                    urlPattern: 'https://fonts.googleapis.com/*',
+                    handler: 'cacheFirst',
+                    method: 'GET',
+                    strategyOptions: { cacheName: 'fonts', cacheableResponse: { statuses: [0, 200] } }
+                },
+                // Icons
+                {
+                    urlPattern: 'https://cdn.jsdelivr.net/*',
+                    handler: 'cacheFirst',
+                    method: 'GET',
+                    strategyOptions: { cacheName: 'icons', cacheableResponse: { statuses: [0, 200] } }
                 }
             ]
         }

@@ -15,7 +15,8 @@ export default {
 
     data () {
         return {
-            isPlaying: false
+            isPlaying: false,
+            repeat: false
         }
     },
 
@@ -39,8 +40,15 @@ export default {
 
         // On Sample Pause event
         this.$nuxt.$on('samplePause', (id) => {
-            if (id == this.sampleId) {
+            if (id == this.sampleId && !this.repeat) {
                 this.isPlaying = false
+            }
+        })
+
+        // On Sample Repeat event
+        this.$nuxt.$on('sampleRepeat', (sampleId) => {
+            if (this.sampleId == sampleId) {
+                this.repeat = !this.repeat
             }
         })
     },

@@ -28,7 +28,7 @@ export default {
     },
 
     mounted () {
-        if (this.$store.state.user) {
+        if (this.$store.state.auth) {
             this.loadLikeState()
         }
     },
@@ -47,7 +47,7 @@ export default {
             if (!this.loading) {
                 this.loading = true
 
-                if (this.$store.state.user) {
+                if (this.$store.state.auth) {
                     this.liked = !this.liked
 
                     try {

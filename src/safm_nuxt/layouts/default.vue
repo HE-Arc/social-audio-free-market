@@ -193,7 +193,12 @@ export default {
             try {
                 await this.$axios.post('/logout')
                 this.$deleteUserCredentials()
+
                 this.$nuxt.$emit('snackbar', 'Successfully logged out !')
+
+                // Refreshes the current page
+                // This avoids staying on a protected page when not logged in
+                this.$router.go(this.$nuxt.$route.path)
             } catch (e) {
                 this.$nuxt.$emit('snackbar', 'An error occured')
             }
