@@ -51,6 +51,11 @@ export default {
                 this.repeat = !this.repeat
             }
         })
+
+        // On Stop All event
+        this.$nuxt.$on('sampleStopAll', () => {
+            this.isPlaying = false
+        })
     },
 
     methods: {
