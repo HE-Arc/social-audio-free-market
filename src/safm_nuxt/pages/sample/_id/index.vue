@@ -67,17 +67,32 @@
                     >
                         <v-card>
                             <v-card-actions>
-                                <v-row class="text-center headline">
+                                <v-row :class="`text-center ${this.propertySize}`">
                                     <v-col cols="4">
-                                        <v-icon large class="mr-2">mdi-metronome</v-icon>
+                                        <v-icon
+                                            :large="large"
+                                            :class="iconMr"
+                                        >
+                                            mdi-metronome
+                                        </v-icon>
                                         {{ sample.tempo }}
                                     </v-col>
                                     <v-col cols="4">
-                                        <v-icon large class="mr-2">mdi-timer-outline</v-icon>
+                                        <v-icon
+                                            :large="large"
+                                            :class="iconMr"
+                                        >
+                                            mdi-timer-outline
+                                        </v-icon>
                                         {{ sample.duration }}s
                                     </v-col>
                                     <v-col cols="4">
-                                        <v-icon large class="mr-2">mdi-music-circle-outline</v-icon>
+                                        <v-icon
+                                            :large="large"
+                                            :class="iconMr"
+                                        >
+                                            mdi-music-circle-outline
+                                        </v-icon>
                                         {{ keyMode }}
                                     </v-col>
                                 </v-row>
@@ -151,6 +166,36 @@ export default {
             return `${this.$axios.defaults.baseURL}/user/picture/${this.userId}`
         },
 
+        large () {
+            switch (this.$vuetify.breakpoint.name) {
+            case 'xs': return false
+            case 'sm': return false
+            case 'md': return true
+            case 'lg': return true
+            case 'xl': return true
+            }
+        },
+
+        iconMr () {
+            switch (this.$vuetify.breakpoint.name) {
+            case 'xs': return 'mr-1'
+            case 'sm': return 'mr-1'
+            case 'md': return 'mr-2'
+            case 'lg': return 'mr-2'
+            case 'xl': return 'mr-2'
+            }
+        },
+
+        propertySize () {
+            switch (this.$vuetify.breakpoint.name) {
+            case 'xs': return 'title'
+            case 'sm': return 'title'
+            case 'md': return 'headline'
+            case 'lg': return 'headline'
+            case 'xl': return 'headline'
+            }
+        },
+        
         keyMode () {
             if (this.sample.key != ' ' || this.sample.mode != ' ') {
                 return this.sample.key + (this.sample.mode == 'min' ? 'm' : this.sample.mode == 'maj' ? 'M' : '')

@@ -7,7 +7,7 @@
         top
         right
         :to="`/sample/edit/${this.sampleId}`"
-        :class="`mt-${this.bigMargin ? '16' : '1'}`"
+        :class="`mt-${this.bigMargin ? this.bigMarginValue : '1'}`"
     >
         <v-icon>mdi-pencil</v-icon>
     </v-btn>
@@ -30,6 +30,16 @@ export default {
             }
             
             return false
+        },
+
+        bigMarginValue () {
+            switch (this.$vuetify.breakpoint.name) {
+            case 'xs': return 12
+            case 'sm': return 14
+            case 'md': return 16
+            case 'lg': return 16
+            case 'xl': return 16
+            }
         }
     }
 }
