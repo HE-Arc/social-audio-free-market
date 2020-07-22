@@ -21,6 +21,10 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: ${{ matrix.python-version }}
+    - name: Install Linux packages
+      run: |
+        sudo apt-get install libsndfile-dev
+        sudo apt-get install sox
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
