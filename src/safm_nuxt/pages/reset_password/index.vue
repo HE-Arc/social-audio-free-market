@@ -88,8 +88,7 @@ export default {
                             this.$nuxt.$emit('snackbar', 'An email has been sent to you')
                             this.email = ''
                             // Redirects to the home page
-                            //FIXME: Not working ; causes an infinite loop
-                            //this.$router.push('/')
+                            this.$router.push('/')
                         } else {
                             this.$nuxt.$emit('snackbar', 'An error occured')
                         }

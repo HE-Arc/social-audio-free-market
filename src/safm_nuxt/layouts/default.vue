@@ -165,7 +165,6 @@ export default {
 
     methods: {
         home () {
-            //FIXME: Not working ; causes an infinite loop
             this.$router.push('/')
         },
 
