@@ -140,7 +140,7 @@
 import WaveForm from '~/components/WaveForm.vue'
 import SampleActions from '~/components/sample/SampleActions.vue'
 import BtnEdit from '~/components/sample/BtnEdit.vue'
-import SampleForkContainer from '~/components/SampleForkContainer.vue'
+import SampleForkContainer from '~/components/sample/SampleForkContainer.vue'
 
 export default {
     components: {

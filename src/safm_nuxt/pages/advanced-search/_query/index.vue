@@ -16,7 +16,7 @@
 
 <script>
 import AdvancedSearch from '~/components/AdvancedSearch.vue'
-import SampleList from '~/components/SampleList.vue'
+import SampleList from '~/components/sample/SampleList.vue'
 
 export default {
     components: {

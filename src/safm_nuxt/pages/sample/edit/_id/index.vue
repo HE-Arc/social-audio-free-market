@@ -111,7 +111,7 @@
 
 <script>
 import TagsField from '~/components/sample/TagsField'
-import SampleFork from '~/components/SampleFork.vue'
+import SampleFork from '~/components/sample/SampleFork.vue'
 import SearchSampleFork from '~/components/sample/SearchSampleFork.vue'
 
 export default {

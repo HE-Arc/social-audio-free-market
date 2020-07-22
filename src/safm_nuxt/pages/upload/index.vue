@@ -93,7 +93,7 @@
 import { validationMixin } from 'vuelidate'
 import { required } from 'vuelidate/lib/validators'
 import TagsField from '~/components/sample/TagsField'
-import SampleFork from '~/components/SampleFork.vue'
+import SampleFork from '~/components/sample/SampleFork.vue'
 
 export default {
     middleware: 'authenticated',

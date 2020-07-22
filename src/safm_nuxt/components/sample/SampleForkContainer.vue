@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import SampleFork from '~/components/SampleFork.vue'
+import SampleFork from '~/components/sample/SampleFork.vue'
 
 export default {
     components: {
