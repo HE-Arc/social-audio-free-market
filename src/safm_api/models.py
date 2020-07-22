@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 import os
-import wave
+import audiofile as af
 import numpy as np
 from aubio import source, tempo
 
@@ -52,18 +52,14 @@ class Sample(models.Model):
     forks = models.ManyToManyField('self', related_name='forks_to', symmetrical=False)
 
     def deduce_properties(self):
-        frames = 0
-        rate = 0
-        with wave.open(self.file, 'rb') as f:
-            frames = f.getnframes()
-            rate = f.getframerate()
+        # Audio file duration
+        self.duration = af.duration(self.file.path)
         
-        self._deduce_duration(frames, rate)
+        # Audio file sampling rate
+        rate = af.sampling_rate(self.file.path)
         self._deduce_tempo(rate)
-        self.save()
 
-    def _deduce_duration(self, frames, rate):
-        self.duration = frames / float(rate)
+        self.save()
 
     def _deduce_tempo(self, rate):
         win_s, hop_s = 1024, 512

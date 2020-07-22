@@ -259,7 +259,7 @@ class SampleView(generics.GenericAPIView):
         '''
         Adds the Sample fork relations - based on the request - to the given Sample.
         '''
-        forks_str = re.escape(request.data.get('forks_from', ''))
+        forks_str = re.escape(request.data.get('forks_from', '')).replace('\\', '') # re.escape can add backslashes in Python < 3.7
         forks_list = list(filter(self.regex_forks.match, [fork.strip() for fork in forks_str.split(',')]))
 
         for fork_id in forks_list:
@@ -301,7 +301,7 @@ class SampleFile(APIView):
 
 class ListLastUploadedSamples(generics.ListAPIView):
     serializer_class = SampleSerializer
-    limit = 6 # Number of Samples to return
+    limit = 8 # Number of Samples to return
 
     def get_queryset(self):
         return Sample.objects.order_by('-datetime_upload')[:self.limit]
