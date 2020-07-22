@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import SampleList from '~/components/SampleList.vue'
+import SampleList from '~/components/sample/SampleList.vue'
 
 export default {
     components: {

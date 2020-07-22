@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import SampleCard from '~/components/SampleCard.vue'
+import SampleCard from '~/components/sample/SampleCard.vue'
 
 export default {
     components: {

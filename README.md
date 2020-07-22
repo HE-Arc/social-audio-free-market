@@ -10,6 +10,15 @@ You can visit the master version of the project [here](https://safmarket.srvz-we
 
 ## Installation
 
+### Linux packages
+
+```
+sudo apt-get install libavcodec-dev libavformat-dev libavutil-dev libswresample-dev
+sudo apt-get install sox
+sudo apt-get install ffmpeg
+sudo apt-get install mediainfo
+```
+
 ### Backend
 
 First, you need to add a file for your local settings in *src/safm/settings/local_settings.py*. This file is ignored by Git and allows you to overwrite some configurations for you development environment :

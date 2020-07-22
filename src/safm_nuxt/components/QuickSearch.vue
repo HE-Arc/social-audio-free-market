@@ -72,6 +72,7 @@ export default {
     methods: {
         quickSearch () {
             if (this.quickSearchInput.length > 0) {
+                this.quickSearchInput = this.quickSearchInput.replace(/,/g, '.')
                 this.dialog = false
                 this.$router.push(`/quick-search/${this.quickSearchInput}`)
                 this.quickSearchInput = ''
