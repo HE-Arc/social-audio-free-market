@@ -142,8 +142,7 @@ export default {
                             this.password = ''
                             this.password_confirm = ''
                             // Redirects to the home page
-                            //FIXME: Not working ; causes an infinite loop
-                            //this.$router.push('/')
+                            this.$router.push('/')
                         } else {
                             this.$nuxt.$emit('snackbar', 'An error occured')
                         }

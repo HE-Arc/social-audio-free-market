@@ -224,8 +224,6 @@ export default {
             }
 
             this.saveState()
-
-            //FIXME: How to preserve the form inputs values ?
             this.$router.push(`/advanced-search/${params}`)
         },
 
