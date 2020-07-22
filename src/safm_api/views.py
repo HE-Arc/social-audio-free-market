@@ -1,4 +1,4 @@
-import os, re, mimetypes, smtplib
+import os, re, mimetypes
 from django.conf import settings
 from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
 from rest_framework import filters, generics
