@@ -82,6 +82,9 @@ export default {
 </script>
 
 <style scoped>
+a {
+    text-decoration: none;
+}
 .sample-fork {
     background: #1c1c1c;
     border-radius: 5px;

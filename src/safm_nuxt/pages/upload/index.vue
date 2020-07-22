@@ -66,6 +66,7 @@
                                 :id="downloaded.sample.id"
                                 :name="downloaded.sample.name"
                                 :username="downloaded.sample.user.username"
+                                :userId="downloaded.sample.user.id"
                                 :datetime_download="downloaded.datetime_download"
                                 checkbox
                             />

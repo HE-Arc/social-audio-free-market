@@ -72,6 +72,7 @@
                                 :id="fork.id"
                                 :name="fork.name"
                                 :username="fork.user.username"
+                                :userId="fork.user.id"
                                 addable
                             />
                         </v-col>
