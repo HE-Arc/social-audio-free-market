@@ -73,13 +73,16 @@ class LoginSerializer(serializers.Serializer):
     def validate(self, data):
         username = ''
         if 'username' in data:
+            # Login with username
             username = data['username']
         elif 'email' in data:
+            # Login with email address
             try:
                 username = User.objects.get(email=data['email']).username
             except User.DoesNotExist:
                 username = ''
 
+        # Login with the given credentials
         user = authenticate(username=username, password=data['password'])
 
         if user:
@@ -109,6 +112,7 @@ class SampleSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         sample = Sample.objects.create(**validated_data)
 
+        # Automatically deducted properties
         sample.deduce_properties()
         sample.save()
 

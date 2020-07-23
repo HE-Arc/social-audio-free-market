@@ -327,6 +327,7 @@ class UserDownloads(APIView):
 
     def get(self, request):
         user = request.user
+        # From most recent to oldest
         user_downloads = UserSampleDownload.objects.filter(user=user).order_by('-datetime_download')
         user_downloads_serializer = UserDownloadSerializer(user_downloads, many=True)
 
