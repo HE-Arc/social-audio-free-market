@@ -29,6 +29,7 @@ export default {
     async asyncData ({ $axios, error }) {
         try {
             const response = await $axios.$get('/user/samples/likes')
+            
             let likedSamples = []
             for (let sample of response) {
                 likedSamples.push(sample['sample'])

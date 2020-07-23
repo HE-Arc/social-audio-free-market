@@ -3,7 +3,7 @@ import colors from 'vuetify/es5/util/colors'
 const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:8000/api'
 
 export default {
-    mode: process.env.NUXT_APP_MODE || 'universal',
+    mode: 'universal',
     /*
     ** Headers of the page
     */
