@@ -318,20 +318,21 @@ class SampleTest(TestCase):
         '''
         Checks that the filename of an uploaded sample is correctly converted.
         '''
-        filename = self.user.username
-        file = SimpleUploadedFile('test.wav', b'This is the file content.')
+        name = 'Sample_Test_File'
+        filename = 'test.wav'
+        file = SimpleUploadedFile(filename, b'This is the file content.')
 
         sample = Sample(
             user=self.user,
-            name=filename,
+            name=name,
             file=file,
             key=Sample.Key.A,
             mode=Sample.Mode.MAJOR
         )
         sample.save()
         
-        sample = Sample.objects.get(name=filename)
-        expected_filename = 'samples/{0}/{1}.wav'.format(self.user.id, filename)
+        sample = Sample.objects.get(name=name)
+        expected_filename = 'samples/{0}/{1}'.format(self.user.id, filename)
         self.assertEqual(sample.file, expected_filename)
 
     @tag('sample_null_user_delete')

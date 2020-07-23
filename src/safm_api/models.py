@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-import os, unicodedata
+import os
 import audiofile as af
 import numpy as np
 from aubio import source, tempo
@@ -33,10 +33,8 @@ class Sample(models.Model):
         MAJOR = 'maj'
 
     def user_directory_path(instance, filename):
-        # File will be uploaded to MEDIA_ROOT/samples/<username>/<filename>
-        filename = unicodedata.normalize('NFKD', filename).encode('ascii', 'ignore')
-        ext = os.path.splitext(filename)[1]
-        return 'samples/{0}/{1}{2}'.format(instance.user.id, filename, ext)
+        # File will be uploaded to MEDIA_ROOT/samples/<username>/<sample_name>
+        return 'samples/{0}/{1}'.format(instance.user.id, filename)
 
     # Table columns
     user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
