@@ -114,6 +114,7 @@ export default {
 
             let userEmail = ''
             if (profile.email_public) {
+                // Only fetches user email address if public
                 const email = await $axios.$get(`/user/email/${params.id}`)
                 userEmail = email.email
             }

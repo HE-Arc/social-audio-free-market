@@ -72,6 +72,7 @@ export default {
     },
 
     methods: {
+        // Performs a Quick Search
         quickSearch () {
             if (this.quickSearchInput.length > 0) {
                 this.dialog = false
@@ -80,6 +81,7 @@ export default {
             }
         },
 
+        // Goes to the Advanced Search page
         advancedSearch () {
             this.dialog = false
             this.$router.push('/advanced-search')

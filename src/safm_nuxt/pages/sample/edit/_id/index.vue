@@ -149,14 +149,17 @@ export default {
     mounted () {
         // On Tags Field update
         this.$nuxt.$on('updateTagsField', (tagsList) => {
+            // Overrides the tags list
             this.tags = tagsList
         })
 
         // On Fork checkbox change
         this.$nuxt.$on('forkCheckbox', (forkId, selected) => {
             if (selected) {
+                // Adds a fork to the forks list
                 this.forksFromId.push(forkId)
             } else {
+                // Removes a fork from the forks list
                 const index = this.forksFromId.indexOf(forkId)
                 this.forksFromId.splice(index, 1)
             }
@@ -181,6 +184,7 @@ export default {
                     }
 
                     if (forkId > 0) {
+                        // Adds the fork to the fork search results
                         this.searchForkResults.push(fork)
                     }
                 }
@@ -193,8 +197,10 @@ export default {
                 let forkFromId = this.searchForkResults[i].id
 
                 if (forkFromId == id) {
+                    // Adds the fork to the forks list
                     this.forksFrom.push(this.searchForkResults[i])
                     this.forksFromId.push(forkFromId)
+                    // Removes the fork from the fork search results
                     this.searchForkResults.splice(i, 1)
                 }
             }
@@ -206,6 +212,7 @@ export default {
             const sample = await $axios.$get(`/sample/${params.id}`)
             
             if (sample.user.id != store.state.user.id) {
+                // Only the author of a sample can update or delete it
                 error({ statusCode: 401, message: 'Unauthorised to update this sample' })
             }
 
@@ -247,12 +254,14 @@ export default {
     },
 
     methods: {
+        // Updates the sample
         async update () {
             if (!this.loadingUpdate) {
                 this.loadingUpdate = true
 
                 let body = new FormData()
 
+                // Verifications to avoid giving empty values
                 if (this.name) {
                     body.set('name', this.name)
                 }
@@ -278,6 +287,7 @@ export default {
                 }
 
                 try {
+                    // Updates the sample
                     await this.$axios.patch(`/sample/${this.id}`, body)
 
                     this.$nuxt.$emit('snackbar', 'Sample updated !')
@@ -290,11 +300,13 @@ export default {
             }
         },
 
+        // Removes the sample
         async remove () {
             if (!this.loadingRemove) {
                 this.loadingRemove = true
 
                 try {
+                    // Removes the sample
                     const response = await this.$axios.delete(`/sample/${this.id}`)
                     const detail = response.data.detail
 

@@ -134,11 +134,13 @@ export default {
     },
 
     methods: {
+        // Creates an account
         async register () {
             if (!this.loading) {
                 this.$v.$touch()
 
                 if (!this.$v.$anyError) {
+                    // Valid form
                     this.loading = true
 
                     let body = new FormData()
@@ -148,6 +150,7 @@ export default {
                     body.set('password_confirm', this.password_confirm)
 
                     try {
+                        // Creates an account
                         const response = await this.$axios.post('/register', body)
                         const userid = this.$storeUserCredentials(response)
                         this.$nuxt.$emit('snackbar', 'Successful registration !')

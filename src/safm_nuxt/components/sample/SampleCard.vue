@@ -98,6 +98,7 @@ export default {
     computed: {
         canEdit () {
             if (this.$store.state.user) {
+                // Only the author of a sample can edit or delete it
                 return this.userId == this.$store.state.user.id
             }
             
@@ -106,6 +107,7 @@ export default {
 
         keyMode () {
             if (this._key != ' ' || this._mode != ' ') {
+                // Converts the mode into either m or M
                 return this._key + (this._mode == 'min' ? 'm' : this._mode == 'maj' ? 'M' : '')
             }
 

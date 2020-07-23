@@ -21,6 +21,7 @@ export default {
     },
 
     mounted () {
+        // Inits the wavesurfer element
         this.initWaveSurfer()
 
         // On Play Pause Click event
@@ -44,7 +45,9 @@ export default {
     },
 
     methods: {
+        // Inits the wavesurfer element
         initWaveSurfer () {
+            // New wavesurfer instance
             this.wavesurfer = WaveSurfer.create({
                 container: `#waveform-${this.id}`,
                 waveColor: 'violet',
@@ -55,23 +58,24 @@ export default {
                 height: this.height ? this.height : 128
             })
 
-            // Loads the sample audio file
+            // Loads the sample audio file into the wavesurfer instance
             const audioFileUrl = `${this.$axios.defaults.baseURL}/sample/file/${this.id}/0`
             this.wavesurfer.load(audioFileUrl)
 
-            // On play event
+            // On wavesurfer play event
             this.wavesurfer.on('play', () => {
                 this.$nuxt.$emit('samplePlay', this.id)
             })
 
-            // On pause event
+            // On wavesurfer pause event
             this.wavesurfer.on('pause', () => {
                 this.$nuxt.$emit('samplePause', this.id)
             })
 
-            // On finish event
+            // On wavesurfer finish event
             this.wavesurfer.on('finish', () => {
                 if (this.repeat) {
+                    // Replays the audio file if the repeat is enabled
                     this.wavesurfer.play()
                 }
             })

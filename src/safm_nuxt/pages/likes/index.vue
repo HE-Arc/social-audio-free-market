@@ -31,6 +31,7 @@ export default {
             const response = await $axios.$get('/user/samples/likes')
             
             let likedSamples = []
+            // Filters the liked samples id
             for (let sample of response) {
                 likedSamples.push(sample['sample'])
             }

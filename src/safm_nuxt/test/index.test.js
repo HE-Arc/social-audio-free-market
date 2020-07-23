@@ -19,6 +19,7 @@ test.before(async () => {
 
 // Routes exist and render HTML
 test('Application routes exist and render HTML', async (t) => {
+    // Routes that do not require an authentication
     const routes = [
         { route: '/', html: 'SAFMarket' },
         { route: 'advanced-search', html: 'Advanced Search' },
