@@ -111,11 +111,13 @@ export default {
     },
 
     methods: {
+        // Login
         async login () {
             if (!this.loading) {
                 this.$v.$touch()
 
                 if (!this.$v.$anyError) {
+                    // Valid form
                     this.loading = true
 
                     let body = new FormData()
@@ -123,15 +125,19 @@ export default {
                     // Checks wether the usernameEmail field is an email address
                     const re = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/
                     if (re.test(this.usernameEmail)) {
+                        // Login with email address
                         body.set('email', this.usernameEmail)
                     } else {
+                        // Login with username
                         body.set('username', this.usernameEmail)
                     }
 
                     body.set('password', this.password)
 
                     try {
+                        // Login with the entered credentials
                         const response = await this.$axios.post('/login', body)
+                        // Stores the user credentials in the store and the cookies
                         this.$storeUserCredentials(response)
                         this.$nuxt.$emit('snackbar', 'Successfully logged in !')
 

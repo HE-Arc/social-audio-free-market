@@ -27,6 +27,7 @@ export default {
     async asyncData ({ $axios, params, error }) {
         try {
             if (params.query.length > 0) {
+                // Quick Search query based on parameter
                 const samples = await $axios.$get(`/quick?search=${params.query}`)
                 
                 return { samples }

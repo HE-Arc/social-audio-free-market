@@ -70,23 +70,27 @@ export default {
     },
 
     methods: {
+        // Requests a password reset email
         async requestResetPassword () {
             if (!this.loading) {
                 this.$v.$touch()
 
                 if (!this.$v.$anyError) {
+                    // Valid form
                     this.loading = true
 
                     let body = new FormData()
                     body.set('email', this.email)
 
                     try {
+                        // Requests a password reset email
                         const response = await this.$axios.$post('/password_reset/', body)
                         const status = response.status
 
                         if (status == 'OK') {
                             this.$nuxt.$emit('snackbar', 'An email has been sent to you')
                             this.email = ''
+                            
                             // Redirects to the home page
                             this.$router.push('/')
                         } else {

@@ -33,6 +33,7 @@ export default {
     async asyncData ({ $axios, params, error }) {
         try {
             if (params.query && params.query.length > 0) {
+                // Advanced Search query based on params
                 const samples = await $axios.$get(`/ad_search?${params.query}`)
                 
                 return { samples }

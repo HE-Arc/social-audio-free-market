@@ -1,7 +1,7 @@
 const Cookie = process.client ? require('js-cookie') : undefined
 
 export default ({ store, $axios }, inject) => {
-    // Stores the user authentication information
+    // Stores the user authentication credentials
     inject('storeUserCredentials', (response) => {
         const authToken = response.data.token
         const userid = response.data.userid
@@ -22,7 +22,7 @@ export default ({ store, $axios }, inject) => {
         return userid
     })
 
-    // Removes the user authentication information
+    // Removes the user authentication credentials
     inject('deleteUserCredentials', () => {
         store.commit('setAuth', null)
         Cookie.remove('auth')

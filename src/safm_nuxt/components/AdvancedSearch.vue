@@ -143,7 +143,7 @@ export default {
         return {
             // Advanced Search GET request params
             params: {
-                name__icontains: '',   // Sample name
+                name__icontains: '',
                 user__username__icontains: '',
                 duration__gte: 0,
                 duration__lte: 30.0,
@@ -178,38 +178,45 @@ export default {
     },
 
     mounted () {
+        // Gets the Advanced Search form state from the store
         this.restoreState()
 
         // On Tags Field update
         this.$nuxt.$on('updateTagsField', (tagsList) => {
+            // Overrides the tags list
             this.params.tags__name__icontains = tagsList
         })
     },
 
     methods: {
+        // On duration range change
         durationRangeOnChange () {
             this.params.duration__gte = this.durationRange[0]
             this.params.duration__lte = this.durationRange[1]
         },
 
+        // On tempo range change
         tempoRangeOnChange () {
             this.params.tempo__gte = this.tempoRange[0]
             this.params.tempo__lte = this.tempoRange[1]
         },  
 
+        // Performs an Advanced Search
         advancedSearch () {
             let params = ''
 
             for (let [key, value] of Object.entries(this.params)) {
-                // The param has a value
+                // Iterates over the Advanced Search form params and
+                // builds the request GET parameter accordingly
                 if (value) {
-                    // The param is an array
+                    // The param has a value
                     if (typeof(value) === 'object') {
+                        // The param is an array
                         for (let index in value) {
                             params += `${key}=${value[index]}&`
                         }
-                    // The param is an input
                     } else {
+                        // The param is an input
                         params += `${key}=${value}&`
                     }
                 }
@@ -218,21 +225,26 @@ export default {
             // Removes the last '&' character
             params = params.substring(0, params.length - 1)
 
-            // There is an order by property set
             if (this.ordering) {
+                // There is an order by property set
                 params += `&ordering=${this.orderingReverse ? '-' : ''}${this.ordering}`
             }
 
+            // Saves the Advanced Search form state in the store
             this.saveState()
+
+            // Goes to the Advanced Search results page
             this.$router.push(`/advanced-search/${params}`)
         },
 
+        // Saves the Advanced Search form state in the store
         saveState () {
             this.$store.commit('setAdvancedSearchParams', {...this.params})
             this.$store.commit('setAdvancedSearchOrdering', this.ordering)
             this.$store.commit('setAdvancedSearchOrderingReverse', this.orderingReverse)
         },
 
+        // Fetches the Advanced Search form state from the store
         restoreState () {
             this.params = {...this.$store.state.advancedSearchParams}
             this.durationRange = [this.params.duration__gte, this.params.duration__lte]

@@ -102,6 +102,7 @@ export default {
 
     async asyncData ({ $axios, params }) {
         try {
+            // Checks the token validity
             const response = await $axios.$post('/password_reset/validate_token/', { token: params.token })
             const status = response.status
             
@@ -122,11 +123,13 @@ export default {
     },
 
     methods: {
+        // Resets the password with a new one
         async resetPassword() {
             if (!this.loading) {
                 this.$v.$touch()
 
                 if (!this.$v.$anyError) {
+                    // Valid form
                     this.loading = true
 
                     let body = new FormData()
@@ -134,6 +137,7 @@ export default {
                     body.set('token', this.$route.params.token)
 
                     try {
+                        // Updates the password
                         const response = await this.$axios.$post('/password_reset/confirm/', body)
                         const status = response.status
 
@@ -141,6 +145,7 @@ export default {
                             this.$nuxt.$emit('snackbar', 'Your password has been reset !')
                             this.password = ''
                             this.password_confirm = ''
+                            
                             // Redirects to the home page
                             this.$router.push('/')
                         } else {

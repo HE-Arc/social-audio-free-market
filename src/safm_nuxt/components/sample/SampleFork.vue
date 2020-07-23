@@ -69,10 +69,12 @@ export default {
     },
 
     methods: {
+        // On checkbox state change
         checkboxChange () {
             this.$nuxt.$emit('forkCheckbox', this.id, this.selected)
         },
 
+        // On add button click
         add () {
             this.selected = true
             this.$nuxt.$emit('forkAdd', this.id)

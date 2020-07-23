@@ -59,7 +59,9 @@ export default {
     },
 
     methods: {
+        // On button click
         click () {
+            // Toggles play/pause
             this.isPlaying = !this.isPlaying
             this.$nuxt.$emit('samplePlayPause', this.sampleId)
         }

@@ -1,15 +1,16 @@
 const cookieparser = process.server ? require('cookieparser') : undefined
 
 export const state = () => ({
+    // User authentication credentials
     auth: null,
-
     user: {
         id: '',
         name: ''
     },
 
+    // Advanced Search state
     advancedSearchParams: {
-        name__icontains: '',   // Sample name
+        name__icontains: '',
         user__username__icontains: '',
         duration__gte: 0,
         duration__lte: 30.0,
@@ -19,9 +20,7 @@ export const state = () => ({
         mode: '',
         tags__name__icontains: []
     },
-
     advancedSearchOrdering: '',
-    
     advancedSearchOrderingReverse: false
 })
 
@@ -59,16 +58,17 @@ export const actions = {
 
         if (req && req.headers.cookie) {
             const parsed = cookieparser.parse(req.headers.cookie)
-            // Sets the authentification token if the corresponding cookie is present
+            // Sets the authentification token if the corresponding cookie are present
             try {
                 auth = parsed.auth
                 userid = parsed.userid
                 username = parsed.username
             } catch (e) {
-                // Not a valid authentication token nor username
+                // Not valid cookies
             }
         }
 
+        // Stores the user credentials if present
         commit('setAuth', auth)
         commit('setUser', {
             id: userid,

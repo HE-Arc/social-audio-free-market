@@ -70,15 +70,22 @@ export default {
     },
     
     methods: {
+        // Performs a Quick Search
         quickSearch () {
             if (this.quickSearchInput.length > 0) {
+                // Replaces the commas with dots (commas do not work as expected in Django search)
                 this.quickSearchInput = this.quickSearchInput.replace(/,/g, '.')
                 this.dialog = false
+
+                // Goes to the Quick Search results page
                 this.$router.push(`/quick-search/${this.quickSearchInput}`)
+
+                // Resets the input
                 this.quickSearchInput = ''
             }
         },
 
+        // Goes to the Advanced Search page
         advancedSearch () {
             this.dialog = false
             this.$router.push('/advanced-search')

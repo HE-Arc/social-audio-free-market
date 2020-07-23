@@ -61,16 +61,19 @@ export default {
     },
 
     mounted () {
+        // On sample play
         this.$nuxt.$on('samplePlay', () => {
             ++this.numberPlaying
         })
 
+        // On sample pause
         this.$nuxt.$on('samplePause', () => {
             --this.numberPlaying
         })
     },
 
     methods: {
+        // On stop all button click
         stopAll() {
             this.$nuxt.$emit('sampleStopAll')
         }

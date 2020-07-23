@@ -272,6 +272,7 @@ export default {
             const email = await $axios.$get(`/user/email/${store.state.user.id}`)
 
             if (profile.user.id != store.state.user.id) {
+                //Only  the user can update its account information and profile
                 error({ statusCode: 401, message: 'Unauthorised to update this user profile' })
             }
 
@@ -297,12 +298,14 @@ export default {
     },
 
     methods: {
+        // Updates the user profile
         async updateProfile () {
             if (!this.loadingProfile) {
                 this.loadingProfile = true
 
                 let body = new FormData()
                 
+                // Verifications to avoid giving empty values
                 if (this.profile_picture) {
                     body.append('profile_picture', this.profile_picture)
                 }
@@ -314,6 +317,7 @@ export default {
                 body.set('email_public', this.email_public)
 
                 try {
+                    // Updates the profile
                     await this.$axios.patch(`/user/profile/${this.$store.state.user.id}`, body)
 
                     this.$nuxt.$emit('snackbar', 'Profile updated !')
@@ -330,6 +334,8 @@ export default {
             }
         },
 
+        // Updates the user account information based on the given form data
+        // and then triggers a snackbar event with the given message
         async updateUser (body, snackbarMessage) {
             try {
                 const response = await this.$axios.patch(`/user/${this.$store.state.user.id}`, body)
@@ -343,18 +349,22 @@ export default {
             }
         },
 
+        // Updates the username
         async updateUsername () {
             if (!this.loadingUsername) {
                 this.$v.formUsername.$touch()
 
                 if (!this.$v.formUsername.$anyError) {
+                    // Valid input
                     this.loadingUsername = true
 
                     let body = new FormData()
                     body.set('username', this.formUsername.username)
 
+                    // Updates the username
                     const response = await this.updateUser(body, 'Username updated !')
                     if (response) {
+                        // Updates the username in the store
                         this.$updateUsername(response.username)
                     }
 
@@ -363,16 +373,19 @@ export default {
             }
         },
 
+        // Updates the user email address
         async updateEmail () {
             if (!this.loadingEmail) {
                 this.$v.formEmail.$touch()
 
                 if (!this.$v.formEmail.$anyError) {
+                    // Valid input
                     this.loadingEmail = true
 
                     let body = new FormData()
                     body.set('email', this.formEmail.email)
 
+                    // Updates the user email address
                     this.updateUser(body, 'Email updated !')
 
                     this.loadingEmail = false
@@ -380,11 +393,13 @@ export default {
             }
         },
 
+        // Updates the user password
         async updatePassword () {
             if (!this.loadingPassword) {
                 this.$v.formPassword.$touch()
 
                 if (!this.$v.formPassword.$anyError) {
+                    // Valid form
                     this.loadingProfile = true
 
                     let body = new FormData()
@@ -392,8 +407,10 @@ export default {
                     body.set('password', this.formPassword.password)
                     body.set('password_confirm', this.formPassword.password_confirm)
 
+                    // Updates the user password
                     await this.updateUser(body, 'Password updated !')
 
+                    // Resets the password form fields
                     this.formPassword.password_current = ''
                     this.formPassword.password = ''
                     this.formPassword.password_confirm = ''

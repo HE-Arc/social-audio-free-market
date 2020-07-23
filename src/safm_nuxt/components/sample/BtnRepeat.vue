@@ -26,7 +26,9 @@ export default {
     },
 
     methods: {
+        // On button click
         click () {
+            // Toggles repeat
             this.repeat = !this.repeat
             this.$nuxt.$emit('sampleRepeat', this.sampleId)
         }

@@ -151,14 +151,17 @@ export default {
     mounted () {
         // On Tags Field update
         this.$nuxt.$on('updateTagsField', (tagsList) => {
+            // Overrides the tags list
             this.tags = tagsList
         })
 
         // On Fork checkbox change
         this.$nuxt.$on('forkCheckbox', (forkId, selected) => {
             if (selected) {
+                // Adds a fork the the forks list
                 this.selectedForkFrom.push(forkId)
             } else {
+                // Removes a fork from the forks list
                 const index = this.selectedForkFrom.indexOf(forkId)
                 this.selectedForkFrom.splice(index, 1)
             }
@@ -182,17 +185,20 @@ export default {
     },
 
     methods: {
+        // Uploads a new sample
         async upload () {
             if (!this.loading) {
                 this.$v.$touch()
 
                 if (!this.$v.$anyError) {
+                    // Valid form
                     this.loading = true
 
                     let body = new FormData()
                     body.append('file', this.file)
                     body.set('name', this.name)
                     
+                    // Verifications to avoid giving empty values
                     if (this.description) {
                         body.set('description', this.description)
                     }
@@ -214,11 +220,12 @@ export default {
                     }
                     
                     try {
+                        // Uploads the sample
                         const response = await this.$axios.post('/sample', body)
                         const sampleId = response.data.id
 
                         this.$nuxt.$emit('snackbar', 'Sample uploaded !')
-                        // Redirects to the uploaded sample page
+                        // Redirects to the newly uploaded sample page
                         this.$router.push(`/sample/${sampleId}`)
                     } catch (e) {
                         this.$nuxt.$emit('snackbar', this.$errorArrayToString(e.response.data))

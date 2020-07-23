@@ -148,6 +148,7 @@ export default {
     mounted () {
         // On Snackbar
         this.$nuxt.$on('snackbar', (text) => {
+            // Displays the snackbar with the given message
             this.snackbarText = text
             this.snackbar = true
         })
@@ -155,39 +156,50 @@ export default {
 
     watch: {
         isOffline () {
+            // Emits a snackbar event whenever the application connection state changes
             const text = this.isOffline ? 'No Internet connection' : 'You are now online'
             this.$nuxt.$emit('snackbar', text)
         }
     },
 
     methods: {
+        // Goes to the home page
         home () {
             this.$router.push('/')
         },
 
+        // Calls a method by its name
+        // This allows function names in the data object for the menu
         handleFunctionCall (functionName) {
             this[functionName]()
         },
 
+        // Goes to the upload sample page
         upload () {
             this.$router.push('/upload')
         },
 
+        // Goes to the user profile page
         profile () {
             this.$router.push(`/profile/${this.userid}`)
         },
         
+        // Goes to the user liked samples page
         likes () {
             this.$router.push('/likes')
         },
 
+        // Goes to the user settings page
         settings () {
             this.$router.push('/profile/edit')
         },
 
+        // Logout
         async logout () {
             try {
+                // Logs out the user
                 await this.$axios.post('/logout')
+                // Removes the user credentials from the store and the cookies
                 this.$deleteUserCredentials()
 
                 this.$nuxt.$emit('snackbar', 'Successfully logged out !')
