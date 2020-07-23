@@ -12,22 +12,15 @@
             </v-btn>
             <v-spacer />
             <QuickSearch />
-            <v-tooltip
+            <v-btn
                 v-if="!$store.state.auth"
-                bottom
+                
+                depressed
+                to="/login"
             >
-                <template v-slot:activator="{ on }">
-                    <v-btn
-                        fab
-                        depressed
-                        to="/login"
-                        v-on="on"
-                    >
-                        <v-icon>mdi-login-variant</v-icon>
-                    </v-btn>
-                </template>
-                <span>Login</span>
-            </v-tooltip>
+                <v-icon>mdi-login-variant</v-icon>
+                <span class="ml-2">Login</span>
+            </v-btn>
             <v-menu
                 v-else
                 offset-y
@@ -72,14 +65,18 @@
             >
                 <v-card-text>
                     <p>Bachelor project developed at the Haute-École ARC, Switzerland.</p>
+                    <p>
+                        <v-icon large class="mt-4">mdi-github</v-icon>
+                    </p>
                     <v-btn
-                        x-large
-                        icon
+                        text
+                        small
                         color="primary"
                         href="https://github.com/HE-Arc/social-audio-free-market"
                         target="_blank"
+                        rel="noopener"
                     >
-                        <v-icon>mdi-github</v-icon>
+                        View project on Github
                     </v-btn>
                 </v-card-text>
                 <v-divider></v-divider>
