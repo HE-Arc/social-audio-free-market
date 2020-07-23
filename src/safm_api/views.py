@@ -290,7 +290,7 @@ class SampleFile(APIView):
             with open(path_to_file, 'rb') as f:
                 mime_type = mimetypes.MimeTypes().guess_type(sample.file.name)
                 response = HttpResponse(f, content_type=mime_type)
-                filename = sample.file.name.split('/')[-1]
+                filename = sample.name
                 response['Content-Disposition'] = f'attachement; filename="{filename}"'
                 response['Access-Control-Expose-Headers'] = 'Content-Disposition' # To allow the client to read it
 

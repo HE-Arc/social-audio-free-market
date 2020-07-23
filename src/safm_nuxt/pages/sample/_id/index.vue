@@ -235,6 +235,9 @@ export default {
 </script>
 
 <style scoped>
+a {
+    text-decoration: none;
+}
 .v-image {
     border-radius: 100px;
     margin: 0 auto;
