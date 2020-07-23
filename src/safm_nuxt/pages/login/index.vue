@@ -1,7 +1,7 @@
 <template>
     <div>
         <v-container>
-            <h2 class="page-title">Login</h2>
+            <h1>Login</h1>
             <form>
                 <v-row>
                     <v-col cols="12">

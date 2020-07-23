@@ -2,7 +2,6 @@ const test = require('ava')
 const resolve = require('path').resolve
 const Nuxt = require('nuxt').Nuxt
 const Builder = require('nuxt').Builder
-const JSDOM = require('jsdom').JSDOM
 
 // In order to close the server instance at the end
 let nuxt = null
@@ -19,56 +18,21 @@ test.before(async () => {
 }, 30000)
 
 // Routes exist and render HTML
-test('Route / exits and renders HTML', async (t) => {
-    const context = {}
-    const { html } = await nuxt.server.renderRoute('/', context)
-    t.true(html.includes('nuxt'))
-})
+test('Application routes exist and render HTML', async (t) => {
+    const routes = [
+        { route: '/', html: 'SAFMarket' },
+        { route: 'advanced-search', html: 'Advanced Search' },
+        { route: 'login', html: 'Login' },
+        //{ route: 'quick-search/test', html: 'Search Results' },
+        { route: 'register', html: 'Create Account' },
+        { route: 'reset_password', html: 'Request password reset' }
+    ]
 
-test('Route /advanced-search exists and renders HTML', async (t) => {
-    const context = {}
-    const { html } = await nuxt.server.renderRoute('/advanced-search', context)
-    t.true(html.includes('nuxt'))
-})
-/*
-test('Route /profile exits and renders HTML', async (t) => {
-    const context = {}
-    const { html } = await nuxt.server.renderRoute('/profile', context)
-    t.true(html.includes('nuxt'))
-})
-*/
-test('Route /quick-search exists and renders HTML', async (t) => {
-    const context = {}
-    const { html } = await nuxt.server.renderRoute('/quick-search', context)
-    t.true(html.includes('nuxt'))
-})
-
-test('Route /register exists and renders HTML', async (t) => {
-    const context = {}
-    const { html } = await nuxt.server.renderRoute('/register', context)
-    t.true(html.includes('nuxt'))
-})
-/*
-test('Route /sample exists and renders HTML', async (t) => {
-    const context = {}
-    const { html } = await nuxt.server.renderRoute('/sample', context)
-    t.true(html.includes('nuxt'))
-})
-*/
-test('Route /upload exists and renders HTML', async (t) => {
-    const context = {}
-    const { html } = await nuxt.server.renderRoute('/upload', context)
-    t.true(html.includes('nuxt'))
-})
-
-test('Route /upload protected by authentication', async (t) => {
-    const context = {}
-    const { html } = await nuxt.server.renderRoute('/upload', context)
-    const { window } = new JSDOM(html).window
-
-    // Not logged in
-    let uploadForm = window.document.querySelector('#sample-upload-form')
-    t.is(uploadForm, null)
+    for (let item of routes) {
+        const context = {}
+        const { html } = await nuxt.server.renderRoute(item.route, context)
+        t.true(html.includes(item.html))
+    }
 })
 
 // Close server and ask nuxt to stop listening to file changes
