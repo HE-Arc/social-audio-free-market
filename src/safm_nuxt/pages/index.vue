@@ -55,8 +55,14 @@ export default {
         }
     },
 
-    mounted () {
-        this.loadLastSamples()
+    async asyncData ({ $axios }) {
+        try {
+            const lastSamples = await $axios.$get('/samples/last')
+
+            return { lastSamples }
+        } catch (e) {
+            return { lastSamples: [] }
+        }
     },
 
     head () {
@@ -77,14 +83,6 @@ export default {
         advancedSearch () {
             this.dialog = false
             this.$router.push('/advanced-search')
-        },
-
-        async loadLastSamples () {
-            try {
-                this.lastSamples = await this.$axios.$get('/samples/last')
-            } catch (e) {
-                this.$nuxt.$emit('snackbar', 'Could not load last samples.')
-            }
         }
     }
 }
