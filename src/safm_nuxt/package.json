@@ -8,7 +8,9 @@
     "dev": "nuxt",
     "build": "nuxt build",
     "start": "nuxt start",
-    "generate": "nuxt generate",
+    "export": "nuxt export",
+    "generate": "nuxt build && nuxt export",
+    "serve": "nuxt serve",
     "test": "ava",
     "lint": "eslint --ext .js,.vue --ignore-path .eslintignore .",
     "lintfix": "eslint --fix --ext .js,.vue --ignore-path .eslintignore ."
