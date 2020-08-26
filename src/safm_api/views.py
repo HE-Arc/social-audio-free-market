@@ -440,7 +440,7 @@ class UserEmail(APIView):
 class SampleLikeView(generics.GenericAPIView):
     unauthenticated = JsonResponse({'detail': 'Authentication credentials were not provided.'}, status=status.HTTP_401_UNAUTHORIZED)
     sample_not_found = JsonResponse({'detail': 'Sample not found.'}, status=status.HTTP_400_BAD_REQUEST)
-    sample_not_authorized = JsonResponse({'detail': 'Sample does not belong to the user.'}, status=status.HTTP_401_UNAUTHORIZED)
+    sample_like_not_found = JsonResponse({'detail': 'Sample like not found.'}, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request, *args, **kwargs):
         if self._is_authenticated(request):
@@ -479,13 +479,14 @@ class SampleLikeView(generics.GenericAPIView):
             sample = self._sample_by_id(kwargs)
 
             if sample:
-                if sample.user == request.user:
-                    sample_like = self._sample_like(sample, request.user)
+                sample_like = self._sample_like(sample, request.user)
+
+                if sample_like:
                     sample_like.delete()
 
                     return JsonResponse({'detail': 'This sample is removed from your likes.'}, status=status.HTTP_200_OK)
 
-                return self.sample_not_authorized
+                return self.sample_like_not_found
 
             return self.sample_not_found
 
