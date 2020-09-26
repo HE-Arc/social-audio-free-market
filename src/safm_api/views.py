@@ -234,7 +234,7 @@ class SampleView(generics.GenericAPIView):
         Returns the Sample model associated to the ID parameter or None.
         '''
         try:
-            return Sample.objects.get(pk=kwargs['id'])
+            return Sample.objects.get(pk=kwargs['pk'])
         except:
             return None
 
@@ -269,9 +269,9 @@ class SampleView(generics.GenericAPIView):
 
 class SampleFile(APIView):
     
-    def get(self, request, sample_id, download):
+    def get(self, request, pk, download):
         try:
-            sample = Sample.objects.get(pk=sample_id)
+            sample = Sample.objects.get(pk=pk)
 
             if download == 1:
                 # Increments the sample number of downloads
@@ -312,14 +312,14 @@ class ListSampleForkFrom(generics.ListAPIView):
     serializer_class = SampleSerializer
 
     def get_queryset(self):
-        return Sample.objects.filter(forks_to=self.kwargs['sample_id'])
+        return Sample.objects.filter(forks_to=self.kwargs['pk'])
     
 
 class ListSampleForkTo(generics.ListAPIView):
     serializer_class = SampleSerializer
 
     def get_queryset(self):
-        return Sample.objects.filter(forks=self.kwargs['sample_id'])
+        return Sample.objects.filter(forks=self.kwargs['pk'])
 
 
 class UserDownloads(APIView):
@@ -383,15 +383,15 @@ class UserProfileView(generics.GenericAPIView):
         Returns the UserProfile model associated to the ID parameter or None.
         '''
         try:
-            return UserProfile.objects.get(pk=kwargs['id'])
+            return UserProfile.objects.get(pk=kwargs['pk'])
         except:
             return None
               
 
 class UserProfilePicture(APIView):
 
-    def get(self, request, user_id):
-        user_profile = UserProfile.objects.get(user=user_id)
+    def get(self, request, pk):
+        user_profile = UserProfile.objects.get(user=pk)
         image_file = user_profile.profile_picture
 
         if image_file:
@@ -412,24 +412,24 @@ class UserSamples(generics.ListAPIView):
     serializer_class = SampleSerializer
 
     def get_queryset(self):
-        return Sample.objects.filter(user=self.kwargs['user_id'])
+        return Sample.objects.filter(user=self.kwargs['pk'])
         
 
 class UserSamplesCount(APIView):
 
-    def get(self, request, user_id):
-        count = len(Sample.objects.filter(user=self.kwargs['user_id']))
+    def get(self, request, pk):
+        count = len(Sample.objects.filter(user=self.kwargs['pk']))
         return JsonResponse({'count': count}, status=status.HTTP_200_OK)
 
 
 class UserEmail(APIView):
 
-    def get(self, request, user_id):
-        user_profile = UserProfile.objects.get(user=user_id)
+    def get(self, request, pk):
+        user_profile = UserProfile.objects.get(user=pk)
         
         # Email is public or the profile belongs to the current user
         if user_profile and (user_profile.email_public or request.user.id == user_profile.id):
-            user = User.objects.get(pk=user_id)
+            user = User.objects.get(pk=pk)
             user_email = user.email
 
             return JsonResponse({'email': user_email}, status=status.HTTP_200_OK)
