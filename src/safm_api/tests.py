@@ -975,7 +975,7 @@ class QuickSearchTest(TestCase):
             return count
 
         for search_query in [USERNAME, '130', 'techno']:
-            response = self.client.get('/api/quick?search=' + search_query)
+            response = self.client.get('/api/search/quick?search=' + search_query)
             json_response = json.loads(response.content)
 
             self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -987,7 +987,7 @@ class QuickSearchTest(TestCase):
         Checks that the quick search returns nothing if the given
         search query matches no sample.
         '''
-        response = self.client.get('/api/quick?search=whoistheafterking')
+        response = self.client.get('/api/search/quick?search=whoistheafterking')
         json_response = json.loads(response.content)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -1028,7 +1028,7 @@ class AdvancedSearchTest(TestCase):
                 if re.search(n, name, re.IGNORECASE):
                     count += 1
             
-            url = '/api/ad_search?name__icontains={0}'.format(n)
+            url = '/api/search/advanced?name__icontains={0}'.format(n)
             response = self.client.get(url)
             json_response = json.loads(response.content)
 
@@ -1049,7 +1049,7 @@ class AdvancedSearchTest(TestCase):
                 if user__username == username:
                     count += 1
 
-            url = '/api/ad_search?user__username__icontains={0}'.format(username)
+            url = '/api/search/advanced?user__username__icontains={0}'.format(username)
             response = self.client.get(url)
             json_response = json.loads(response.content)
 
@@ -1071,7 +1071,7 @@ class AdvancedSearchTest(TestCase):
             if duration >= duration__gte and duration <= duration__lte:
                 count += 1
         
-        url = '/api/ad_search?duration__lte={0}&duration__gte={1}'.format(duration__lte, duration__gte)
+        url = '/api/search/advanced?duration__lte={0}&duration__gte={1}'.format(duration__lte, duration__gte)
         response = self.client.get(url)
         json_response = json.loads(response.content)
 
@@ -1093,7 +1093,7 @@ class AdvancedSearchTest(TestCase):
             if tempo >= tempo__gte and tempo <= tempo__lte:
                 count += 1
         
-        url = '/api/ad_search?tempo__lte={0}&tempo__gte={1}'.format(tempo__lte, tempo__gte)
+        url = '/api/search/advanced?tempo__lte={0}&tempo__gte={1}'.format(tempo__lte, tempo__gte)
         response = self.client.get(url)
         json_response = json.loads(response.content)
 
@@ -1114,7 +1114,7 @@ class AdvancedSearchTest(TestCase):
                 if key == k:
                     count += 1
 
-            url = '/api/ad_search?key={0}'.format(k)
+            url = '/api/search/advanced?key={0}'.format(k)
             response = self.client.get(url)
             json_response = json.loads(response.content)
 
@@ -1136,7 +1136,7 @@ class AdvancedSearchTest(TestCase):
                 if m == '' or m == mode:
                     count += 1
 
-            url = '/api/ad_search?mode={0}'.format(m)
+            url = '/api/search/advanced?mode={0}'.format(m)
             response = self.client.get(url)
             json_response = json.loads(response.content)
 

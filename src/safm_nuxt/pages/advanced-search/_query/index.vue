@@ -34,7 +34,7 @@ export default {
         try {
             if (params.query && params.query.length > 0) {
                 // Advanced Search query based on params
-                const samples = await $axios.$get(`/ad_search?${params.query}`)
+                const samples = await $axios.$get(`/search/advanced?${params.query}`)
                 
                 return { samples }
             }
