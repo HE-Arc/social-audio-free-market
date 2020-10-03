@@ -95,6 +95,10 @@ class UserProfile(models.Model):
     profile_picture = models.FileField(max_length=255, upload_to=user_directory_path, blank=True, default=DEFAULT_PROFILE_PICTURE)
     email_public = models.BooleanField(default=False)
 
+    @property
+    def has_default_picture(self):
+        return self.profile_picture.name == self.DEFAULT_PROFILE_PICTURE
+
 
 class UserSampleDownload(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
