@@ -362,8 +362,9 @@ class UserProfileView(generics.GenericAPIView):
     
                     # Removes the old profile picture if a new one is uploaded
                     if request.data.get('profile_picture'):
-                        path_old_picture = os.path.join(settings.MEDIA_ROOT, profile.profile_picture.name)
-                        os.remove(path_old_picture)
+                        if not profile.has_default_picture:
+                            path_old_picture = os.path.join(settings.MEDIA_ROOT, profile.profile_picture.name)
+                            os.remove(path_old_picture)
 
                     profile = serializer.save()
 
