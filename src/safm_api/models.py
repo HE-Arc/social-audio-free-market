@@ -84,14 +84,20 @@ class Sample(models.Model):
 
 class UserProfile(models.Model):
     
+    DEFAULT_PROFILE_PICTURE = 'default/pictures/pp.png'
+
     def user_directory_path(instance, filename):
         ext = os.path.splitext(filename)[1]
         return 'users/{0}/pp{1}'.format(instance.user.id, ext)
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     description = models.TextField(blank=True, default='No description provided.')
-    profile_picture = models.FileField(max_length=255, upload_to=user_directory_path, blank=True, default='default/pictures/pp.png')
+    profile_picture = models.FileField(max_length=255, upload_to=user_directory_path, blank=True, default=DEFAULT_PROFILE_PICTURE)
     email_public = models.BooleanField(default=False)
+
+    @property
+    def has_default_picture(self):
+        return self.profile_picture.name == self.DEFAULT_PROFILE_PICTURE
 
 
 class UserSampleDownload(models.Model):

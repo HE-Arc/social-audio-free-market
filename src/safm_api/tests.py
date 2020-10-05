@@ -719,6 +719,21 @@ class UserProfileTest(TestCase):
         if os.path.exists(path_user_directoy):
             shutil.rmtree(path_user_directoy)
 
+    def test_user_profile_default_image_detection(self):
+        '''
+        Checks, if the default image is in use.
+        '''
+        self._clear_user_directory()
+
+        profile = UserProfile.objects.create(
+            user=self.user,
+            description='This is a random description.',
+            email_public=True
+        )
+
+        self.assertTrue(profile.has_default_picture)
+
+
     @tag('user_profile_creation')
     def test_user_profile_creation(self):
         '''
@@ -736,6 +751,7 @@ class UserProfileTest(TestCase):
 
         user_profile = UserProfile.objects.get(user=self.user)
         expected_filename = 'users/{0}/pp.jpg'.format(self.user.id)
+        self.assertFalse(user_profile.has_default_picture)
         self.assertEqual(user_profile.profile_picture, expected_filename)
 
     @tag('user_profile_patch')
