@@ -5,13 +5,15 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
 from .models import Tag, Sample, UserProfile, UserSampleDownload, SampleLike
 
+from .utils import get_safe_file_name
+
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(write_only=True, validators=[UniqueValidator(queryset=User.objects.all())])
     password = serializers.CharField(write_only=True)
     password_confirm = serializers.CharField(write_only=True)
     password_current = serializers.CharField(write_only=True, required=False)
     password_min_length = 8
-    
+
     def validate(self, data):
         password = data.get('password')
         password_confirm = data.get('password_confirm')
@@ -32,7 +34,7 @@ class UserSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError('Password confirmation does not match.')
 
         return data
-    
+
     def create(self, validated_data):
         user = User.objects.create(
             username=validated_data['username'],
@@ -55,7 +57,7 @@ class UserSerializer(serializers.ModelSerializer):
 
         if validated_data.get('password'):
             instance.set_password(validated_data.get('password'))
-        
+
         instance.save()
 
         return instance
@@ -69,7 +71,7 @@ class LoginSerializer(serializers.Serializer):
     username = serializers.CharField(required=False)
     email = serializers.EmailField(required=False)
     password = serializers.CharField()
-        
+
     def validate(self, data):
         username = ''
         if 'username' in data:
@@ -98,10 +100,18 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class SampleForkSerializer(serializers.ModelSerializer):
-    
+
     class Meta:
         model = Sample
         fields = '__all__'
+
+    def validate_file(self, value):
+        '''
+        Make sure filename does not contain characters that
+        are invalid
+        '''
+        value.name = get_safe_file_name(value.name)
+        return value
 
 
 class SampleSerializer(serializers.ModelSerializer):
@@ -129,7 +139,7 @@ class UserDownloadSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserSampleDownload
         fields = '__all__'
-        
+
 
 class UserProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer()
