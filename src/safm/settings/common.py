@@ -47,7 +47,7 @@ REST_FRAMEWORK = {
 MIDDLEWARE = [
     # Added
     'corsheaders.middleware.CorsMiddleware',
-    
+
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -106,6 +106,15 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+<<<<<<< HEAD
+=======
+# Password reset
+
+DJANGO_REST_MULTITOKENAUTH_RESET_TOKEN_EXPIRY_TIME = 2 # in hours
+
+CLIENT_APP_URL = os.environ.get('CLIENT_APP_URL', 'localhost:3000')
+
+>>>>>>> 1d75754... safm: add file size validator and settings for max file size
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
@@ -137,5 +146,15 @@ DEFAULT_PROFILE_PICTURE = 'default/pictures/pp.png'
 
 # Password reset
 
-DJANGO_REST_MULTITOKENAUTH_RESET_TOKEN_EXPIRY_TIME = 2 # in hours 
+DJANGO_REST_MULTITOKENAUTH_RESET_TOKEN_EXPIRY_TIME = 2 # in hours
 CLIENT_APP_URL = os.environ.get('CLIENT_APP_URL', 'localhost:3000')
+
+
+# nginx limit is 50mb
+NGINX_FILE_UPLOAD_LIMIT = 50 * (1<<20)
+MAX_FILE_UPLOAD_SIZE = NGINX_FILE_UPLOAD_LIMIT-(500*(1<<10))
+max_file_size = os.environ.get("MAX_FILE_SIZE")
+if max_file_size:
+    MAX_FILE_UPLOAD_SIZE = min(
+        MAX_FILE_UPLOAD_SIZE, int(os.environ.get("MAX_FILE_SIZE"))
+    )

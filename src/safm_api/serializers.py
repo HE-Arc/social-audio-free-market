@@ -6,6 +6,7 @@ from django.contrib.auth.hashers import check_password
 from .models import Tag, Sample, UserProfile, UserSampleDownload, SampleLike
 
 from .utils import get_safe_file_name
+from .validators import FileSizeValidator
 
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(write_only=True, validators=[UniqueValidator(queryset=User.objects.all())])
@@ -100,7 +101,7 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class SampleForkSerializer(serializers.ModelSerializer):
-
+    file = serializers.FileField(validators=[FileSizeValidator()])
     class Meta:
         model = Sample
         fields = '__all__'
@@ -118,6 +119,7 @@ class SampleSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     tags = TagSerializer(many=True, required=False)
     forks = SampleForkSerializer(write_only=True, many=True, required=False)
+    file = serializers.FileField(validators=[FileSizeValidator()])
 
     def create(self, validated_data):
         sample = Sample.objects.create(**validated_data)
@@ -131,6 +133,14 @@ class SampleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sample
         fields = '__all__'
+
+    def validate_file(self, value):
+        '''
+        Make sure filename does not contain characters that
+        are invalid
+        '''
+        value.name = get_safe_file_name(value.name)
+        return value
 
 
 class UserDownloadSerializer(serializers.ModelSerializer):
