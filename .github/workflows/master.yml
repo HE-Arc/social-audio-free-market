@@ -15,20 +15,7 @@ jobs:
       matrix:
         python-version: [3.6, 3.7]
 
-    services:
-      mysql:
-        image: mysql:5.7
-        env:
-          MYSQL_ROOT_PASSWORD: password
-        ports:
-          - 33306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-
     steps:
-    - name: Verify MySQL connection from host
-      run: |
-        sudo apt-get install -y mysql-client
-        mysql --host 127.0.0.1 --port 33306 -uroot -ppassword -e "SHOW DATABASES"
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v1
@@ -42,23 +29,46 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+    - name: Shutdown Ubuntu MySQL
+      run: sudo service mysql stop # Shutdown the Default MySQL, "sudo" is necessary
+    - name: Setup MySQL
+      uses: mirromutth/mysql-action@v1.1
+      with:
+        # The port of host
+        host port: 3306 # optional, default is 3306
+        # The port of container
+        container port: 3306 # optional, default is 3306
+        # --character-set-server - The character set of MySQL server
+        character set server: utf8mb4 # optional, default is utf8mb4
+        # --collation-server - The character collation of MySQL server
+        collation server: utf8mb4_general_ci # optional, default is utf8mb4_general_ci
+        # Version of MySQL to use
+        mysql version: latest # optional, default is latestwait sleep
+        # MYSQL_ROOT_PASSWORD - root superuser password
+        mysql root password: root # optional, default is
+        # MYSQL_DATABASE - name for the default database that is created
+        mysql database: safm # optional, default is
+        # MYSQL_USER - create the specified user with superuser power for created database
+        mysql user: root # optional, default is
+        # MYSQL_PASSWORD - specified superuser password which user is power for created database
+        mysql password: root # optional, default is
+    - name: Wait / Sleep
+      uses: jakejarvis/wait-action@v0.1.0
+      with:
+        time: '20s'
     - name: Run migrations
       env:
-        SECRET_KEY: vx!u6*+=51d+79t0%!#5#-b06fev1f*x80uvm_@c2a6ko_!mbt
+        SECRET_KEY: epemy)u4hc1179^z#yb*ia7!)1ycl-zubr=9(^d+us+bc%)u%e
         DJANGO_SETTINGS_MODULE: safm.settings.production
-        DB_HOST: 33306
-        DB_PASSWORD: password
-        DB_NAME: mysql
+        DB_PASSWORD: root
       run: |
         cd src
         python manage.py migrate
     - name: Run Tests
       env:
-        SECRET_KEY: vx!u6*+=51d+79t0%!#5#-b06fev1f*x80uvm_@c2a6ko_!mbt
+        SECRET_KEY: epemy)u4hc1179^z#yb*ia7!)1ycl-zubr=9(^d+us+bc%)u%e
         DJANGO_SETTINGS_MODULE: safm.settings.production
-        DB_HOST: 33306
-        DB_PASSWORD: password
-        DB_NAME: mysql
+        DB_PASSWORD: root
       run: |
         cd src
         python manage.py test
