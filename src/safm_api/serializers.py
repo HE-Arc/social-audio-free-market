@@ -106,10 +106,10 @@ class SampleForkSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def validate_file(self, value):
-        """
+        '''
         Make sure filename does not contain characters that
         are invalid
-        """
+        '''
         value.name = get_safe_file_name(value.name)
         return value
 
