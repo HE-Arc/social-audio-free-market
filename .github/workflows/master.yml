@@ -58,19 +58,17 @@ jobs:
         time: '20s'
     - name: Run migrations
       env:
-        SECRET_KEY: ${{ secrets.SECRET_KEY }}
-        DJANGO_SETTINGS_MODULE: ${{ secrets.DJANGO_SETTINGS_MODULE }}
-        PASSWORD: ${{ secrets.PASSWORD }}
-        MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
+        SECRET_KEY: epemy)u4hc1179^z#yb*ia7!)1ycl-zubr=9(^d+us+bc%)u%e
+        DJANGO_SETTINGS_MODULE: safm.settings.production
+        DB_PASSWORD: root
       run: |
         cd src
         python manage.py migrate
     - name: Run Tests
       env:
-        SECRET_KEY: ${{ secrets.SECRET_KEY }}
-        DJANGO_SETTINGS_MODULE: ${{ secrets.DJANGO_SETTINGS_MODULE }}
-        PASSWORD: ${{ secrets.PASSWORD }}
-        MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
+        SECRET_KEY: epemy)u4hc1179^z#yb*ia7!)1ycl-zubr=9(^d+us+bc%)u%e
+        DJANGO_SETTINGS_MODULE: safm.settings.production
+        DB_PASSWORD: root
       run: |
         cd src
         python manage.py test
