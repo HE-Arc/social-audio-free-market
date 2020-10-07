@@ -106,12 +106,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Password reset
-
-DJANGO_REST_MULTITOKENAUTH_RESET_TOKEN_EXPIRY_TIME = 2 # in hours 
-
-CLIENT_APP_URL = os.environ.get('CLIENT_APP_URL', 'localhost:3000')
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
@@ -134,3 +128,14 @@ STATIC_URL = '/static/'
 
 MEDIA_URL = os.environ.get('MEDIA_URL', 'media/')
 MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
+
+
+# Default directory
+
+DEFAULT_PROFILE_PICTURE = 'default/pictures/pp.png'
+
+
+# Password reset
+
+DJANGO_REST_MULTITOKENAUTH_RESET_TOKEN_EXPIRY_TIME = 2 # in hours 
+CLIENT_APP_URL = os.environ.get('CLIENT_APP_URL', 'localhost:3000')
