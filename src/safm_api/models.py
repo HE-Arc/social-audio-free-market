@@ -6,6 +6,8 @@ import audiofile as af
 import numpy as np
 from aubio import source, tempo
 
+from .utils import get_safe_file_name
+
 # Create your models here.
 
 class Tag(models.Model):
@@ -34,6 +36,7 @@ class Sample(models.Model):
 
     def user_directory_path(instance, filename):
         # File will be uploaded to MEDIA_ROOT/samples/<username>/<sample_name>
+        filename = get_safe_file_name(filename)
         return 'samples/{0}/{1}'.format(instance.user.id, filename)
 
     # Table columns
@@ -53,7 +56,7 @@ class Sample(models.Model):
     def deduce_properties(self):
         # Audio file duration
         self.duration = af.duration(self.file.path)
-        
+
         # Audio file sampling rate
         rate = af.sampling_rate(self.file.path)
         self._deduce_tempo(rate)
@@ -80,10 +83,10 @@ class Sample(models.Model):
             self.tempo = np.mean(60. / np.diff(beats))
         else:
             self.tempo = 0
-            
+
 
 class UserProfile(models.Model):
-    
+
     DEFAULT_PROFILE_PICTURE = 'default/pictures/pp.png'
 
     def user_directory_path(instance, filename):
