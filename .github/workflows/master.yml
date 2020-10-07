@@ -21,7 +21,7 @@ jobs:
         env:
           MYSQL_ROOT_PASSWORD: password
         ports:
-          - 3306
+          - 33306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
@@ -46,6 +46,7 @@ jobs:
       env:
         SECRET_KEY: vx!u6*+=51d+79t0%!#5#-b06fev1f*x80uvm_@c2a6ko_!mbt
         DJANGO_SETTINGS_MODULE: safm.settings.production
+        DB_HOST: 33306
         DB_PASSWORD: password
         DB_NAME: mysql
       run: |
@@ -55,6 +56,7 @@ jobs:
       env:
         SECRET_KEY: vx!u6*+=51d+79t0%!#5#-b06fev1f*x80uvm_@c2a6ko_!mbt
         DJANGO_SETTINGS_MODULE: safm.settings.production
+        DB_HOST: 33306
         DB_PASSWORD: password
         DB_NAME: mysql
       run: |
