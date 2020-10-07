@@ -1,6 +1,5 @@
 from django.utils.text import slugify
 
-
 def get_safe_file_name(filename):
     '''
     Return a safe file name that has only ascii chars

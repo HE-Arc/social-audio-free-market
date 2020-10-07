@@ -11,6 +11,8 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth.models import User
 from .models import Tag, Sample, UserProfile, UserSampleDownload, SampleLike
 
+from .utils import get_safe_file_name
+
 # API routes
 ROUTE_LOGIN = '/api/login'
 ROUTE_REGISTER = '/api/register'

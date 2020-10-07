@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=255)),
-                ('file', models.FileField(max_length=255, upload_to=safm_api.models.Sample.user_directory_path)),
+                ('file', models.FileField(max_length=255, upload_to=safm_api.models.Sample.sample_path)),
                 ('duration', models.DecimalField(blank=True, decimal_places=1, max_digits=4, null=True)),
                 ('tempo', models.PositiveIntegerField(blank=True, null=True)),
                 ('key', models.CharField(blank=True, choices=[(' ', 'None'), ('A', 'A'), ('B', 'B'), ('C', 'C'), ('D', 'D'), ('E', 'E'), ('F', 'F'), ('G', 'G')], default=' ', max_length=1)),
@@ -52,7 +52,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('description', models.TextField(blank=True, default='No description provided.')),
-                ('profile_picture', models.FileField(blank=True, default='default/pictures/pp.png', max_length=255, upload_to=safm_api.models.UserProfile.user_directory_path)),
+                ('profile_picture', models.FileField(blank=True, default='default/pictures/pp.png', max_length=255, upload_to=safm_api.models.UserProfile.profile_picture_path)),
                 ('email_public', models.BooleanField(default=False)),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
