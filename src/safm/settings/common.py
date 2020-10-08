@@ -150,11 +150,17 @@ DJANGO_REST_MULTITOKENAUTH_RESET_TOKEN_EXPIRY_TIME = 2 # in hours
 CLIENT_APP_URL = os.environ.get('CLIENT_APP_URL', 'localhost:3000')
 
 
+# file upload limit settings
 # nginx limit is 50mb
 NGINX_FILE_UPLOAD_LIMIT = 50 * (1<<20)
-MAX_FILE_UPLOAD_SIZE = NGINX_FILE_UPLOAD_LIMIT-(500*(1<<10))
+# 5mb less than nginx so an error can be displayed through application
+MAX_FILE_UPLOAD_SIZE = NGINX_FILE_UPLOAD_LIMIT-(5<<20)
 max_file_size = os.environ.get("MAX_FILE_SIZE")
 if max_file_size:
     MAX_FILE_UPLOAD_SIZE = min(
         MAX_FILE_UPLOAD_SIZE, int(os.environ.get("MAX_FILE_SIZE"))
     )
+
+
+# audio file duration limit settings
+MAX_AUDIO_DURATION = float(os.environ.get("MAX_AUDIO_DURATION", "30"))
