@@ -146,7 +146,7 @@ CLIENT_APP_URL = os.environ.get('CLIENT_APP_URL', 'localhost:3000')
 WEBSERVER_FILE_UPLOAD_LIMIT = 50*(1<<20)
 
 MAX_FILE_UPLOAD_SIZE = 10*(1<<20)
-_max_file_size = os.environ.get("MAX_FILE_SIZE")
+_max_file_size = os.environ.get('MAX_FILE_SIZE')
 if _max_file_size:
     # always less than webserver's limit so an error
     # can be displayed through application server
@@ -157,4 +157,4 @@ if _max_file_size:
 
 
 # audio file duration limit settings in seconds
-MAX_AUDIO_DURATION = float(os.environ.get("MAX_AUDIO_DURATION", "30"))
+MAX_AUDIO_DURATION = float(os.environ.get('MAX_AUDIO_DURATION', '30'))
