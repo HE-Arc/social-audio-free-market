@@ -106,15 +106,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-<<<<<<< HEAD
-=======
-# Password reset
-
-DJANGO_REST_MULTITOKENAUTH_RESET_TOKEN_EXPIRY_TIME = 2 # in hours
-
-CLIENT_APP_URL = os.environ.get('CLIENT_APP_URL', 'localhost:3000')
-
->>>>>>> 1d75754... safm: add file size validator and settings for max file size
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/

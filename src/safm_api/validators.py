@@ -48,7 +48,6 @@ class AudioFileDurationValidator:
                 tmp_file.write(chunk)
 
             duration = af.duration(tmp_file.name)
-            print(f"Duration is {duration:.2f}")
             if duration > self.max_duration:
                 raise ValidationError(
                     'Please upload a sample <= {0:.1f}s'.format(
