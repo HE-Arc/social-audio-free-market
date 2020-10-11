@@ -34,7 +34,7 @@ jobs:
       run: |
         pre-commit install
         git fetch
-        FILES_CHANGED=$(git diff-tree --no-commit-id --name-only -r $GITHUB_SHA ${{ github.base_ref }})
+        FILES_CHANGED=$(git diff-tree --no-commit-id --name-only -r $GITHUB_SHA origin/${{ github.base_ref }})
         echo Running linter on: $FILES_CHANGED
         pre-commit run --files $FILES_CHANGED
     - name: Shutdown Ubuntu MySQL
