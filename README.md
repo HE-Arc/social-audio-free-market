@@ -47,6 +47,12 @@ Then, install the dependencies :
 pip install -r requirements.txt
 ```
 
+Install pre-commit hooks:
+
+```
+pre-commit install
+```
+
 At last, apply the migrations and run the server :
 
 ```
