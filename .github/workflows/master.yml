@@ -33,7 +33,8 @@ jobs:
       # run python linter on changed files
       run: |
         pre-commit install
-        FILES_CHANGED=$(git diff-tree --no-commit-id --name-only -r $GITHUB_SHA master)
+        echo Diff on $GITHUB_SHA from ${{ github.base_ref }}
+        FILES_CHANGED=$(git diff-tree --no-commit-id --name-only -r $GITHUB_SHA ${{ github.base_ref }})
         echo Running linter on: $FILES_CHANGED
         pre-commit run --files $FILES_CHANGED
     - name: Shutdown Ubuntu MySQL
