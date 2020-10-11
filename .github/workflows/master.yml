@@ -33,7 +33,7 @@ jobs:
       # run python linter on changed files
       run: |
         pre-commit install
-        git remote add upstream git@github.com:HE-Arc/social-audio-free-market.git && git fetch upstream master
+        pwd && git status && git fetch
         FILES_CHANGED=$(git diff-tree --no-commit-id --name-only -r $GITHUB_SHA upstream/${{ github.base_ref }})
         echo Running linter on: $FILES_CHANGED
         pre-commit run --files $FILES_CHANGED
