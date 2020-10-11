@@ -15,3 +15,6 @@ repos:
     rev: 3.8.4
     hooks:
         -   id: flake8
+    # flake8 is notorious for being overly strict at times
+    # to ignore some violations check here for use case
+    # https://flake8.pycqa.org/en/latest/user/violations.html#ignoring-violations-with-flake8
