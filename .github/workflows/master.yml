@@ -30,6 +30,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     - name: Python Linter Check
+      on: pull_request
       # run python linter on changed files
       run: |
         pre-commit install
