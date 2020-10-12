@@ -32,7 +32,8 @@ jobs:
     - name: Python Linter Check
       # run python linter on changed files
       run: |
-        if [[ ${{ github.base_ref }} ]]
+        BASE_REF=${{ github.base_ref }}
+        if [[ $BASE_REF ]]
         then
           pre-commit install
           git fetch
