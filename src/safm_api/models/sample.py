@@ -5,8 +5,8 @@ from django.contrib.auth.models import User
 
 from safm_api.utils import get_safe_file_name
 import audiofile as af
-import numpy as np
-from aubio import source, tempo
+
+from tempo_deduce import get_file_bpm
 
 class Sample(models.Model):
 
@@ -69,22 +69,5 @@ class Sample(models.Model):
         Deduces the sample tempo.
         TODO: to improve (issue #173)
         '''
-        win_s, hop_s = 1024, 512
-        s = source(self.file.path, rate, hop_s)
-        o = tempo('specdiff', win_s, hop_s, rate)
-        # List of beats, in samples
-        beats = []
 
-        while True:
-            samples, read = s()
-            is_beat = o(samples)
-            if is_beat:
-                this_beat = o.get_last_s()
-                beats.append(this_beat)
-            if read < hop_s:
-                break
-
-        if len(beats) > 1:
-            self.tempo = np.mean(60. / np.diff(beats))
-        else:
-            self.tempo = 0
+        self.tempo = get_file_bpm(self.file, rate)
