@@ -56,3 +56,23 @@ def get_file_bpm(path):
 
     return beats_to_bpm(beats, path.name)
 
+
+import sys, os
+from pathlib import Path
+if __name__ == "__main__":
+    
+    files = []
+    
+    if len(sys.argv) > 1:
+        # Use this to test a specific file
+        file_name = Path(sys.argv[1])
+        files = [file_name]
+    else:
+        # Without any arguments, it will test every
+        # file in the subdirectory `tempo_tests`
+        files = [file for file in Path('tempo_tests').iterdir() if file.is_file()]
+
+    for file_name in files:
+        print(f"Testing {file_name}")
+        tempo_found = get_file_bpm(file_name)
+        print(f"tempo found = {tempo_found}\n")
