@@ -8,6 +8,7 @@ import audiofile as af
 
 from tempo_deduce import get_file_bpm
 
+
 class Sample(models.Model):
 
     class Meta:

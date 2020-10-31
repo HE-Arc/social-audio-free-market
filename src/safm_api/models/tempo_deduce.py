@@ -5,6 +5,10 @@ import matplotlib
 matplotlib.use('TkAgg')
 from matplotlib import pyplot as plt
 
+import sys
+from pathlib import Path
+
+
 def get_file_bpm(path):
     """
     Calculate the beats per minute (bpm) of a given file.
@@ -29,12 +33,11 @@ def get_file_bpm(path):
         if is_beat:
             this_beat = o.get_last_s()
             beats.append(this_beat)
-            #if o.get_confidence() > .2 and len(beats) > 2.:
+            # if o.get_confidence() > .2 and len(beats) > 2.:
             #    break
         total_frames += read
         if read < hop_s:
             break
-
 
     def beats_to_bpm(beats, name):
         # if enough beats are found, convert to periods then to bpm
@@ -50,7 +53,7 @@ def get_file_bpm(path):
                 # the algorithm gives a single bpm
                 return bpms[0]
             else:
-                hist = np.histogram(bpms, bpm_range)
+                # hist = np.histogram(bpms, bpm_range)
 
                 # DEBUG: draws the histogram of all beats spacings
                 plt.hist(bpms, bpm_range)
@@ -66,12 +69,9 @@ def get_file_bpm(path):
                 # The median is a placeholder for now
                 return np.median(bpms)
 
-
     return beats_to_bpm(beats, path.name)
 
 
-import sys, os
-from pathlib import Path
 if __name__ == "__main__":
     
     files = []
@@ -83,7 +83,11 @@ if __name__ == "__main__":
     else:
         # Without any arguments, it will test every
         # file in the subdirectory `tempo_tests`
-        files = [file for file in Path('tempo_tests').iterdir() if file.is_file()]
+        files = [
+            file 
+            for file in Path('tempo_tests').iterdir() 
+            if file.is_file()
+        ]
 
     for file_name in files:
         print(f"Testing {file_name}")
