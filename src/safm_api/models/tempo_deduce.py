@@ -1,6 +1,10 @@
 import numpy as np
 from aubio import source, tempo
 
+import matplotlib
+matplotlib.use('TkAgg')
+from matplotlib import pyplot as plt
+
 def get_file_bpm(path):
     """
     Calculate the beats per minute (bpm) of a given file.
