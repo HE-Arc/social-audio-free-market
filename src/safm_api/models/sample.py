@@ -3,10 +3,8 @@ from django.db import models
 from .tag import Tag
 from django.contrib.auth.models import User
 
-from safm_api.utils import get_safe_file_name
+from safm_api.utils import get_safe_file_name, get_file_bpm
 import audiofile as af
-
-from tempo_deduce import get_file_bpm
 
 
 class Sample(models.Model):
