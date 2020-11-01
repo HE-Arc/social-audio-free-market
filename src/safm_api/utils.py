@@ -3,9 +3,10 @@ from django.utils.text import slugify
 import numpy as np
 from aubio import source, tempo
 
-import matplotlib
-from matplotlib import pyplot as plt
-matplotlib.use('TkAgg')
+# Uncomment when using utils_test on a non-headless machine
+# import matplotlib
+# from matplotlib import pyplot as plt
+# matplotlib.use('TkAgg')
 
 
 def get_safe_file_name(filename: str):
@@ -76,18 +77,21 @@ def get_file_bpm(path):
                 # the algorithm gives a single bpm
                 return bpms[0]
             else:
-                # hist = np.histogram(bpms, bpm_range)
-
                 # DEBUG: draws the histogram of all beats spacings
-                plt.hist(bpms, bpm_range)
-                plt.title(f"""\
-                    {name}
-                    Histogram of {len(bpms)} possible tempos\
-                """)
-                plt.show()
+                # plt.hist(bpms, bpm_range)
+                # plt.title(f"""\
+                #     {name}
+                #     Histogram of {len(bpms)} possible tempos\
+                # """)
+                # plt.show()
 
-                # TODO: Make clever use of the histogram to determine
-                # whether it can reveal the tempo of the sound file
+                def analyse_histogram(hist):
+                    # TODO: Make clever use of the histogram to determine
+                    # whether it can reveal the tempo of the sound file
+                    pass
+
+                hist = np.histogram(bpms, bpm_range)
+                analyse_histogram(hist)
 
                 # The median is a placeholder for now
                 return np.median(bpms)
