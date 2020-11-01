@@ -87,15 +87,6 @@ class Sample(models.Model):
         self.duration = af.duration(self.file.path)
 
         # Sampling rate
-        rate = af.sampling_rate(self.file.path)
-        self._deduce_tempo(rate)
+        self.tempo = get_file_bpm(self.file)
 
         self.save()
-
-    def _deduce_tempo(self, rate):
-        '''
-        Deduces the sample tempo.
-        TODO: to improve (issue #173)
-        '''
-
-        self.tempo = get_file_bpm(self.file, rate)
