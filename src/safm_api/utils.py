@@ -94,6 +94,6 @@ def get_file_bpm(path):
                 analyse_histogram(hist)
 
                 # The median is a placeholder for now
-                return np.median(bpms)
+                return np.mean(bpms)
 
     return beats_to_bpm(beats, path)
