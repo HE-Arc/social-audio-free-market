@@ -87,6 +87,6 @@ class Sample(models.Model):
         self.duration = af.duration(self.file.path)
 
         # Sampling rate
-        self.tempo = get_file_bpm(self.file)
+        self.tempo = get_file_bpm(self.file.path)
 
         self.save()
