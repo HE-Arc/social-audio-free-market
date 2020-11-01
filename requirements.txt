@@ -27,3 +27,4 @@ sox==1.3.7
 sqlparse==0.3.1
 threadpoolctl==2.1.0
 Wave==0.0.2
+matplotlib==3.3.2
