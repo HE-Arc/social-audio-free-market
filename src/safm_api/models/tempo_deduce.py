@@ -1,12 +1,12 @@
 import numpy as np
 from aubio import source, tempo
 
-import matplotlib
-matplotlib.use('TkAgg')
-from matplotlib import pyplot as plt
-
 import sys
 from pathlib import Path
+
+import matplotlib
+from matplotlib import pyplot as plt
+matplotlib.use('TkAgg')
 
 
 def get_file_bpm(path):
@@ -73,9 +73,9 @@ def get_file_bpm(path):
 
 
 if __name__ == "__main__":
-    
+
     files = []
-    
+
     if len(sys.argv) > 1:
         # Use this to test a specific file
         file_name = Path(sys.argv[1])
@@ -84,8 +84,8 @@ if __name__ == "__main__":
         # Without any arguments, it will test every
         # file in the subdirectory `tempo_tests`
         files = [
-            file 
-            for file in Path('tempo_tests').iterdir() 
+            file
+            for file in Path('tempo_tests').iterdir()
             if file.is_file()
         ]
 
