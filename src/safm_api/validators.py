@@ -1,5 +1,4 @@
 import tempfile
-
 import audiofile as af
 from django.conf import settings
 from rest_framework.serializers import ValidationError
@@ -7,8 +6,8 @@ from rest_framework.serializers import ValidationError
 
 class FileSizeValidator:
     '''
-    Validate file size is less than provided value
-    Applicable to serializers.FileField
+    Validate file size is less than provided value.
+    Applicable to serializers.FileField.
     '''
     def __init__(self, max_size: int=settings.MAX_FILE_UPLOAD_SIZE):
         '''
@@ -28,8 +27,8 @@ class FileSizeValidator:
 
 class AudioFileDurationValidator:
     '''
-    Validate audio file duration to be less than provided value
-    Applicable to audio files
+    Validate audio file duration to be less than provided value.
+    Applicable to audio files.
     '''
 
     def __init__(self, max_duration: float=settings.MAX_AUDIO_DURATION):
@@ -41,8 +40,8 @@ class AudioFileDurationValidator:
         self.max_duration = max_duration
 
     def __call__(self, value):
-        # in order for duration to be calculated, file must be
-        # temporarily written to disk
+        # In order for the duration to be calculated, file must be
+        # temporarily written to disk.
         with tempfile.NamedTemporaryFile() as tmp_file:
             for chunk in value.chunks():
                 tmp_file.write(chunk)
