@@ -30,7 +30,7 @@ export default {
                 try {
                     // Gets the sample audio file
                     const response = await this.$axios.get(`/sample/file/${this.sampleId}/1`, { responseType: 'blob' })
-                    
+
                     // Prepares the audio file for download
                     const contentDisposition = response.request.getResponseHeader('Content-Disposition')
                     let filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/

@@ -88,7 +88,7 @@ export default {
 
             return errors
         },
-        
+
         passwordConfirmErrors () {
             const errors = []
             if (!this.$v.password_confirm.$dirty) return []
@@ -105,7 +105,7 @@ export default {
             // Checks the token validity
             const response = await $axios.$post('/password_reset/validate_token/', { token: params.token })
             const status = response.status
-            
+
             if (status == 'OK') {
                 return { tokenIsValid: true }
             }
@@ -145,7 +145,7 @@ export default {
                             this.$nuxt.$emit('snackbar', 'Your password has been reset !')
                             this.password = ''
                             this.password_confirm = ''
-                            
+
                             // Redirects to the home page
                             this.$router.push('/')
                         } else {

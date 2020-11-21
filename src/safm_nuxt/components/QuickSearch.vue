@@ -68,7 +68,7 @@ export default {
             return this.quickSearchInput.length > 0 ? 'mdi-magnify' : ''
         }
     },
-    
+
     methods: {
         // Performs a Quick Search
         quickSearch () {

@@ -101,7 +101,7 @@ export default {
                 // Only the author of a sample can edit or delete it
                 return this.userId == this.$store.state.user.id
             }
-            
+
             return false
         },
 

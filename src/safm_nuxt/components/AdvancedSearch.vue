@@ -199,7 +199,7 @@ export default {
         tempoRangeOnChange () {
             this.params.tempo__gte = this.tempoRange[0]
             this.params.tempo__lte = this.tempoRange[1]
-        },  
+        },
 
         // Performs an Advanced Search
         advancedSearch () {

@@ -116,7 +116,7 @@ import SearchSampleFork from '~/components/sample/SearchSampleFork.vue'
 
 export default {
     middleware: 'authenticated',
-    
+
     components: {
         TagsField,
         SampleFork,
@@ -210,7 +210,7 @@ export default {
     async asyncData ({ $axios, params, error, store }) {
         try {
             const sample = await $axios.$get(`/sample/${params.id}`)
-            
+
             if (sample.user.id != store.state.user.id) {
                 // Only the author of a sample can update or delete it
                 error({ statusCode: 401, message: 'Unauthorised to update this sample' })
@@ -229,7 +229,7 @@ export default {
             for (let fork of forksFrom) {
                 forksFromId.push(fork.id)
             }
-            
+
             return {
                 id: sample.id,
                 sampleUserId: sample.user.id,
@@ -265,11 +265,11 @@ export default {
                 if (this.name) {
                     body.set('name', this.name)
                 }
-                
+
                 if (this.description) {
                     body.set('description', this.description)
                 }
-                
+
                 if (this.key) {
                     body.set('key', this.key)
                 }
@@ -277,7 +277,7 @@ export default {
                 if (this.mode) {
                     body.set('mode', this.mode)
                 }
-                
+
                 if (this.tags) {
                     body.set('tags', this.tags)
                 }

@@ -29,13 +29,13 @@ export default {
     async asyncData ({ $axios, error }) {
         try {
             const response = await $axios.$get('/user/samples/likes')
-            
+
             let likedSamples = []
             // Filters the liked samples id
             for (let sample of response) {
                 likedSamples.push(sample['sample'])
             }
-                
+
             return { likedSamples }
         } catch (e) {
             error({ statusCode: 401, message: 'You must be logged in.' })

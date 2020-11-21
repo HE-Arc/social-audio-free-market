@@ -180,7 +180,7 @@ export default {
             password_confirm: { required, minLength: minLength(8), sameAs: sameAs('password') }
         }
     },
-    
+
     data () {
         return {
             profile_picture: null,
@@ -254,7 +254,7 @@ export default {
 
             return errors
         },
-        
+
         passwordConfirmErrors () {
             const errors = []
             if (!this.$v.formPassword.password_confirm.$dirty) return []
@@ -304,7 +304,7 @@ export default {
                 this.loadingProfile = true
 
                 let body = new FormData()
-                
+
                 // Verifications to avoid giving empty values
                 if (this.profile_picture) {
                     body.append('profile_picture', this.profile_picture)

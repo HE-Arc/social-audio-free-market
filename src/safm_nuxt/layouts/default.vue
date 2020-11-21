@@ -14,7 +14,7 @@
             <QuickSearch />
             <v-btn
                 v-if="!$store.state.auth"
-                
+
                 depressed
                 to="/login"
             >
@@ -183,7 +183,7 @@ export default {
         profile () {
             this.$router.push(`/profile/${this.userid}`)
         },
-        
+
         // Goes to the user liked samples page
         likes () {
             this.$router.push('/likes')

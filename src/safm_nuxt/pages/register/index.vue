@@ -78,7 +78,7 @@ export default {
         password: { required, minLength: minLength(8) },
         password_confirm: { required, minLength: minLength(8), sameAs: sameAs('password') }
     },
-    
+
     data () {
         return {
             username: '',
@@ -115,7 +115,7 @@ export default {
 
             return errors
         },
-        
+
         passwordConfirmErrors () {
             const errors = []
             if (!this.$v.password_confirm.$dirty) return []
@@ -154,7 +154,7 @@ export default {
                         const response = await this.$axios.post('/register', body)
                         const userid = this.$storeUserCredentials(response)
                         this.$nuxt.$emit('snackbar', 'Successful registration !')
-                        
+
                         // Redirects to the user profile page
                         this.$router.push(`/profile/${userid}`)
                     } catch (e) {
