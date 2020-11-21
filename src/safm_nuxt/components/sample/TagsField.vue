@@ -54,7 +54,7 @@ export default {
         addTag () {
             // Converts all characters to lower cases
             this.tagInput = this.tagInput.toLowerCase()
-            
+
             if (/^[a-z]+[a-z0-9]+$/.test(this.tagInput)) {
                 // Tag validation
                 if (!this.tagsList.includes(this.tagInput)) {

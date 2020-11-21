@@ -29,7 +29,7 @@ export default {
             if (params.query.length > 0) {
                 // Quick Search query based on parameter
                 const samples = await $axios.$get(`/search/quick?search=${params.query}`)
-                
+
                 return { samples }
             }
         } catch (e) {

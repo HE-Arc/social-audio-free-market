@@ -1,7 +1,6 @@
-from django.utils.text import slugify
-
 import numpy as np
 from aubio import source, tempo
+from django.utils.text import slugify
 
 # Uncomment when using utils_test on a non-headless machine
 # import matplotlib

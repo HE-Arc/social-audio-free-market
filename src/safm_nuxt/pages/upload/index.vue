@@ -109,7 +109,7 @@ export default {
         TagsField,
         SampleFork
     },
-    
+
     data () {
         return {
             file: [],
@@ -197,12 +197,12 @@ export default {
                     let body = new FormData()
                     body.append('file', this.file)
                     body.set('name', this.name)
-                    
+
                     // Verifications to avoid giving empty values
                     if (this.description) {
                         body.set('description', this.description)
                     }
-                    
+
                     if (this.key) {
                         body.set('key', this.key)
                     }
@@ -210,15 +210,15 @@ export default {
                     if (this.mode) {
                         body.set('mode', this.mode)
                     }
-                    
+
                     if (this.tags) {
                         body.set('tags', this.tags)
                     }
-                    
+
                     if (this.selectedForkFrom) {
                         body.append('forks_from', this.selectedForkFrom)
                     }
-                    
+
                     try {
                         // Uploads the sample
                         const response = await this.$axios.post('/sample', body)

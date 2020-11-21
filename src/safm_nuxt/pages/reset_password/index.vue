@@ -90,7 +90,7 @@ export default {
                         if (status == 'OK') {
                             this.$nuxt.$emit('snackbar', 'An email has been sent to you')
                             this.email = ''
-                            
+
                             // Redirects to the home page
                             this.$router.push('/')
                         } else {

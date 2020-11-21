@@ -6,7 +6,7 @@ export default function ({ $axios, store }, inject) {
         if (token) {
             request.headers.common['Authorization'] = `Token ${token}`
         }
-        
+
         return request
     })
 

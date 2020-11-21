@@ -57,7 +57,7 @@
                                         </v-btn>
                                     </v-col>
                                 </v-row>
-                            </v-card-actions>     
+                            </v-card-actions>
                         </v-card>
                     </v-col>
                     <v-col
@@ -195,7 +195,7 @@ export default {
             case 'xl': return 'headline'
             }
         },
-        
+
         keyMode () {
             if (this.sample.key != ' ' || this.sample.mode != ' ') {
                 // Converts the mode into either m or M

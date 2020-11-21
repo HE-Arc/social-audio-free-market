@@ -1,7 +1,6 @@
-from utils import get_file_bpm
-
 import sys
 from pathlib import Path
+from utils import get_file_bpm
 
 
 if __name__ == "__main__":
