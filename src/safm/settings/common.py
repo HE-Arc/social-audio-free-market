@@ -137,21 +137,21 @@ DEFAULT_PROFILE_PICTURE = 'default/pictures/pp.png'
 
 # Password reset
 
-DJANGO_REST_MULTITOKENAUTH_RESET_TOKEN_EXPIRY_TIME = 2 # in hours
+DJANGO_REST_MULTITOKENAUTH_RESET_TOKEN_EXPIRY_TIME = 2  # in hours
 CLIENT_APP_URL = os.environ.get('CLIENT_APP_URL', 'localhost:3000')
 
 
 # file upload limit settings in bytes :- (1<<20) is 1mb
 
-WEBSERVER_FILE_UPLOAD_LIMIT = 50*(1<<20)
+WEBSERVER_FILE_UPLOAD_LIMIT = 50 * (1 << 20)
 
-MAX_FILE_UPLOAD_SIZE = 10*(1<<20)
+MAX_FILE_UPLOAD_SIZE = 10 * (1 << 20)
 _max_file_size = os.environ.get('MAX_FILE_SIZE')
 if _max_file_size:
     # always less than webserver's limit so an error
     # can be displayed through application server
     MAX_FILE_UPLOAD_SIZE = min(
-        WEBSERVER_FILE_UPLOAD_LIMIT - (5*(1<<20)),
+        WEBSERVER_FILE_UPLOAD_LIMIT - (5 * (1 << 20)),
         int(_max_file_size)
     )
 

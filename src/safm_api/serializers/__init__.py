@@ -1,8 +1,8 @@
-from .login import LoginSerializer
-from .sample import SampleSerializer
-from .sample_fork import SampleForkSerializer
-from .sample_like import SampleLikeSerializer
-from .tag import TagSerializer
-from .user import UserSerializer
-from .user_download import UserDownloadSerializer
-from .user_profile import UserProfileSerializer
+from .login import LoginSerializer # noqa
+from .sample import SampleSerializer # noqa
+from .sample_fork import SampleForkSerializer # noqa
+from .sample_like import SampleLikeSerializer # noqa
+from .tag import TagSerializer # noqa
+from .user import UserSerializer # noqa
+from .user_download import UserDownloadSerializer # noqa
+from .user_profile import UserProfileSerializer # noqa

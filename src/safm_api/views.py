@@ -1,4 +1,6 @@
-import os, re, mimetypes
+import os
+import re
+import mimetypes
 from django.conf import settings
 from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
 from rest_framework import filters, generics
@@ -7,20 +9,19 @@ from rest_framework.mixins import UpdateModelMixin
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import status
-from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from django_filters.filters import OrderingFilter
 from django.dispatch import receiver
-from django_rest_passwordreset.signals import *
+from django_rest_passwordreset.signals import reset_password_token_created
 from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives
 
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from .models import Tag, Sample, UserProfile, UserSampleDownload, SampleLike
-from .serializers import UserSerializer, LoginSerializer, TagSerializer, SampleForkSerializer, SampleSerializer, UserDownloadSerializer, UserProfileSerializer, SampleLikeSerializer
+from .serializers import UserSerializer, LoginSerializer, SampleSerializer, UserDownloadSerializer, UserProfileSerializer, SampleLikeSerializer
 
 # Create your views here.
+
 
 class Login(generics.GenericAPIView):
     serializer_class = LoginSerializer
@@ -70,17 +71,22 @@ class Register(generics.CreateAPIView):
 
 
 @receiver(reset_password_token_created)
-def send_password_reset_link(sender, instance, reset_password_token, *args, **kwargs):
+def send_password_reset_link(
+        sender, instance, reset_password_token, *args, **kwargs):
     context = {
         'current_user': reset_password_token.user,
         'username': reset_password_token.user.username,
         'email': reset_password_token.user.email,
-        'reset_password_url': '{0}/reset_password/{1}'.format(settings.CLIENT_APP_URL, reset_password_token.key),
+        'reset_password_url': '{0}/reset_password/{1}'.format(
+            settings.CLIENT_APP_URL,
+            reset_password_token.key),
         'token_expiration': settings.DJANGO_REST_MULTITOKENAUTH_RESET_TOKEN_EXPIRY_TIME,
     }
 
-    email_html_message = render_to_string('email/user_reset_password.html', context)
-    email_plaintext_message = render_to_string('email/user_reset_password.txt', context)
+    email_html_message = render_to_string(
+        'email/user_reset_password.html', context)
+    email_plaintext_message = render_to_string(
+        'email/user_reset_password.txt', context)
 
     msg = EmailMultiAlternatives(
         # Title
@@ -106,14 +112,16 @@ class UserUpdate(generics.GenericAPIView, UpdateModelMixin):
         if request.user.id == kwargs['pk']:
             return self.partial_update(request, *args, **kwargs)
 
-        return JsonResponse({'detail': 'User does not belong to the user.'}, status=status.HTTP_401_UNAUTHORIZED)
+        return JsonResponse(
+            {'detail': 'User does not belong to the user.'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class QuickSearch(generics.ListAPIView):
     queryset = Sample.objects.all()
     serializer_class = SampleSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ['name', 'tempo', 'key', 'mode', 'duration', 'tags__name', 'user__username']
+    search_fields = ['name', 'tempo', 'key', 'mode',
+                     'duration', 'tags__name', 'user__username']
 
 
 class AdvancedSearch(generics.ListAPIView):
@@ -139,9 +147,12 @@ class AdvancedSearch(generics.ListAPIView):
 
 
 class SampleView(generics.GenericAPIView):
-    sample_not_found = JsonResponse({'detail': 'Sample not found.'}, status=status.HTTP_400_BAD_REQUEST)
-    unauthenticated = JsonResponse({'detail': 'Authentication credentials were not provided.'}, status=status.HTTP_401_UNAUTHORIZED)
-    sample_not_authorized = JsonResponse({'detail': 'Sample does not belong to the user.'}, status=status.HTTP_401_UNAUTHORIZED)
+    sample_not_found = JsonResponse(
+        {'detail': 'Sample not found.'}, status=status.HTTP_400_BAD_REQUEST)
+    unauthenticated = JsonResponse(
+        {'detail': 'Authentication credentials were not provided.'}, status=status.HTTP_401_UNAUTHORIZED)
+    sample_not_authorized = JsonResponse(
+        {'detail': 'Sample does not belong to the user.'}, status=status.HTTP_401_UNAUTHORIZED)
     regex_tags = re.compile(r'[a-z]+[a-z0-9]+')
     regex_forks = re.compile(r'\d')
 
@@ -169,9 +180,11 @@ class SampleView(generics.GenericAPIView):
                 self._set_tags_from_request(request, sample)
                 self._set_forks_from_request(request, sample)
 
-                return JsonResponse({'id': sample.id}, status=status.HTTP_201_CREATED)
+                return JsonResponse({'id': sample.id},
+                                    status=status.HTTP_201_CREATED)
 
-            return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse(serializer.errors,
+                                status=status.HTTP_400_BAD_REQUEST)
 
         return self.unauthenticated
 
@@ -184,7 +197,8 @@ class SampleView(generics.GenericAPIView):
 
             if sample:
                 if self._sample_belongs_to_user(sample, request):
-                    serializer = SampleSerializer(sample, data=request.data, partial=True)
+                    serializer = SampleSerializer(
+                        sample, data=request.data, partial=True)
                     serializer.is_valid(raise_exception=True)
                     sample = serializer.save()
 
@@ -195,9 +209,11 @@ class SampleView(generics.GenericAPIView):
                         sample.forks.clear()
                         self._set_forks_from_request(request, sample)
 
-                        return JsonResponse({'id': sample.id}, status=status.HTTP_200_OK)
+                        return JsonResponse(
+                            {'id': sample.id}, status=status.HTTP_200_OK)
 
-                    return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                    return JsonResponse(serializer.errors,
+                                        status=status.HTTP_400_BAD_REQUEST)
 
                 return self.sample_not_authorized
 
@@ -215,7 +231,8 @@ class SampleView(generics.GenericAPIView):
             if sample:
                 if self._sample_belongs_to_user(sample, request):
                     sample.delete()
-                    return JsonResponse({'detail': 'Sample was successfully deleted.'}, status=status.HTTP_200_OK)
+                    return JsonResponse(
+                        {'detail': 'Sample was successfully deleted.'}, status=status.HTTP_200_OK)
 
                 return self.sample_not_authorized
 
@@ -235,7 +252,7 @@ class SampleView(generics.GenericAPIView):
         '''
         try:
             return Sample.objects.get(pk=kwargs['pk'])
-        except:
+        except BaseException:
             return None
 
     def _sample_belongs_to_user(self, sample, request):
@@ -248,19 +265,24 @@ class SampleView(generics.GenericAPIView):
         '''
         Adds the Tag relations - based on the request - to the given Sample.
         '''
-        tags_str = re.escape(request.data.get('tags', '')).replace('\\', '') # re.escape can add backslashes in Python < 3.7
-        tags_list = list(filter(self.regex_tags.match, [tag.strip() for tag in tags_str.split(',')]))
+        tags_str = re.escape(request.data.get('tags', '')).replace(
+            '\\', '')  # re.escape can add backslashes in Python < 3.7
+        tags_list = list(filter(self.regex_tags.match, [
+                         tag.strip() for tag in tags_str.split(',')]))
 
         for tag_name in tags_list:
-            tag = Tag.objects.get_or_create(name=tag_name)[0] # Returns a tuple
+            tag = Tag.objects.get_or_create(name=tag_name)[
+                0]  # Returns a tuple
             sample.tags.add(tag)
 
     def _set_forks_from_request(self, request, sample):
         '''
         Adds the Sample fork relations - based on the request - to the given Sample.
         '''
-        forks_str = re.escape(request.data.get('forks_from', '')).replace('\\', '') # re.escape can add backslashes in Python < 3.7
-        forks_list = list(filter(self.regex_forks.match, [fork.strip() for fork in forks_str.split(',')]))
+        forks_str = re.escape(request.data.get('forks_from', '')).replace(
+            '\\', '')  # re.escape can add backslashes in Python < 3.7
+        forks_list = list(filter(self.regex_forks.match, [
+                          fork.strip() for fork in forks_str.split(',')]))
 
         for fork_id in forks_list:
             fork = Sample.objects.get(pk=fork_id)
@@ -279,7 +301,8 @@ class SampleFile(APIView):
                 sample.save()
 
                 if request.auth:
-                    # If the user is authenticated, adds this sample to its downloads
+                    # If the user is authenticated, adds this sample to its
+                    # downloads
                     UserSampleDownload.objects.get_or_create(
                         user=request.user,
                         sample=sample
@@ -293,16 +316,17 @@ class SampleFile(APIView):
                 ext = sample.file.name.split('.')[-1]
                 filename = '{0}.{1}'.format(sample.name, ext)
                 response['Content-Disposition'] = f'attachement; filename="{filename}"'
-                response['Access-Control-Expose-Headers'] = 'Content-Disposition' # To allow the client to read it
+                # To allow the client to read it
+                response['Access-Control-Expose-Headers'] = 'Content-Disposition'
 
             return response
-        except:
+        except BaseException:
             return HttpResponseNotFound('No matching file found.')
 
 
 class ListLastUploadedSamples(generics.ListAPIView):
     serializer_class = SampleSerializer
-    limit = 8 # Number of Samples to return
+    limit = 8  # Number of Samples to return
 
     def get_queryset(self):
         return Sample.objects.order_by('-datetime_upload')[:self.limit]
@@ -328,14 +352,17 @@ class UserDownloads(APIView):
 
     def get(self, request):
         user = request.user
-        user_downloads = UserSampleDownload.objects.filter(user=user).order_by('-datetime_download')
-        user_downloads_serializer = UserDownloadSerializer(user_downloads, many=True)
+        user_downloads = UserSampleDownload.objects.filter(
+            user=user).order_by('-datetime_download')
+        user_downloads_serializer = UserDownloadSerializer(
+            user_downloads, many=True)
 
         return JsonResponse(user_downloads_serializer.data, safe=False)
 
 
 class UserProfileView(generics.GenericAPIView):
-    profile_not_found = JsonResponse({'detail': 'User profile not found.'}, status=status.HTTP_400_BAD_REQUEST)
+    profile_not_found = JsonResponse(
+        {'detail': 'User profile not found.'}, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request, *args, **kwargs):
         '''
@@ -357,26 +384,35 @@ class UserProfileView(generics.GenericAPIView):
 
             if profile:
                 if profile.user == request.user:
-                    serializer = UserProfileSerializer(profile, data=request.data, partial=True)
+                    serializer = UserProfileSerializer(
+                        profile, data=request.data, partial=True)
                     serializer.is_valid(raise_exception=True)
 
                     # Removes the old profile picture if a new one is uploaded
-                    if request.data.get('profile_picture') and not profile.has_default_picture:
-                        path_old_picture = os.path.join(settings.MEDIA_ROOT, profile.profile_picture.name)
+                    if request.data.get(
+                            'profile_picture') and not profile.has_default_picture:
+                        path_old_picture = os.path.join(
+                            settings.MEDIA_ROOT, profile.profile_picture.name)
                         os.remove(path_old_picture)
 
                     profile = serializer.save()
 
                     if profile:
-                        return JsonResponse({'id': profile.id}, status=status.HTTP_200_OK)
+                        return JsonResponse(
+                            {'id': profile.id}, status=status.HTTP_200_OK)
 
-                    return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                    return JsonResponse(serializer.errors,
+                                        status=status.HTTP_400_BAD_REQUEST)
 
-                return JsonResponse({'detail': 'Profile does not belong to the user.'}, status=status.HTTP_401_UNAUTHORIZED)
+                return JsonResponse(
+                    {'detail': 'Profile does not belong to the user.'}, status=status.HTTP_401_UNAUTHORIZED)
 
             return self.profile_not_found
 
-        return JsonResponse({'detail': 'Authentication credentials were not provided.'}, status=status.HTTP_401_UNAUTHORIZED)
+        return JsonResponse(
+            {
+                'detail': 'Authentication credentials were not provided.'},
+            status=status.HTTP_401_UNAUTHORIZED)
 
     def _profile_by_id(self, kwargs):
         '''
@@ -384,7 +420,7 @@ class UserProfileView(generics.GenericAPIView):
         '''
         try:
             return UserProfile.objects.get(pk=kwargs['pk'])
-        except:
+        except BaseException:
             return None
 
 
@@ -401,7 +437,8 @@ class UserProfilePicture(APIView):
                 response = HttpResponse(f, content_type=mime_type)
                 filename = image_file.name.split('/')[-1]
                 response['Content-Disposition'] = f'attachement; filename="{filename}"'
-                response['Access-Control-Expose-Headers'] = 'Content-Disposition' # To allow the client to read it
+                # To allow the client to read it
+                response['Access-Control-Expose-Headers'] = 'Content-Disposition'
 
             return response
 
@@ -428,19 +465,24 @@ class UserEmail(APIView):
         user_profile = UserProfile.objects.get(user=pk)
 
         # Email is public or the profile belongs to the current user
-        if user_profile and (user_profile.email_public or request.user.id == user_profile.id):
+        if user_profile and (
+                user_profile.email_public or request.user.id == user_profile.id):
             user = User.objects.get(pk=pk)
             user_email = user.email
 
-            return JsonResponse({'email': user_email}, status=status.HTTP_200_OK)
+            return JsonResponse({'email': user_email},
+                                status=status.HTTP_200_OK)
 
         return HttpResponseNotFound('No matching user found.')
 
 
 class SampleLikeView(generics.GenericAPIView):
-    unauthenticated = JsonResponse({'detail': 'Authentication credentials were not provided.'}, status=status.HTTP_401_UNAUTHORIZED)
-    sample_not_found = JsonResponse({'detail': 'Sample not found.'}, status=status.HTTP_400_BAD_REQUEST)
-    sample_like_not_found = JsonResponse({'detail': 'Sample like not found.'}, status=status.HTTP_400_BAD_REQUEST)
+    unauthenticated = JsonResponse(
+        {'detail': 'Authentication credentials were not provided.'}, status=status.HTTP_401_UNAUTHORIZED)
+    sample_not_found = JsonResponse(
+        {'detail': 'Sample not found.'}, status=status.HTTP_400_BAD_REQUEST)
+    sample_like_not_found = JsonResponse(
+        {'detail': 'Sample like not found.'}, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request, *args, **kwargs):
         if self._is_authenticated(request):
@@ -450,9 +492,11 @@ class SampleLikeView(generics.GenericAPIView):
                 sample_like = self._sample_like(sample, request.user)
 
                 if sample_like.exists():
-                    return JsonResponse({'liked': True}, status=status.HTTP_200_OK)
+                    return JsonResponse(
+                        {'liked': True}, status=status.HTTP_200_OK)
 
-                return JsonResponse({'liked': False}, status=status.HTTP_200_OK)
+                return JsonResponse(
+                    {'liked': False}, status=status.HTTP_200_OK)
 
             return self.sample_not_found
 
@@ -468,7 +512,8 @@ class SampleLikeView(generics.GenericAPIView):
                     sample=sample
                 )
 
-                return JsonResponse({'detail': 'This sample is added to your likes.'}, status=status.HTTP_201_CREATED)
+                return JsonResponse(
+                    {'detail': 'This sample is added to your likes.'}, status=status.HTTP_201_CREATED)
 
             return self.sample_not_found
 
@@ -484,7 +529,8 @@ class SampleLikeView(generics.GenericAPIView):
                 if sample_like:
                     sample_like.delete()
 
-                    return JsonResponse({'detail': 'This sample is removed from your likes.'}, status=status.HTTP_200_OK)
+                    return JsonResponse(
+                        {'detail': 'This sample is removed from your likes.'}, status=status.HTTP_200_OK)
 
                 return self.sample_like_not_found
 
@@ -504,7 +550,7 @@ class SampleLikeView(generics.GenericAPIView):
         '''
         try:
             return Sample.objects.get(pk=kwargs['pk'])
-        except:
+        except BaseException:
             return None
 
     def _sample_like(self, sample, user):
@@ -520,7 +566,8 @@ class UserSampleLikes(APIView):
 
     def get(self, request):
         user = request.user
-        user_likes = SampleLike.objects.filter(user=user).order_by('-datetime_like')
+        user_likes = SampleLike.objects.filter(
+            user=user).order_by('-datetime_like')
         user_likes_serializer = SampleLikeSerializer(user_likes, many=True)
 
         return JsonResponse(user_likes_serializer.data, safe=False)

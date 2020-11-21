@@ -9,7 +9,8 @@ class FileSizeValidator:
     Validate file size is less than provided value.
     Applicable to serializers.FileField.
     '''
-    def __init__(self, max_size: int=settings.MAX_FILE_UPLOAD_SIZE):
+
+    def __init__(self, max_size: int = settings.MAX_FILE_UPLOAD_SIZE):
         '''
         Params:
         ---------
@@ -21,9 +22,10 @@ class FileSizeValidator:
         if value.size > self.max_size:
             raise ValidationError(
                 'Please upload a file with size <= {0:.2f}MB'.format(
-                    self.max_size/(1<<20)
+                    self.max_size / (1 << 20)
                 )
             )
+
 
 class AudioFileDurationValidator:
     '''
@@ -31,7 +33,7 @@ class AudioFileDurationValidator:
     Applicable to audio files.
     '''
 
-    def __init__(self, max_duration: float=settings.MAX_AUDIO_DURATION):
+    def __init__(self, max_duration: float = settings.MAX_AUDIO_DURATION):
         '''
         Params:
         --------

@@ -7,7 +7,7 @@ from safm_api.models import UserProfile
 
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
-        write_only=True, # In case of user profile public email set to false
+        write_only=True,  # In case of user profile public email set to false
         validators=[UniqueValidator(queryset=User.objects.all())]
     )
     password = serializers.CharField(write_only=True)
@@ -43,20 +43,26 @@ class UserSerializer(serializers.ModelSerializer):
         # User create or user password patch
         if not self.partial or (self.partial and password):
             # Password patch, but invalid current password
-            if self.partial and not check_password(password_current, self.instance.password):
+            if self.partial and not check_password(
+                    password_current, self.instance.password):
                 raise serializers.ValidationError('Invalid current password.')
 
             # Password patch, but new password not different thant current one
-            if self.partial and check_password(password, self.instance.password):
-                raise serializers.ValidationError('The new password must be different than the current one.')
+            if self.partial and check_password(
+                    password, self.instance.password):
+                raise serializers.ValidationError(
+                    'The new password must be different than the current one.')
 
             # Password cannot be smaller thant 'password_min_length'
             if len(password) < self.password_min_length:
-                raise serializers.ValidationError('Password length must be at least {0} characters.'.format(self.password_min_length))
+                raise serializers.ValidationError(
+                    'Password length must be at least {0} characters.'.format(
+                        self.password_min_length))
 
             # Password (or new password) different than the confirm one
             if password != password_confirm:
-                raise serializers.ValidationError('Password confirmation does not match.')
+                raise serializers.ValidationError(
+                    'Password confirmation does not match.')
 
         return data
 
