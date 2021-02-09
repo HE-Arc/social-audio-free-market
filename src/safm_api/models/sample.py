@@ -90,3 +90,25 @@ class Sample(models.Model):
         self.tempo = get_file_bpm(self.file.path)
 
         self.save()
+
+    def set_tags(self, tags):
+        '''
+        Assign the given tags to the sample. The tags
+        are in an array.
+        '''
+        for tag_name in tags:
+            tag = Tag.objects.get_or_create(name=tag_name)[0]  # Return a tuple
+            self.tags.add(tag)
+
+        self.save()
+
+    def set_forks(self, forks):
+        '''
+        Assign the given forks to the sample. The forks
+        are in an array.
+        '''
+        for fork_id in forks:
+            fork = Sample.objects.get(pk=fork_id)
+            self.forks.add(fork)
+
+        self.save()
