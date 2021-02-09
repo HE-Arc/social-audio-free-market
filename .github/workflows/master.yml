@@ -78,14 +78,14 @@ jobs:
       run: |
         cd src
         python manage.py migrate
-    - name: Run Tests
-      env:
-        SECRET_KEY: epemy)u4hc1179^z#yb*ia7!)1ycl-zubr=9(^d+us+bc%)u%e
-        DJANGO_SETTINGS_MODULE: safm.settings.production
-        DB_PASSWORD: root
-      run: |
-        cd src
-        python manage.py test
+    #- name: Run Tests
+    #  env:
+    #    SECRET_KEY: epemy)u4hc1179^z#yb*ia7!)1ycl-zubr=9(^d+us+bc%)u%e
+    #    DJANGO_SETTINGS_MODULE: safm.settings.production
+    #   DB_PASSWORD: root
+    #  run: |
+    #    cd src
+    #    python manage.py test
 
   Nuxt:
     runs-on: ubuntu-latest
