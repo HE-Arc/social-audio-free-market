@@ -230,7 +230,7 @@ class UserPatchTest(TestCase):
     @tag('user_patch_username')
     def test_user_patch_username(self):
         '''
-        Checks wether a user username is correctly patched.
+        Checks whether a user username is correctly patched.
         '''
         # Login
         headers = _login_user_and_get_token(self)
@@ -251,7 +251,7 @@ class UserPatchTest(TestCase):
     @tag('user_patch_email')
     def test_user_patch_email(self):
         '''
-        Checks wether a user email is correctly patched.
+        Checks whether a user email is correctly patched.
         '''
         # Login
         headers = _login_user_and_get_token(self)
@@ -271,7 +271,7 @@ class UserPatchTest(TestCase):
     @tag('user_patch_password')
     def test_user_patch_password(self):
         '''
-        Checks wether a user password is correctly patched.
+        Checks whether a user password is correctly patched.
         '''
         # Login
         headers = _login_user_and_get_token(self)
@@ -541,7 +541,7 @@ class SampleTest(TestCase):
     @tag('delete_sample')
     def test_delete_sample(self):
         '''
-        Checks wether a Sample is correctly deleted.
+        Checks whether a Sample is correctly deleted.
         '''
         # Login
         headers = _login_user_and_get_token(self)
@@ -883,7 +883,7 @@ class UserSamplesTest(TestCase):
     @tag('user_samples')
     def test_user_samples(self):
         '''
-        Checks wether the user/samples route returns the user samples.
+        Checks whether the user/samples route returns the user samples.
         '''
         for user in self.users:
             user_id = user['pk']
@@ -901,7 +901,7 @@ class UserSamplesTest(TestCase):
     @tag('user_samples_count')
     def test_user_samples_count(self):
         '''
-        Checks wether the user/samples/count route returns the correct
+        Checks whether the user/samples/count route returns the correct
         number of samples based on the user.
         '''
         for user in self.users:
@@ -1002,7 +1002,7 @@ class QuickSearchTest(TestCase):
                         username = user['fields']['username']
                         break
 
-                # Checks wether the search_query is contained in the sample properties
+                # Checks whether the search_query is contained in the sample properties
                 # Continue avoids duplicated content
                 if search_query in username:
                     count += 1

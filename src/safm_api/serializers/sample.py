@@ -1,3 +1,4 @@
+import re
 from rest_framework import serializers
 from .sample_fork import SampleForkSerializer
 from .tag import TagSerializer
@@ -36,9 +37,32 @@ class SampleSerializer(serializers.ModelSerializer):
 
         # Automatically deduce some properties
         sample.deduce_properties()
-        sample.save()
+
+        # Parse the tags and assign them to the sample
+        sample.set_tags(self.parse_tags(**validated_data['tags']))
+
+        # Parse the forks and assign them to the sample
+        sample.set_forks(self.parse_forks(**validated_data['forks_from']))
 
         return sample
+
+    def update(self, instance, validated_data):
+        '''
+        Update the sample.
+        '''
+        # Clear the tags
+        instance.tags.clear()
+        # Parse the tags and assign them to the sample
+        instance.set_tags(self.parse_tags(**validated_data['tags']))
+
+        # Clear the forks
+        instance.forks.clear()
+        # Parse the forks and assign them to the sample
+        instance.set_forks(self.parse_forks(**validated_data['forks_from']))
+
+        instance.save()
+
+        return instance
 
     def validate_file(self, value):
         '''
@@ -47,3 +71,29 @@ class SampleSerializer(serializers.ModelSerializer):
         '''
         value.name = get_safe_file_name(value.name)
         return value
+
+    def parse_tags(self, tags):
+        '''
+        Parse the received tags (string separated by commas).
+        '''
+        tags_as_string = re.escape(tags).replace('\\', '')
+
+        # Filter the valid tags
+        tags_as_list = list(filter(re.compile(r'[a-z]+[a-z0-9]+'),
+                                   [tag.strip() for tag in tags_as_string.split(',')]
+                                   ))
+
+        return tags_as_list
+
+    def parse_forks(self, forks):
+        '''
+        Parse the received forks (string separated by commas).
+        '''
+        forks_as_string = re.escape(forks).replace('\\', '')
+
+        # Filter the valid forks
+        forks_as_list = list(filter(re.compile(r'\d'),
+                                    [fork.strip() for fork in forks_as_string.split(',')]
+                                    ))
+
+        return forks_as_list

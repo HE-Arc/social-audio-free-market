@@ -1,4 +1,4 @@
-from safm.settings.common import * # noqa
+from safm.settings.common import *  # noqa
 
 import os
 

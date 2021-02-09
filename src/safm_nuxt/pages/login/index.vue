@@ -122,7 +122,7 @@ export default {
 
                     let body = new FormData()
 
-                    // Checks wether the usernameEmail field is an email address
+                    // Checks whether the usernameEmail field is an email address
                     const re = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/
                     if (re.test(this.usernameEmail)) {
                         // Login with email address
