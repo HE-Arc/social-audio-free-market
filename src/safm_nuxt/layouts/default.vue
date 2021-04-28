@@ -25,7 +25,7 @@
                 v-else
                 offset-y
             >
-                <template v-slot:activator="{ on }">
+                <template #activator="{ on }">
                     <v-btn
                         depressed
                         class="account-menu"
@@ -95,7 +95,7 @@
             :timeout="snackbarTimeout"
         >
             {{ snackbarText }}
-            <template v-slot:action="{ attrs }">
+            <template #action="{ attrs }">
                 <v-btn
                     text
                     color="accent"

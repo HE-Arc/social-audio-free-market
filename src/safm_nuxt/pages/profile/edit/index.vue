@@ -31,7 +31,7 @@
                         </v-col>
                         <v-col cols="12">
                             <v-switch v-model="email_public">
-                                <template v-slot:label>
+                                <template #label>
                                     Public email address
                                 </template>
                             </v-switch>
@@ -165,9 +165,9 @@ import { validationMixin } from 'vuelidate';
 import { required, email, minLength, sameAs, not } from 'vuelidate/lib/validators';
 
 export default {
-    middleware: 'authenticated',
 
     mixins: [validationMixin],
+    middleware: 'authenticated',
 
     validations: {
         formUsername: {
@@ -228,6 +228,12 @@ export default {
                 password_confirm: '',
             },
             loadingPassword: false
+        };
+    },
+
+    head() {
+        return {
+            title: 'Edit Profile'
         };
     },
 
@@ -417,12 +423,6 @@ export default {
                 }
             }
         }
-    },
-
-    head() {
-        return {
-            title: 'Edit Profile'
-        };
     }
 };
 </script>

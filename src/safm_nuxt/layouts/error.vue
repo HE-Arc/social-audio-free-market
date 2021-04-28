@@ -20,6 +20,12 @@ export default {
         }
     },
 
+    head() {
+        return {
+            title: this.codeStatusMessage
+        };
+    },
+
     computed: {
         codeStatusMessage() {
             switch (this.error.statusCode) {
@@ -28,12 +34,6 @@ export default {
             default: return 'An error occured';
             }
         }
-    },
-
-    head() {
-        return {
-            title: this.codeStatusMessage
-        };
     }
 };
 </script>

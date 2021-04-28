@@ -37,9 +37,9 @@ import { validationMixin } from 'vuelidate';
 import { required, email } from 'vuelidate/lib/validators';
 
 export default {
-    middleware: 'unauthenticated',
 
     mixins: [validationMixin],
+    middleware: 'unauthenticated',
 
     validations: {
         email: { required, email }
@@ -49,6 +49,12 @@ export default {
         return {
             email: '',
             loading: false
+        };
+    },
+
+    head() {
+        return {
+            title: 'Request Reset Password'
         };
     },
 
@@ -99,12 +105,6 @@ export default {
                 }
             }
         }
-    },
-
-    head() {
-        return {
-            title: 'Request Reset Password'
-        };
     }
 };
 </script>

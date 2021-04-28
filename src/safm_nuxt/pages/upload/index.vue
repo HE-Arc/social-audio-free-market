@@ -96,7 +96,6 @@ import TagsField from '~/components/sample/TagsField';
 import SampleFork from '~/components/sample/SampleFork.vue';
 
 export default {
-    middleware: 'authenticated',
 
     components: {
         TagsField,
@@ -104,6 +103,7 @@ export default {
     },
 
     mixins: [validationMixin],
+    middleware: 'authenticated',
 
     validations: {
         file: { required },
@@ -137,6 +137,12 @@ export default {
             selectedForkFrom: [],
             downloadedSamples: [],
             loading: false
+        };
+    },
+
+    head() {
+        return {
+            title: 'Upload Sample'
         };
     },
 
@@ -228,12 +234,6 @@ export default {
                 }
             }
         }
-    },
-
-    head() {
-        return {
-            title: 'Upload Sample'
-        };
     }
 };
 </script>

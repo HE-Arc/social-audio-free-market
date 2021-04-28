@@ -91,7 +91,7 @@
                 </v-row>
             </form>
             <v-switch v-model="removeEnable" color="error">
-                <template v-slot:label>
+                <template #label>
                     Remove
                 </template>
             </v-switch>
@@ -115,13 +115,13 @@ import SampleFork from '~/components/sample/SampleFork.vue';
 import SearchSampleFork from '~/components/sample/SearchSampleFork.vue';
 
 export default {
-    middleware: 'authenticated',
 
     components: {
         TagsField,
         SampleFork,
         SearchSampleFork
     },
+    middleware: 'authenticated',
 
     async asyncData({ $axios, params, error, store }) {
         try {
@@ -183,6 +183,12 @@ export default {
             loadingUpdate: false,
             removeEnable: false,
             loadingRemove: false
+        };
+    },
+
+    head() {
+        return {
+            title: `Edit ${this.name}`
         };
     },
 
@@ -313,12 +319,6 @@ export default {
                 }
             }
         }
-    },
-
-    head() {
-        return {
-            title: `Edit ${this.name}`
-        };
     }
 };
 </script>

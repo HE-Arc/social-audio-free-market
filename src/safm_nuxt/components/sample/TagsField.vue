@@ -6,7 +6,7 @@
             :error-messages="tagInputErrors"
             @keypress.enter="addTag"
         >
-            <template v-slot:append>
+            <template #append>
                 <v-icon @click="addTag">
                     {{ addTagIcon }}
                 </v-icon>

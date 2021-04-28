@@ -187,6 +187,12 @@ export default {
         };
     },
 
+    head() {
+        return {
+            title: this.sample.name
+        };
+    },
+
     computed: {
         profilePictureSrc() {
             return `${this.$axios.defaults.baseURL}/user/picture/${this.userId}`;
@@ -233,12 +239,6 @@ export default {
 
             return '-';
         }
-    },
-
-    head() {
-        return {
-            title: this.sample.name
-        };
     }
 };
 </script>

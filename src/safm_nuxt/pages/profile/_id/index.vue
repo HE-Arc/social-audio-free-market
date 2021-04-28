@@ -117,6 +117,12 @@ export default {
         };
     },
 
+    head() {
+        return {
+            title: this.username
+        };
+    },
+
     computed: {
         profilePictureSrc() {
             return `${this.$axios.defaults.baseURL}/user/picture/${this.profile.user.id}`;
@@ -136,12 +142,6 @@ export default {
         numberSamples() {
             return this.samples.length;
         }
-    },
-
-    head() {
-        return {
-            title: this.username
-        };
     },
 };
 </script>

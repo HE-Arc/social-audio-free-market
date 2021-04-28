@@ -68,9 +68,9 @@ import { validationMixin } from 'vuelidate';
 import { required, email, minLength, sameAs } from 'vuelidate/lib/validators';
 
 export default {
-    middleware: 'unauthenticated',
 
     mixins: [validationMixin],
+    middleware: 'unauthenticated',
 
     validations: {
         username: { required },
@@ -86,6 +86,12 @@ export default {
             password: '',
             password_confirm: '',
             loading: false
+        };
+    },
+
+    head() {
+        return {
+            title: 'Register'
         };
     },
 
@@ -158,12 +164,6 @@ export default {
                 }
             }
         }
-    },
-
-    head() {
-        return {
-            title: 'Register'
-        };
     }
 };
 </script>
