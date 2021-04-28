@@ -13,7 +13,7 @@
                             :error-messages="emailErrors"
                             @blur="$v.email.$touch()"
                             @keypress.enter="requestResetPassword"
-                        ></v-text-field>
+                        />
                     </v-col>
                     <v-col cols="12">
                         <v-btn
@@ -33,8 +33,8 @@
 </template>
 
 <script>
-import { validationMixin } from 'vuelidate'
-import { required, email } from 'vuelidate/lib/validators'
+import { validationMixin } from 'vuelidate';
+import { required, email } from 'vuelidate/lib/validators';
 
 export default {
     middleware: 'unauthenticated',
@@ -45,66 +45,66 @@ export default {
         email: { required, email }
     },
 
-    data () {
+    data() {
         return {
             email: '',
             loading: false
-        }
+        };
     },
 
     computed: {
-        emailErrors () {
-            const errors = []
-            if (!this.$v.email.$dirty) return []
-            !this.$v.email.email && errors.push('Must be valid email')
-            !this.$v.email.required && errors.push('Email is required')
+        emailErrors() {
+            const errors = [];
+            if (!this.$v.email.$dirty) { return []; }
+            !this.$v.email.email && errors.push('Must be valid email');
+            !this.$v.email.required && errors.push('Email is required');
 
-            return errors
-        }
-    },
-
-    head () {
-        return {
-            title: 'Request Reset Password'
+            return errors;
         }
     },
 
     methods: {
         // Requests a password reset email
-        async requestResetPassword () {
+        async requestResetPassword() {
             if (!this.loading) {
-                this.$v.$touch()
+                this.$v.$touch();
 
                 if (!this.$v.$anyError) {
                     // Valid form
-                    this.loading = true
+                    this.loading = true;
 
-                    let body = new FormData()
-                    body.set('email', this.email)
+                    const body = new FormData();
+                    body.set('email', this.email);
 
                     try {
                         // Requests a password reset email
-                        const response = await this.$axios.$post('/password_reset/', body)
-                        const status = response.status
+                        const response = await this.$axios.$post('/password_reset/', body);
+                        const status = response.status;
 
-                        if (status == 'OK') {
-                            this.$nuxt.$emit('snackbar', 'An email has been sent to you')
-                            this.email = ''
+                        if (status === 'OK') {
+                            this.$nuxt.$emit('snackbar', 'An email has been sent to you');
+                            this.email = '';
 
                             // Redirects to the home page
-                            this.$router.push('/')
+                            this.$router.push('/');
                         } else {
-                            this.$nuxt.$emit('snackbar', 'An error occured')
+                            this.$nuxt.$emit('snackbar', 'An error occured');
                         }
                     } catch (e) {
-                        this.$nuxt.$emit('snackbar', this.$errorArrayToString(e.response.data))
+                        this.$nuxt.$emit('snackbar', this.$errorArrayToString(e.response.data));
                     }
 
-                    this.$v.$reset()
-                    this.loading = false
+                    this.$v.$reset();
+                    this.loading = false;
                 }
             }
         }
+    },
+
+    head() {
+        return {
+            title: 'Request Reset Password'
+        };
     }
-}
+};
 </script>

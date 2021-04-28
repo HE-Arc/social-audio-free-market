@@ -7,9 +7,9 @@
         >
             <template v-slot:activator="{ on }">
                 <v-btn
-                    v-on="on"
                     fab
                     depressed
+                    v-on="on"
                 >
                     <v-icon>mdi-magnify</v-icon>
                 </v-btn>
@@ -32,7 +32,9 @@
                             @keypress.enter="quickSearch"
                         >
                             <template v-slot:append>
-                                <v-icon @click="quickSearch">{{ quickSearchIcon }}</v-icon>
+                                <v-icon @click="quickSearch">
+                                    {{ quickSearchIcon }}
+                                </v-icon>
                             </template>
                         </v-text-field>
                     </v-container>
@@ -56,40 +58,40 @@
 <script>
 export default {
 
-    data () {
+    data() {
         return {
             dialog: false,
             quickSearchInput: ''
-        }
+        };
     },
 
     computed: {
-        quickSearchIcon () {
-            return this.quickSearchInput.length > 0 ? 'mdi-magnify' : ''
+        quickSearchIcon() {
+            return this.quickSearchInput.length > 0 ? 'mdi-magnify' : '';
         }
     },
 
     methods: {
         // Performs a Quick Search
-        quickSearch () {
+        quickSearch() {
             if (this.quickSearchInput.length > 0) {
                 // Replaces the commas with dots (commas do not work as expected in Django search)
-                this.quickSearchInput = this.quickSearchInput.replace(/,/g, '.')
-                this.dialog = false
+                this.quickSearchInput = this.quickSearchInput.replace(/,/g, '.');
+                this.dialog = false;
 
                 // Goes to the Quick Search results page
-                this.$router.push(`/quick-search/${this.quickSearchInput}`)
+                this.$router.push(`/quick-search/${this.quickSearchInput}`);
 
                 // Resets the input
-                this.quickSearchInput = ''
+                this.quickSearchInput = '';
             }
         },
 
         // Goes to the Advanced Search page
-        advancedSearch () {
-            this.dialog = false
-            this.$router.push('/advanced-search')
+        advancedSearch() {
+            this.dialog = false;
+            this.$router.push('/advanced-search');
         }
     }
-}
+};
 </script>

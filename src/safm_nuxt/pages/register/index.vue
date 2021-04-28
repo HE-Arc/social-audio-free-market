@@ -12,7 +12,7 @@
                             :error-messages="usernameErrors"
                             @blur="$v.username.$touch()"
                             @keypress.enter="register"
-                        ></v-text-field>
+                        />
                     </v-col>
                     <v-col cols="12">
                         <v-text-field
@@ -22,7 +22,7 @@
                             :error-messages="emailErrors"
                             @blur="$v.email.$touch()"
                             @keypress.enter="register"
-                        ></v-text-field>
+                        />
                     </v-col>
                     <v-col cols="12">
                         <v-text-field
@@ -33,7 +33,7 @@
                             :error-messages="passwordErrors"
                             @blur="$v.password.$touch()"
                             @keypress.enter="register"
-                        ></v-text-field>
+                        />
                     </v-col>
                     <v-col cols="12">
                         <v-text-field
@@ -44,7 +44,7 @@
                             :error-messages="passwordConfirmErrors"
                             @blur="$v.password_confirm.$touch()"
                             @keypress.enter="register"
-                        ></v-text-field>
+                        />
                     </v-col>
                     <v-col cols="12">
                         <v-btn
@@ -64,8 +64,8 @@
 </template>
 
 <script>
-import { validationMixin } from 'vuelidate'
-import { required, email, minLength, sameAs } from 'vuelidate/lib/validators'
+import { validationMixin } from 'vuelidate';
+import { required, email, minLength, sameAs } from 'vuelidate/lib/validators';
 
 export default {
     middleware: 'unauthenticated',
@@ -79,91 +79,91 @@ export default {
         password_confirm: { required, minLength: minLength(8), sameAs: sameAs('password') }
     },
 
-    data () {
+    data() {
         return {
             username: '',
             email: '',
             password: '',
             password_confirm: '',
             loading: false
-        }
+        };
     },
 
     computed: {
-        usernameErrors () {
-            const errors = []
-            if (!this.$v.username.$dirty) return []
-            !this.$v.username.required && errors.push('Username is required')
+        usernameErrors() {
+            const errors = [];
+            if (!this.$v.username.$dirty) { return []; }
+            !this.$v.username.required && errors.push('Username is required');
 
-            return errors
+            return errors;
         },
 
-        emailErrors () {
-            const errors = []
-            if (!this.$v.email.$dirty) return []
-            !this.$v.email.email && errors.push('Must be valid email')
-            !this.$v.email.required && errors.push('Email is required')
+        emailErrors() {
+            const errors = [];
+            if (!this.$v.email.$dirty) { return []; }
+            !this.$v.email.email && errors.push('Must be valid email');
+            !this.$v.email.required && errors.push('Email is required');
 
-            return errors
+            return errors;
         },
 
-        passwordErrors () {
-            const errors = []
-            if (!this.$v.password.$dirty) return []
-            !this.$v.password.required && errors.push('Password is required')
-            !this.$v.password.minLength && errors.push('Password must be at least 8 characters')
+        passwordErrors() {
+            const errors = [];
+            if (!this.$v.password.$dirty) { return []; }
+            !this.$v.password.required && errors.push('Password is required');
+            !this.$v.password.minLength && errors.push('Password must be at least 8 characters');
 
-            return errors
+            return errors;
         },
 
-        passwordConfirmErrors () {
-            const errors = []
-            if (!this.$v.password_confirm.$dirty) return []
-            !this.$v.password_confirm.required && errors.push('Confirm Password is required')
-            !this.$v.password_confirm.minLength && errors.push('Password Confirm must be at least 8 characters')
-            !this.$v.password_confirm.sameAs && errors.push('Password confirmation does not match')
+        passwordConfirmErrors() {
+            const errors = [];
+            if (!this.$v.password_confirm.$dirty) { return []; }
+            !this.$v.password_confirm.required && errors.push('Confirm Password is required');
+            !this.$v.password_confirm.minLength && errors.push('Password Confirm must be at least 8 characters');
+            !this.$v.password_confirm.sameAs && errors.push('Password confirmation does not match');
 
-            return errors
-        }
-    },
-
-    head () {
-        return {
-            title: 'Register'
+            return errors;
         }
     },
 
     methods: {
         // Creates an account
-        async register () {
+        async register() {
             if (!this.loading) {
-                this.$v.$touch()
+                this.$v.$touch();
 
                 if (!this.$v.$anyError) {
                     // Valid form
-                    this.loading = true
+                    this.loading = true;
 
-                    let body = new FormData()
-                    body.set('username', this.username)
-                    body.set('email', this.email)
-                    body.set('password', this.password)
-                    body.set('password_confirm', this.password_confirm)
+                    const body = new FormData();
+                    body.set('username', this.username);
+                    body.set('email', this.email);
+                    body.set('password', this.password);
+                    body.set('password_confirm', this.password_confirm);
 
                     try {
                         // Creates an account
-                        const response = await this.$axios.post('/register', body)
-                        const userid = this.$storeUserCredentials(response)
-                        this.$nuxt.$emit('snackbar', 'Successful registration !')
+                        const response = await this.$axios.post('/register', body);
+                        const userid = this.$storeUserCredentials(response);
+                        this.$nuxt.$emit('snackbar', 'Successful registration !');
 
                         // Redirects to the user profile page
-                        this.$router.push(`/profile/${userid}`)
+                        this.$router.push(`/profile/${userid}`);
                     } catch (e) {
-                        this.$nuxt.$emit('snackbar', this.$errorArrayToString(e.response.data))
-                        this.loading = false
+                        this.$nuxt.$emit('snackbar', this.$errorArrayToString(e.response.data));
+                        this.loading = false;
                     }
                 }
             }
         }
+    },
+
+    head() {
+        return {
+            title: 'Register'
+        };
     }
-}
+};
 </script>

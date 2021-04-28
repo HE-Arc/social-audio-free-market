@@ -15,8 +15,8 @@
 </template>
 
 <script>
-import AdvancedSearch from '~/components/AdvancedSearch.vue'
-import SampleList from '~/components/sample/SampleList.vue'
+import AdvancedSearch from '~/components/AdvancedSearch.vue';
+import SampleList from '~/components/sample/SampleList.vue';
 
 export default {
     components: {
@@ -24,29 +24,29 @@ export default {
         SampleList
     },
 
-    data () {
-        return {
-            samples: []
-        }
-    },
-
-    async asyncData ({ $axios, params, error }) {
+    async asyncData({ $axios, params, error }) {
         try {
             if (params.query && params.query.length > 0) {
                 // Advanced Search query based on params
-                const samples = await $axios.$get(`/search/advanced?${params.query}`)
+                const samples = await $axios.$get(`/search/advanced?${params.query}`);
 
-                return { samples }
+                return { samples };
             }
         } catch (e) {
-            error({ statusCode: 404, message: 'Page not found' })
+            error({ statusCode: 404, message: 'Page not found' });
         }
     },
 
-    head () {
+    data() {
+        return {
+            samples: []
+        };
+    },
+
+    head() {
         return {
             title: 'Advanced Search'
-        }
+        };
     }
-}
+};
 </script>

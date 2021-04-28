@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import SampleList from '~/components/sample/SampleList.vue'
+import SampleList from '~/components/sample/SampleList.vue';
 
 export default {
     middleware: 'authenticated',
@@ -20,32 +20,32 @@ export default {
         SampleList
     },
 
-    data () {
-        return {
-            likedSamples: []
-        }
-    },
-
-    async asyncData ({ $axios, error }) {
+    async asyncData({ $axios, error }) {
         try {
-            const response = await $axios.$get('/user/samples/likes')
+            const response = await $axios.$get('/user/samples/likes');
 
-            let likedSamples = []
+            const likedSamples = [];
             // Filters the liked samples id
-            for (let sample of response) {
-                likedSamples.push(sample['sample'])
+            for (const sample of response) {
+                likedSamples.push(sample.sample);
             }
 
-            return { likedSamples }
+            return { likedSamples };
         } catch (e) {
-            error({ statusCode: 401, message: 'You must be logged in.' })
+            error({ statusCode: 401, message: 'You must be logged in.' });
         }
     },
 
-    head () {
+    data() {
+        return {
+            likedSamples: []
+        };
+    },
+
+    head() {
         return {
             title: 'Likes'
-        }
+        };
     },
-}
+};
 </script>

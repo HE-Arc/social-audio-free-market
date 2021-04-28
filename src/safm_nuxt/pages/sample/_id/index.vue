@@ -3,20 +3,20 @@
         <v-container>
             <h1>{{ sample.name }}</h1>
             <BtnEdit
-                :sampleId="sample.id"
-                :sampleUserId="userId"
+                :sample-id="sample.id"
+                :sample-user-id="userId"
                 fixed
-                bigMargin
+                big-margin
             />
             <section>
                 <WaveForm
-                    ref="waveform"
                     :id="sample.id"
+                    ref="waveform"
                 />
             </section>
             <v-card>
                 <v-card-text>
-                    <SampleActions :sampleId="sample.id" />
+                    <SampleActions :sample-id="sample.id" />
                 </v-card-text>
             </v-card>
             <section>
@@ -32,7 +32,7 @@
                                     :src="profilePictureSrc"
                                     width="100"
                                     height="100"
-                                ></v-img>
+                                />
                                 <v-card-title class="justify-center">
                                     {{ username }}
                                 </v-card-title>
@@ -40,10 +40,14 @@
                             <v-card-actions>
                                 <v-row>
                                     <v-col cols="12">
-                                        <v-icon class="mr-1">mdi-music-note</v-icon>
+                                        <v-icon class="mr-1">
+                                            mdi-music-note
+                                        </v-icon>
                                         <span class="mr-2">{{ numberSamples }}</span>
                                         <span class="mr-1">·</span>
-                                        <v-icon class="mr-1">mdi-account-multiple</v-icon>
+                                        <v-icon class="mr-1">
+                                            mdi-account-multiple
+                                        </v-icon>
                                         <span>-</span>
                                     </v-col>
                                     <v-col cols="12">
@@ -52,7 +56,9 @@
                                             color="accent"
                                             disabled
                                         >
-                                            <v-icon class="mr-1">mdi-account-plus</v-icon>
+                                            <v-icon class="mr-1">
+                                                mdi-account-plus
+                                            </v-icon>
                                             Follow
                                         </v-btn>
                                     </v-col>
@@ -97,7 +103,7 @@
                                     </v-col>
                                 </v-row>
                             </v-card-actions>
-                            <v-divider class="mx-6"></v-divider>
+                            <v-divider class="mx-6" />
                             <v-card-text>
                                 <v-chip
                                     v-for="tag in sample.tags"
@@ -109,11 +115,11 @@
                                     {{ tag.name }}
                                 </v-chip>
                             </v-card-text>
-                            <v-divider class="mx-6"></v-divider>
+                            <v-divider class="mx-6" />
                             <v-card-text class="px-6 body-1">
                                 {{ sample.description }}
                             </v-card-text>
-                            <v-divider class="mx-6"></v-divider>
+                            <v-divider class="mx-6" />
                             <v-card-text class="px-6 body-2">
                                 {{ `Uploaded on ${new Date(sample.datetime_upload).toLocaleDateString()}` }}
                             </v-card-text>
@@ -124,8 +130,8 @@
             <section>
                 <div v-if="forkFrom.length > 0 || forkTo.length > 0">
                     <SampleForkContainer
-                        :forkFrom="forkFrom"
-                        :forkTo="forkTo"
+                        :fork-from="forkFrom"
+                        :fork-to="forkTo"
                     />
                 </div>
                 <div v-else>
@@ -137,10 +143,10 @@
 </template>
 
 <script>
-import WaveForm from '~/components/WaveForm.vue'
-import SampleActions from '~/components/sample/SampleActions.vue'
-import BtnEdit from '~/components/sample/BtnEdit.vue'
-import SampleForkContainer from '~/components/sample/SampleForkContainer.vue'
+import WaveForm from '~/components/WaveForm.vue';
+import SampleActions from '~/components/sample/SampleActions.vue';
+import BtnEdit from '~/components/sample/BtnEdit.vue';
+import SampleForkContainer from '~/components/sample/SampleForkContainer.vue';
 
 export default {
     components: {
@@ -150,7 +156,27 @@ export default {
         SampleForkContainer
     },
 
-    data () {
+    async asyncData({ $axios, params, error }) {
+        try {
+            const sample = await $axios.$get(`/sample/${params.id}`);
+            const numberSamples = await $axios.$get(`/user/samples/count/${sample.user.id}`);
+            const forkFrom = await $axios.$get(`/forks/from/${params.id}`);
+            const forkTo = await $axios.$get(`/forks/to/${params.id}`);
+
+            return {
+                sample,
+                userId: sample.user.id,
+                username: sample.user.username,
+                numberSamples: numberSamples.count,
+                forkFrom,
+                forkTo
+            };
+        } catch (e) {
+            error({ statusCode: 404, message: 'Sample not found' });
+        }
+    },
+
+    data() {
         return {
             sample: '',
             userId: '',
@@ -158,80 +184,63 @@ export default {
             numberSamples: '',
             forkFrom: [],
             forkTo: []
-        }
+        };
     },
 
     computed: {
-        profilePictureSrc () {
-            return `${this.$axios.defaults.baseURL}/user/picture/${this.userId}`
+        profilePictureSrc() {
+            return `${this.$axios.defaults.baseURL}/user/picture/${this.userId}`;
         },
 
-        large () {
+        large() {
             switch (this.$vuetify.breakpoint.name) {
-            case 'xs': return false
-            case 'sm': return false
-            case 'md': return true
-            case 'lg': return true
-            case 'xl': return true
+            case 'xs': return false;
+            case 'sm': return false;
+            case 'md': return true;
+            case 'lg': return true;
+            case 'xl': return true;
+            default: return '';
             }
         },
 
-        iconMr () {
+        iconMr() {
             switch (this.$vuetify.breakpoint.name) {
-            case 'xs': return 'mr-1'
-            case 'sm': return 'mr-1'
-            case 'md': return 'mr-2'
-            case 'lg': return 'mr-2'
-            case 'xl': return 'mr-2'
+            case 'xs': return 'mr-1';
+            case 'sm': return 'mr-1';
+            case 'md': return 'mr-2';
+            case 'lg': return 'mr-2';
+            case 'xl': return 'mr-2';
+            default: return '';
             }
         },
 
-        propertySize () {
+        propertySize() {
             switch (this.$vuetify.breakpoint.name) {
-            case 'xs': return 'title'
-            case 'sm': return 'title'
-            case 'md': return 'headline'
-            case 'lg': return 'headline'
-            case 'xl': return 'headline'
+            case 'xs': return 'title';
+            case 'sm': return 'title';
+            case 'md': return 'headline';
+            case 'lg': return 'headline';
+            case 'xl': return 'headline';
+            default: return '';
             }
         },
 
-        keyMode () {
-            if (this.sample.key != ' ' || this.sample.mode != ' ') {
+        keyMode() {
+            if (this.sample.key !== ' ' || this.sample.mode !== ' ') {
                 // Converts the mode into either m or M
-                return this.sample.key + (this.sample.mode == 'min' ? 'm' : this.sample.mode == 'maj' ? 'M' : '')
+                return this.sample.key + (this.sample.mode === 'min' ? 'm' : this.sample.mode === 'maj' ? 'M' : '');
             }
 
-            return '-'
+            return '-';
         }
     },
 
-    async asyncData({ $axios, params, error }) {
-        try {
-            const sample = await $axios.$get(`/sample/${params.id}`)
-            const numberSamples = await $axios.$get(`/user/samples/count/${sample.user.id}`)
-            const forkFrom = await $axios.$get(`/forks/from/${params.id}`)
-            const forkTo = await $axios.$get(`/forks/to/${params.id}`)
-
-            return {
-                sample: sample,
-                userId: sample.user.id,
-                username: sample.user.username,
-                numberSamples: numberSamples.count,
-                forkFrom: forkFrom,
-                forkTo: forkTo
-            }
-        } catch (e) {
-            error({ statusCode: 404, message: 'Sample not found' })
-        }
-    },
-
-    head () {
+    head() {
         return {
             title: this.sample.name
-        }
+        };
     }
-}
+};
 </script>
 
 <style scoped>

@@ -24,24 +24,25 @@ export default {
     },
 
     computed: {
-        canEdit () {
+        canEdit() {
             if (this.$store.state.user) {
                 // Only the author of a sample can edit or delete it
-                return this.sampleUserId == this.$store.state.user.id
+                return this.sampleUserId === this.$store.state.user.id;
             }
 
-            return false
+            return false;
         },
 
-        bigMarginValue () {
+        bigMarginValue() {
             switch (this.$vuetify.breakpoint.name) {
-            case 'xs': return 12
-            case 'sm': return 14
-            case 'md': return 16
-            case 'lg': return 16
-            case 'xl': return 16
+            case 'xs': return 12;
+            case 'sm': return 14;
+            case 'md': return 16;
+            case 'lg': return 16;
+            case 'xl': return 16;
+            default: return 12;
             }
         }
     }
-}
+};
 </script>

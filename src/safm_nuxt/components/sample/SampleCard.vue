@@ -1,16 +1,18 @@
 <template>
     <v-card class="sample card">
         <v-card-title class="headline">
-            <nuxt-link :to="`/sample/${id}`">{{ name }}</nuxt-link>
+            <nuxt-link :to="`/sample/${id}`">
+                {{ name }}
+            </nuxt-link>
         </v-card-title>
         <BtnEdit
-            :sampleId="id"
-            :sampleUserId="userId"
+            :sample-id="id"
+            :sample-user-id="userId"
             absolute
         />
         <WaveForm
-            ref="waveform"
             :id="id"
+            ref="waveform"
         />
         <v-card-text>
             <div class="d-flex justify-space-around">
@@ -65,16 +67,16 @@
         </v-card-text>
         <v-card-text>
             <SampleActions
-                :sampleId="id"
+                :sample-id="id"
             />
         </v-card-text>
     </v-card>
 </template>
 
 <script>
-import WaveForm from '~/components/WaveForm.vue'
-import BtnEdit from '~/components/sample/BtnEdit.vue'
-import SampleActions from '~/components/sample/SampleActions.vue'
+import WaveForm from '~/components/WaveForm.vue';
+import BtnEdit from '~/components/sample/BtnEdit.vue';
+import SampleActions from '~/components/sample/SampleActions.vue';
 
 export default {
     components: {
@@ -96,25 +98,25 @@ export default {
     ],
 
     computed: {
-        canEdit () {
+        canEdit() {
             if (this.$store.state.user) {
                 // Only the author of a sample can edit or delete it
-                return this.userId == this.$store.state.user.id
+                return this.userId === this.$store.state.user.id;
             }
 
-            return false
+            return false;
         },
 
-        keyMode () {
-            if (this._key != ' ' || this._mode != ' ') {
+        keyMode() {
+            if (this._key !== ' ' || this._mode !== ' ') {
                 // Converts the mode into either m or M
-                return this._key + (this._mode == 'min' ? 'm' : this._mode == 'maj' ? 'M' : '')
+                return this._key + (this._mode === 'min' ? 'm' : this._mode === 'maj' ? 'M' : '');
             }
 
-            return '-'
+            return '-';
         }
     }
-}
+};
 </script>
 
 <style scoped>

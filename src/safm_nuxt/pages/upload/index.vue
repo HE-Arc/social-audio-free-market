@@ -3,7 +3,7 @@
         <v-container>
             <h1>Upload Sample</h1>
             <form id="sample-upload-form">
-                <v-row align=center>
+                <v-row align="center">
                     <v-col cols="12">
                         <v-file-input
                             v-model="file"
@@ -15,7 +15,7 @@
                             :error-messages="fileErrors"
                             @blur="$v.file.$touch()"
                             @keypress.enter="upload"
-                        ></v-file-input>
+                        />
                     </v-col>
                     <v-col cols="12">
                         <v-text-field
@@ -24,28 +24,28 @@
                             required
                             :error-messages="nameErrors"
                             @blur="$v.name.$touch()"
-                        ></v-text-field>
+                        />
                     </v-col>
                     <v-col cols="12">
                         <v-textarea
                             v-model="description"
                             label="Description"
                             outlined
-                        ></v-textarea>
+                        />
                     </v-col>
                     <v-col cols="6">
                         <v-select
                             v-model="key"
                             :items="keyItems"
                             label="Key"
-                        ></v-select>
+                        />
                     </v-col>
                     <v-col cols="6">
                         <v-select
                             v-model="mode"
                             :items="modeItems"
                             label="Mode"
-                        ></v-select>
+                        />
                     </v-col>
                     <v-col cols="12">
                         <TagsField />
@@ -66,7 +66,7 @@
                                 :id="downloaded.sample.id"
                                 :name="downloaded.sample.name"
                                 :username="downloaded.sample.user.username"
-                                :userId="downloaded.sample.user.id"
+                                :user-id="downloaded.sample.user.id"
                                 :datetime_download="downloaded.datetime_download"
                                 checkbox
                             />
@@ -90,13 +90,18 @@
 </template>
 
 <script>
-import { validationMixin } from 'vuelidate'
-import { required } from 'vuelidate/lib/validators'
-import TagsField from '~/components/sample/TagsField'
-import SampleFork from '~/components/sample/SampleFork.vue'
+import { validationMixin } from 'vuelidate';
+import { required } from 'vuelidate/lib/validators';
+import TagsField from '~/components/sample/TagsField';
+import SampleFork from '~/components/sample/SampleFork.vue';
 
 export default {
     middleware: 'authenticated',
+
+    components: {
+        TagsField,
+        SampleFork
+    },
 
     mixins: [validationMixin],
 
@@ -105,12 +110,17 @@ export default {
         name: { required }
     },
 
-    components: {
-        TagsField,
-        SampleFork
+    async asyncData({ $axios }) {
+        try {
+            const downloadedSamples = await $axios.$get('/user/downloads');
+
+            return { downloadedSamples };
+        } catch (e) {
+            return { downloadedSamples: [] };
+        }
     },
 
-    data () {
+    data() {
         return {
             file: [],
             name: '',
@@ -127,113 +137,103 @@ export default {
             selectedForkFrom: [],
             downloadedSamples: [],
             loading: false
-        }
+        };
     },
 
     computed: {
-        fileErrors () {
-            const errors = []
-            if (!this.$v.file.$dirty) return []
-            !this.$v.file.required && errors.push('File is required')
+        fileErrors() {
+            const errors = [];
+            if (!this.$v.file.$dirty) { return []; }
+            !this.$v.file.required && errors.push('File is required');
 
-            return errors
+            return errors;
         },
 
-        nameErrors () {
-            const errors = []
-            if (!this.$v.name.$dirty) return []
-            !this.$v.name.required && errors.push('Name is required')
+        nameErrors() {
+            const errors = [];
+            if (!this.$v.name.$dirty) { return []; }
+            !this.$v.name.required && errors.push('Name is required');
 
-            return errors
+            return errors;
         }
     },
 
-    mounted () {
+    mounted() {
         // On Tags Field update
         this.$nuxt.$on('updateTagsField', (tagsList) => {
             // Overrides the tags list
-            this.tags = tagsList
-        })
+            this.tags = tagsList;
+        });
 
         // On Fork checkbox change
         this.$nuxt.$on('forkCheckbox', (forkId, selected) => {
             if (selected) {
                 // Adds a fork the the forks list
-                this.selectedForkFrom.push(forkId)
+                this.selectedForkFrom.push(forkId);
             } else {
                 // Removes a fork from the forks list
-                const index = this.selectedForkFrom.indexOf(forkId)
-                this.selectedForkFrom.splice(index, 1)
+                const index = this.selectedForkFrom.indexOf(forkId);
+                this.selectedForkFrom.splice(index, 1);
             }
-        })
-    },
-
-    async asyncData ({ $axios }) {
-        try {
-            const downloadedSamples = await $axios.$get('/user/downloads')
-
-            return { downloadedSamples }
-        } catch (e) {
-            return { downloadedSamples: [] }
-        }
-    },
-
-    head () {
-        return {
-            title: 'Upload Sample'
-        }
+        });
     },
 
     methods: {
         // Uploads a new sample
-        async upload () {
+        async upload() {
             if (!this.loading) {
-                this.$v.$touch()
+                this.$v.$touch();
 
                 if (!this.$v.$anyError) {
                     // Valid form
-                    this.loading = true
+                    this.loading = true;
 
-                    let body = new FormData()
-                    body.append('file', this.file)
-                    body.set('name', this.name)
+                    const body = new FormData();
+                    body.append('file', this.file);
+                    body.set('name', this.name);
 
                     // Verifications to avoid giving empty values
                     if (this.description) {
-                        body.set('description', this.description)
+                        body.set('description', this.description);
                     }
 
                     if (this.key) {
-                        body.set('key', this.key)
+                        body.set('key', this.key);
                     }
 
                     if (this.mode) {
-                        body.set('mode', this.mode)
+                        body.set('mode', this.mode);
                     }
 
                     if (this.tags) {
-                        body.set('tags', this.tags)
+                        body.set('tags', this.tags);
                     }
 
                     if (this.selectedForkFrom) {
-                        body.append('forks_from', this.selectedForkFrom)
+                        body.append('forks_from', this.selectedForkFrom);
                     }
 
                     try {
                         // Uploads the sample
-                        const response = await this.$axios.post('/sample', body)
-                        const sampleId = response.data.id
+                        const response = await this.$axios.post('/sample', body);
+                        const sampleId = response.data.id;
 
-                        this.$nuxt.$emit('snackbar', 'Sample uploaded !')
+                        this.$nuxt.$emit('snackbar', 'Sample uploaded !');
                         // Redirects to the newly uploaded sample page
-                        this.$router.push(`/sample/${sampleId}`)
+                        this.$router.push(`/sample/${sampleId}`);
                     } catch (e) {
-                        this.$nuxt.$emit('snackbar', this.$errorArrayToString(e.response.data))
-                        this.loading = false
+                        this.$nuxt.$emit('snackbar', this.$errorArrayToString(e.response.data));
+                        this.loading = false;
                     }
                 }
             }
         }
+    },
+
+    head() {
+        return {
+            title: 'Upload Sample'
+        };
     }
-}
+};
 </script>

@@ -14,68 +14,68 @@
 export default {
     props: ['sampleId'],
 
-    data () {
+    data() {
         return {
             liked: false,
             loading: false
-        }
+        };
     },
 
     computed: {
-        likeIcon () {
-            return this.liked ? 'mdi-heart' : 'mdi-heart-outline'
+        likeIcon() {
+            return this.liked ? 'mdi-heart' : 'mdi-heart-outline';
         },
     },
 
-    mounted () {
+    mounted() {
         if (this.$store.state.auth) {
             // Only authenticated users can like samples
-            this.loadLikeState()
+            this.loadLikeState();
         }
     },
 
     methods: {
         // Loads the sample like status for the authenticated user
-        async loadLikeState () {
+        async loadLikeState() {
             try {
-                const response = await this.$axios.$get(`/sample/like/${this.sampleId}`)
-                this.liked = response.liked
+                const response = await this.$axios.$get(`/sample/like/${this.sampleId}`);
+                this.liked = response.liked;
             } catch (e) {
-                this.$nuxt.$emit('snackbar', 'An error occured')
+                this.$nuxt.$emit('snackbar', 'An error occured');
             }
         },
 
         // On button click
-        async click () {
+        async click() {
             if (!this.loading) {
-                this.loading = true
+                this.loading = true;
 
                 if (this.$store.state.auth) {
                     // Only authenticated users can like samples
-                    this.liked = !this.liked
+                    this.liked = !this.liked;
 
                     try {
-                        let response = ''
+                        let response = '';
                         if (this.liked) {
                             // Adds a like
-                            response = await this.$axios.post(`/sample/like/${this.sampleId}`)
+                            response = await this.$axios.post(`/sample/like/${this.sampleId}`);
                         } else {
                             // Removes a like
-                            response = await this.$axios.delete(`/sample/like/${this.sampleId}`)
+                            response = await this.$axios.delete(`/sample/like/${this.sampleId}`);
                         }
 
-                        this.$nuxt.$emit('snackbar', response.data.detail)
+                        this.$nuxt.$emit('snackbar', response.data.detail);
                     } catch (e) {
-                        this.$nuxt.$emit('snackbar', this.$errorArrayToString(e.response.data))
+                        this.$nuxt.$emit('snackbar', this.$errorArrayToString(e.response.data));
                     }
                 } else {
                     // User is not authenticated
-                    this.$nuxt.$emit('snackbar', 'You first need to log in.')
+                    this.$nuxt.$emit('snackbar', 'You first need to log in.');
                 }
 
-                this.loading = false
+                this.loading = false;
             }
         }
     }
-}
+};
 </script>

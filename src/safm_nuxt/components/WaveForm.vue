@@ -1,10 +1,11 @@
 <template>
-    <div :id="`waveform-${id}`"></div>
+    <div :id="`waveform-${id}`" />
 </template>
 
 <script>
+/*
 if (process.browser) {
-    var WaveSurfer = require('wavesurfer.js')
+    const WaveSurfer = require('wavesurfer.js');
 }
 
 export default {
@@ -13,40 +14,40 @@ export default {
         'height'
     ],
 
-    data () {
+    data() {
         return {
             wavesurfer: null,
             repeat: false
-        }
+        };
     },
 
-    mounted () {
+    mounted() {
         // Inits the wavesurfer element
-        this.initWaveSurfer()
+        this.initWaveSurfer();
 
         // On Play Pause Click event
         this.$nuxt.$on('samplePlayPause', (sampleId) => {
-            if (this.id == sampleId) {
-                this.wavesurfer.playPause()
+            if (this.id === sampleId) {
+                this.wavesurfer.playPause();
             }
-        })
+        });
 
         // On Sample Repeat event
         this.$nuxt.$on('sampleRepeat', (sampleId) => {
-            if (this.id == sampleId) {
-                this.repeat = !this.repeat
+            if (this.id === sampleId) {
+                this.repeat = !this.repeat;
             }
-        })
+        });
 
         // On Stop All event
         this.$nuxt.$on('sampleStopAll', () => {
-            this.wavesurfer.pause()
-        })
+            this.wavesurfer.pause();
+        });
     },
 
     methods: {
         // Inits the wavesurfer element
-        initWaveSurfer () {
+        initWaveSurfer() {
             // New wavesurfer instance
             this.wavesurfer = WaveSurfer.create({
                 container: `#waveform-${this.id}`,
@@ -56,30 +57,31 @@ export default {
                 barHeight: 1,
                 barGap: null,
                 height: this.height ? this.height : 128
-            })
+            });
 
             // Loads the sample audio file into the wavesurfer instance
-            const audioFileUrl = `${this.$axios.defaults.baseURL}/sample/file/${this.id}/0`
-            this.wavesurfer.load(audioFileUrl)
+            const audioFileUrl = `${this.$axios.defaults.baseURL}/sample/file/${this.id}/0`;
+            this.wavesurfer.load(audioFileUrl);
 
             // On wavesurfer play event
             this.wavesurfer.on('play', () => {
-                this.$nuxt.$emit('samplePlay', this.id)
-            })
+                this.$nuxt.$emit('samplePlay', this.id);
+            });
 
             // On wavesurfer pause event
             this.wavesurfer.on('pause', () => {
-                this.$nuxt.$emit('samplePause', this.id)
-            })
+                this.$nuxt.$emit('samplePause', this.id);
+            });
 
             // On wavesurfer finish event
             this.wavesurfer.on('finish', () => {
                 if (this.repeat) {
                     // Replays the audio file if the repeat is enabled
-                    this.wavesurfer.play()
+                    this.wavesurfer.play();
                 }
-            })
+            });
         }
     }
-}
+};
+*/
 </script>

@@ -6,14 +6,14 @@
                     v-model="params.name__icontains"
                     label="Name"
                     @keypress.enter="advancedSearch"
-                ></v-text-field>
+                />
             </v-col>
             <v-col cols="6">
                 <v-text-field
                     v-model="params.user__username__icontains"
                     label="Username"
                     @keypress.enter="advancedSearch"
-                ></v-text-field>
+                />
             </v-col>
             <v-col cols="12">
                 <v-card
@@ -26,7 +26,7 @@
                             v-model="durationRange"
                             :min="durationMin"
                             :max="durationMax"
-                            step=0.1
+                            step="0.1"
                             thumb-label
                             @input="durationRangeOnChange"
                         >
@@ -34,19 +34,19 @@
                                 <v-text-field
                                     :value="durationRange[0]"
                                     type="number"
-                                    step=0.1
+                                    step="0.1"
                                     class="mt-0 pt-0 range-text-field"
                                     @change="$set(durationRange, 0, $event)"
-                                ></v-text-field>
+                                />
                             </template>
                             <template v-slot:append>
                                 <v-text-field
                                     :value="durationRange[1]"
                                     type="number"
-                                    step=0.1
+                                    step="0.1"
                                     class="mt-0 pt-0 range-text-field"
                                     @change="$set(durationRange, 1, $event)"
-                                ></v-text-field>
+                                />
                             </template>
                         </v-range-slider>
                     </v-card-text>
@@ -72,7 +72,7 @@
                                     type="number"
                                     class="mt-0 pt-0 range-text-field"
                                     @change="$set(tempoRange, 0, $event)"
-                                ></v-text-field>
+                                />
                             </template>
                             <template v-slot:append>
                                 <v-text-field
@@ -80,7 +80,7 @@
                                     type="number"
                                     class="mt-0 pt-0 range-text-field"
                                     @change="$set(tempoRange, 1, $event)"
-                                ></v-text-field>
+                                />
                             </template>
                         </v-range-slider>
                     </v-card-text>
@@ -92,30 +92,30 @@
                     :items="keyItems"
                     label="Key"
                     multiple
-                ></v-select>
+                />
             </v-col>
             <v-col cols="6">
                 <v-select
                     v-model="params.mode"
                     :items="modeItems"
                     label="Mode"
-                ></v-select>
+                />
             </v-col>
             <v-col cols="12">
-                <TagsField loadFromStore="true" />
+                <TagsField load-from-store="true" />
             </v-col>
             <v-col cols="6">
                 <v-select
                     v-model="ordering"
                     :items="orderingItems"
                     label="Order by"
-                ></v-select>
+                />
             </v-col>
             <v-col cols="6">
                 <v-switch
                     v-model="orderingReverse"
                     label="Reversed Order"
-                ></v-switch>
+                />
             </v-col>
             <v-col cols="12">
                 <v-btn
@@ -132,14 +132,14 @@
 </template>
 
 <script>
-import TagsField from '~/components/sample/TagsField'
+import TagsField from '~/components/sample/TagsField';
 
 export default {
     components: {
         TagsField
     },
 
-    data () {
+    data() {
         return {
             // Advanced Search GET request params
             params: {
@@ -174,86 +174,86 @@ export default {
                 { text: 'Key', value: 'key' }
             ],
             orderingReverse: false
-        }
+        };
     },
 
-    mounted () {
+    mounted() {
         // Gets the Advanced Search form state from the store
-        this.restoreState()
+        this.restoreState();
 
         // On Tags Field update
         this.$nuxt.$on('updateTagsField', (tagsList) => {
             // Overrides the tags list
-            this.params.tags__name__icontains = tagsList
-        })
+            this.params.tags__name__icontains = tagsList;
+        });
     },
 
     methods: {
         // On duration range change
-        durationRangeOnChange () {
-            this.params.duration__gte = this.durationRange[0]
-            this.params.duration__lte = this.durationRange[1]
+        durationRangeOnChange() {
+            this.params.duration__gte = this.durationRange[0];
+            this.params.duration__lte = this.durationRange[1];
         },
 
         // On tempo range change
-        tempoRangeOnChange () {
-            this.params.tempo__gte = this.tempoRange[0]
-            this.params.tempo__lte = this.tempoRange[1]
+        tempoRangeOnChange() {
+            this.params.tempo__gte = this.tempoRange[0];
+            this.params.tempo__lte = this.tempoRange[1];
         },
 
         // Performs an Advanced Search
-        advancedSearch () {
-            let params = ''
+        advancedSearch() {
+            let params = '';
 
-            for (let [key, value] of Object.entries(this.params)) {
+            for (const [key, value] of Object.entries(this.params)) {
                 // Iterates over the Advanced Search form params and
                 // builds the request GET parameter accordingly
                 if (value) {
                     // The param has a value
-                    if (typeof(value) === 'object') {
+                    if (typeof (value) === 'object') {
                         // The param is an array
-                        for (let index in value) {
-                            params += `${key}=${value[index]}&`
+                        for (const index in value) {
+                            params += `${key}=${value[index]}&`;
                         }
                     } else {
                         // The param is an input
-                        params += `${key}=${value}&`
+                        params += `${key}=${value}&`;
                     }
                 }
             }
 
             // Removes the last '&' character
-            params = params.substring(0, params.length - 1)
+            params = params.substring(0, params.length - 1);
 
             if (this.ordering) {
                 // There is an order by property set
-                params += `&ordering=${this.orderingReverse ? '-' : ''}${this.ordering}`
+                params += `&ordering=${this.orderingReverse ? '-' : ''}${this.ordering}`;
             }
 
             // Saves the Advanced Search form state in the store
-            this.saveState()
+            this.saveState();
 
             // Goes to the Advanced Search results page
-            this.$router.push(`/advanced-search/${params}`)
+            this.$router.push(`/advanced-search/${params}`);
         },
 
         // Saves the Advanced Search form state in the store
-        saveState () {
-            this.$store.commit('setAdvancedSearchParams', {...this.params})
-            this.$store.commit('setAdvancedSearchOrdering', this.ordering)
-            this.$store.commit('setAdvancedSearchOrderingReverse', this.orderingReverse)
+        saveState() {
+            this.$store.commit('setAdvancedSearchParams', { ...this.params });
+            this.$store.commit('setAdvancedSearchOrdering', this.ordering);
+            this.$store.commit('setAdvancedSearchOrderingReverse', this.orderingReverse);
         },
 
         // Fetches the Advanced Search form state from the store
-        restoreState () {
-            this.params = {...this.$store.state.advancedSearchParams}
-            this.durationRange = [this.params.duration__gte, this.params.duration__lte]
-            this.tempoRange = [this.params.tempo__gte, this.params.tempo__lte]
-            this.ordering = this.$store.state.advancedSearchOrdering
-            this.orderingReverse = this.$store.state.advancedSearchOrderingReverse
+        restoreState() {
+            this.params = { ...this.$store.state.advancedSearchParams };
+            this.durationRange = [this.params.duration__gte, this.params.duration__lte];
+            this.tempoRange = [this.params.tempo__gte, this.params.tempo__lte];
+            this.ordering = this.$store.state.advancedSearchOrdering;
+            this.orderingReverse = this.$store.state.advancedSearchOrderingReverse;
         }
     }
-}
+};
 </script>
 
 <style scoped>

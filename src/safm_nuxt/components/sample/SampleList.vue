@@ -18,7 +18,7 @@
                         :_mode="sample.mode"
                         :duration="sample.duration"
                         :tags="sample.tags"
-                        :userId="sample.user.id"
+                        :user-id="sample.user.id"
                         :username="sample.user.username"
                     />
                 </v-col>
@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import SampleCard from '~/components/sample/SampleCard.vue'
+import SampleCard from '~/components/sample/SampleCard.vue';
 
 export default {
     components: {
@@ -48,37 +48,37 @@ export default {
 
     props: ['samples'],
 
-    data () {
+    data() {
         return {
             numberPlaying: 0
-        }
+        };
     },
 
     computed: {
-        stopAllDisabled () {
-            return this.numberPlaying < 1
+        stopAllDisabled() {
+            return this.numberPlaying < 1;
         }
     },
 
-    mounted () {
+    mounted() {
         // On sample play
         this.$nuxt.$on('samplePlay', () => {
-            ++this.numberPlaying
-        })
+            ++this.numberPlaying;
+        });
 
         // On sample pause
         this.$nuxt.$on('samplePause', () => {
-            --this.numberPlaying
-        })
+            --this.numberPlaying;
+        });
     },
 
     methods: {
         // On stop all button click
         stopAll() {
-            this.$nuxt.$emit('sampleStopAll')
+            this.$nuxt.$emit('sampleStopAll');
         }
     }
-}
+};
 </script>
 
 <style>

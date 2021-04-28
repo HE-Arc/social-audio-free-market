@@ -27,9 +27,9 @@
             >
                 <template v-slot:activator="{ on }">
                     <v-btn
-                        v-on="on"
                         depressed
                         class="account-menu"
+                        v-on="on"
                     >
                         {{ username }}
                         <v-icon>mdi-menu-down</v-icon>
@@ -66,7 +66,9 @@
                 <v-card-text>
                     <p>Bachelor project developed at the Haute-École ARC, Switzerland.</p>
                     <p>
-                        <v-icon large class="mt-4">mdi-github</v-icon>
+                        <v-icon large class="mt-4">
+                            mdi-github
+                        </v-icon>
                     </p>
                     <v-btn
                         text
@@ -79,15 +81,15 @@
                         View project on Github
                     </v-btn>
                 </v-card-text>
-                <v-divider></v-divider>
+                <v-divider />
                 <v-card-text>
                     {{ new Date().getFullYear() }} - <strong>Social Audio Free Market</strong>
                 </v-card-text>
             </v-card>
         </v-footer>
         <v-snackbar
-            app
             v-model="snackbar"
+            app
             top
             multi-line
             :timeout="snackbarTimeout"
@@ -108,14 +110,14 @@
 </template>
 
 <script>
-import QuickSearch from '~/components/QuickSearch.vue'
+import QuickSearch from '~/components/QuickSearch.vue';
 
 export default {
     components: {
         QuickSearch
     },
 
-    data () {
+    data() {
         return {
             title: 'SAFMarket',
             accountMenu: [
@@ -128,91 +130,91 @@ export default {
             snackbar: false,
             snackbarText: '',
             snackbarTimeout: 3000
-        }
+        };
     },
 
     computed: {
-        isOffline () {
-            return this.$nuxt.isOffline
+        isOffline() {
+            return this.$nuxt.isOffline;
         },
 
-        userid () {
-            return this.$store.state.user.id
+        userid() {
+            return this.$store.state.user.id;
         },
 
-        username () {
-            return this.$store.state.user.name
+        username() {
+            return this.$store.state.user.name;
         }
-    },
-
-    mounted () {
-        // On Snackbar
-        this.$nuxt.$on('snackbar', (text) => {
-            // Displays the snackbar with the given message
-            this.snackbarText = text
-            this.snackbar = true
-        })
     },
 
     watch: {
-        isOffline () {
+        isOffline() {
             // Emits a snackbar event whenever the application connection state changes
-            const text = this.isOffline ? 'No Internet connection' : 'You are now online'
-            this.$nuxt.$emit('snackbar', text)
+            const text = this.isOffline ? 'No Internet connection' : 'You are now online';
+            this.$nuxt.$emit('snackbar', text);
         }
+    },
+
+    mounted() {
+        // On Snackbar
+        this.$nuxt.$on('snackbar', (text) => {
+            // Displays the snackbar with the given message
+            this.snackbarText = text;
+            this.snackbar = true;
+        });
     },
 
     methods: {
         // Goes to the home page
-        home () {
-            this.$router.push('/')
+        home() {
+            this.$router.push('/');
         },
 
         // Calls a method by its name
         // This allows function names in the data object for the menu
-        handleFunctionCall (functionName) {
-            this[functionName]()
+        handleFunctionCall(functionName) {
+            this[functionName]();
         },
 
         // Goes to the upload sample page
-        upload () {
-            this.$router.push('/upload')
+        upload() {
+            this.$router.push('/upload');
         },
 
         // Goes to the user profile page
-        profile () {
-            this.$router.push(`/profile/${this.userid}`)
+        profile() {
+            this.$router.push(`/profile/${this.userid}`);
         },
 
         // Goes to the user liked samples page
-        likes () {
-            this.$router.push('/likes')
+        likes() {
+            this.$router.push('/likes');
         },
 
         // Goes to the user settings page
-        settings () {
-            this.$router.push('/profile/edit')
+        settings() {
+            this.$router.push('/profile/edit');
         },
 
         // Logout
-        async logout () {
+        async logout() {
             try {
                 // Logs out the user
-                await this.$axios.post('/logout')
+                await this.$axios.post('/logout');
                 // Removes the user credentials from the store and the cookies
-                this.$deleteUserCredentials()
+                this.$deleteUserCredentials();
 
-                this.$nuxt.$emit('snackbar', 'Successfully logged out !')
+                this.$nuxt.$emit('snackbar', 'Successfully logged out !');
 
                 // Refreshes the current page
                 // This avoids staying on a protected page when not logged in
-                this.$router.go(this.$nuxt.$route.path)
+                this.$router.go(this.$nuxt.$route.path);
             } catch (e) {
-                this.$nuxt.$emit('snackbar', 'An error occured')
+                this.$nuxt.$emit('snackbar', 'An error occured');
             }
         }
     }
-}
+};
 </script>
 
 <style>

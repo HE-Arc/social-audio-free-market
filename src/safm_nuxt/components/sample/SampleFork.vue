@@ -1,14 +1,18 @@
 <template>
     <div :class="`sample-fork${checkbox || addable ? ' with-abs' : ''}`">
         <div class="d-flex flex-row mb-6">
-            <BtnPlayPause :sampleId="id" />
+            <BtnPlayPause :sample-id="id" />
             <div class="pl-4">
                 <div>
-                    <nuxt-link :to="`/sample/${id}`">{{ name }}</nuxt-link>
+                    <nuxt-link :to="`/sample/${id}`">
+                        {{ name }}
+                    </nuxt-link>
                 </div>
                 <div>
                     <span>By</span>
-                    <nuxt-link :to="`/profile/${userId}`">{{ username }}</nuxt-link>
+                    <nuxt-link :to="`/profile/${userId}`">
+                        {{ username }}
+                    </nuxt-link>
                 </div>
             </div>
         </div>
@@ -23,8 +27,7 @@
                 v-model="selected"
                 class="checkbox"
                 @change="checkboxChange"
-            >
-            </v-checkbox>
+            />
         </div>
         <div v-if="addable">
             <v-btn
@@ -40,11 +43,11 @@
 </template>
 
 <script>
-import WaveForm from '~/components/WaveForm.vue'
-import BtnPlayPause from '~/components/sample/BtnPlayPause'
+import WaveForm from '~/components/WaveForm.vue';
+import BtnPlayPause from '~/components/sample/BtnPlayPause';
 
 export default {
-    name: 'sample-fork',
+    name: 'SampleFork',
 
     components: {
         WaveForm,
@@ -62,25 +65,25 @@ export default {
         addable: Boolean
     },
 
-    data () {
+    data() {
         return {
             selected: this.checked ? this.checked : false
-        }
+        };
     },
 
     methods: {
         // On checkbox state change
-        checkboxChange () {
-            this.$nuxt.$emit('forkCheckbox', this.id, this.selected)
+        checkboxChange() {
+            this.$nuxt.$emit('forkCheckbox', this.id, this.selected);
         },
 
         // On add button click
-        add () {
-            this.selected = true
-            this.$nuxt.$emit('forkAdd', this.id)
+        add() {
+            this.selected = true;
+            this.$nuxt.$emit('forkAdd', this.id);
         }
     }
-}
+};
 </script>
 
 <style scoped>
