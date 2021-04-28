@@ -5,7 +5,7 @@
             max-width="600"
             light
         >
-            <template v-slot:activator="{ on }">
+            <template #activator="{ on }">
                 <v-btn
                     fab
                     depressed
@@ -31,7 +31,7 @@
                             single-line
                             @keypress.enter="quickSearch"
                         >
-                            <template v-slot:append>
+                            <template #append>
                                 <v-icon @click="quickSearch">
                                     {{ quickSearchIcon }}
                                 </v-icon>

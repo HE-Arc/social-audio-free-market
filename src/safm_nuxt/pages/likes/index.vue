@@ -14,11 +14,11 @@
 import SampleList from '~/components/sample/SampleList.vue';
 
 export default {
-    middleware: 'authenticated',
 
     components: {
         SampleList
     },
+    middleware: 'authenticated',
 
     async asyncData({ $axios, error }) {
         try {

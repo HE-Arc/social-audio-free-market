@@ -63,9 +63,9 @@ import { validationMixin } from 'vuelidate';
 import { required, minLength, sameAs } from 'vuelidate/lib/validators';
 
 export default {
-    middleware: 'unauthenticated',
 
     mixins: [validationMixin],
+    middleware: 'unauthenticated',
 
     validations: {
         password: { required, minLength: minLength(8) },
@@ -94,6 +94,12 @@ export default {
             password: '',
             password_confirm: '',
             loading: false
+        };
+    },
+
+    head() {
+        return {
+            title: 'Reset Password'
         };
     },
 
@@ -156,12 +162,6 @@ export default {
                 }
             }
         }
-    },
-
-    head() {
-        return {
-            title: 'Reset Password'
-        };
     }
 };
 </script>

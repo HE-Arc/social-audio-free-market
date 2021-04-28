@@ -59,6 +59,12 @@ export default {
         };
     },
 
+    head() {
+        return {
+            title: 'Home'
+        };
+    },
+
     computed: {
         quickSearchIcon() {
             return this.quickSearchInput.length > 0 ? 'mdi-magnify' : '';
@@ -80,12 +86,6 @@ export default {
             this.dialog = false;
             this.$router.push('/advanced-search');
         }
-    },
-
-    head() {
-        return {
-            title: 'Home'
-        };
     }
 };
 </script>

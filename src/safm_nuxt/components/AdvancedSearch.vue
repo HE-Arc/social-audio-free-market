@@ -30,7 +30,7 @@
                             thumb-label
                             @input="durationRangeOnChange"
                         >
-                            <template v-slot:prepend>
+                            <template #prepend>
                                 <v-text-field
                                     :value="durationRange[0]"
                                     type="number"
@@ -39,7 +39,7 @@
                                     @change="$set(durationRange, 0, $event)"
                                 />
                             </template>
-                            <template v-slot:append>
+                            <template #append>
                                 <v-text-field
                                     :value="durationRange[1]"
                                     type="number"
@@ -66,7 +66,7 @@
                             thumb-label
                             @input="tempoRangeOnChange"
                         >
-                            <template v-slot:prepend>
+                            <template #prepend>
                                 <v-text-field
                                     :value="tempoRange[0]"
                                     type="number"
@@ -74,7 +74,7 @@
                                     @change="$set(tempoRange, 0, $event)"
                                 />
                             </template>
-                            <template v-slot:append>
+                            <template #append>
                                 <v-text-field
                                     :value="tempoRange[1]"
                                     type="number"

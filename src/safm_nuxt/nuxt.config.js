@@ -3,7 +3,12 @@ import colors from 'vuetify/es5/util/colors';
 const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:8000/api';
 
 export default {
-    mode: 'universal',
+    // Server-side rendering: https://go.nuxtjs.dev/ssr-mode
+    ssr: true,
+
+    // Target: https://go.nuxtjs.dev/config-target
+    target: 'server',
+
     /*
     ** Headers of the page
     */
@@ -39,16 +44,20 @@ export default {
     ** Nuxt.js dev-modules
     */
     buildModules: [
-        // Doc: https://github.com/nuxt-community/eslint-module
-        // '@nuxtjs/eslint-module',
+        // https://go.nuxtjs.dev/eslint
+        '@nuxtjs/eslint-module',
+        // https://tailwindcss.com/docs/guides/nuxtjs
+        '@nuxtjs/tailwindcss',
+        // https://github.com/nuxt-community/eslint-module
         '@nuxtjs/vuetify'
     ],
     /*
     ** Nuxt.js modules
     */
     modules: [
-        // Doc: https://axios.nuxtjs.org/usage
+        // https://axios.nuxtjs.org/usage
         '@nuxtjs/axios',
+        // https://go.nuxtjs.dev/pwa
         '@nuxtjs/pwa'
     ],
     /*
