@@ -1,6 +1,6 @@
-import colors from 'vuetify/es5/util/colors'
+import colors from 'vuetify/es5/util/colors';
 
-const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:8000/api'
+const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:8000/api';
 
 export default {
     mode: 'universal',
@@ -40,7 +40,7 @@ export default {
     */
     buildModules: [
         // Doc: https://github.com/nuxt-community/eslint-module
-        //'@nuxtjs/eslint-module',
+        // '@nuxtjs/eslint-module',
         '@nuxtjs/vuetify'
     ],
     /*
@@ -147,4 +147,4 @@ export default {
         }
         */
     }
-}
+};

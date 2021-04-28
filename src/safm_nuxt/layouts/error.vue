@@ -2,7 +2,9 @@
     <v-app dark>
         <v-container>
             <h1>Error</h1>
-            <p class="text-center">{{ error.message }}</p>
+            <p class="text-center">
+                {{ error.message }}
+            </p>
         </v-container>
     </v-app>
 </template>
@@ -19,19 +21,19 @@ export default {
     },
 
     computed: {
-        codeStatusMessage () {
+        codeStatusMessage() {
             switch (this.error.statusCode) {
-            case 401: return 'Unauthorised'
-            case 404: return 'Not Found'
-            default: return 'An error occured'
+            case 401: return 'Unauthorised';
+            case 404: return 'Not Found';
+            default: return 'An error occured';
             }
         }
     },
 
-    head () {
+    head() {
         return {
             title: this.codeStatusMessage
-        }
+        };
     }
-}
+};
 </script>

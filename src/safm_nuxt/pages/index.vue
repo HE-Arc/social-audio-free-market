@@ -7,10 +7,10 @@
                     v-model="quickSearchInput"
                     label="Search anything"
                     outlined
-                    @keypress.enter="quickSearch"
                     :append-icon="quickSearchIcon"
+                    @keypress.enter="quickSearch"
                     @click:append="quickSearch"
-                ></v-text-field>
+                />
                 <div class="text-center">
                     <v-btn
                         color="primary"
@@ -35,57 +35,57 @@
 </template>
 
 <script>
-import SampleList from '~/components/sample/SampleList.vue'
+import SampleList from '~/components/sample/SampleList.vue';
 
 export default {
     components: {
         SampleList
     },
 
-    data () {
+    async asyncData({ $axios }) {
+        try {
+            const lastSamples = await $axios.$get('/samples/last');
+
+            return { lastSamples };
+        } catch (e) {
+            return { lastSamples: [] };
+        }
+    },
+
+    data() {
         return {
             quickSearchInput: '',
             lastSamples: []
-        }
+        };
     },
 
     computed: {
-        quickSearchIcon () {
-            return this.quickSearchInput.length > 0 ? 'mdi-magnify' : ''
-        }
-    },
-
-    async asyncData ({ $axios }) {
-        try {
-            const lastSamples = await $axios.$get('/samples/last')
-
-            return { lastSamples }
-        } catch (e) {
-            return { lastSamples: [] }
-        }
-    },
-
-    head () {
-        return {
-            title: 'Home'
+        quickSearchIcon() {
+            return this.quickSearchInput.length > 0 ? 'mdi-magnify' : '';
         }
     },
 
     methods: {
         // Performs a Quick Search
-        quickSearch () {
+        quickSearch() {
             if (this.quickSearchInput.length > 0) {
-                this.dialog = false
-                this.$router.push(`/quick-search/${this.quickSearchInput}`)
-                this.quickSearchInput = ''
+                this.dialog = false;
+                this.$router.push(`/quick-search/${this.quickSearchInput}`);
+                this.quickSearchInput = '';
             }
         },
 
         // Goes to the Advanced Search page
-        advancedSearch () {
-            this.dialog = false
-            this.$router.push('/advanced-search')
+        advancedSearch() {
+            this.dialog = false;
+            this.$router.push('/advanced-search');
         }
+    },
+
+    head() {
+        return {
+            title: 'Home'
+        };
     }
-}
+};
 </script>

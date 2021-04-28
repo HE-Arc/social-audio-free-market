@@ -12,7 +12,7 @@
                             :error-messages="usernameEmailErrors"
                             @blur="$v.usernameEmail.$touch()"
                             @keypress.enter="login"
-                        ></v-text-field>
+                        />
                     </v-col>
                     <v-col cols="12">
                         <v-text-field
@@ -23,7 +23,7 @@
                             :error-messages="passwordErrors"
                             @blur="$v.password.$touch()"
                             @keypress.enter="login"
-                        ></v-text-field>
+                        />
                     </v-col>
                     <v-col cols="12">
                         <v-btn
@@ -65,8 +65,8 @@
 </template>
 
 <script>
-import { validationMixin } from 'vuelidate'
-import { required } from 'vuelidate/lib/validators'
+import { validationMixin } from 'vuelidate';
+import { required } from 'vuelidate/lib/validators';
 
 export default {
     middleware: 'unauthenticated',
@@ -78,78 +78,78 @@ export default {
         password: { required },
     },
 
-    data () {
+    data() {
         return {
             usernameEmail: '',
             password: '',
             loading: false
-        }
+        };
     },
 
     computed: {
-        usernameEmailErrors () {
-            const errors = []
-            if (!this.$v.usernameEmail.$dirty) return []
-            !this.$v.usernameEmail.required && errors.push('Username / Email is required')
+        usernameEmailErrors() {
+            const errors = [];
+            if (!this.$v.usernameEmail.$dirty) { return []; }
+            !this.$v.usernameEmail.required && errors.push('Username / Email is required');
 
-            return errors
+            return errors;
         },
 
-        passwordErrors () {
-            const errors = []
-            if (!this.$v.password.$dirty) return []
-            !this.$v.password.required && errors.push('Password is required')
+        passwordErrors() {
+            const errors = [];
+            if (!this.$v.password.$dirty) { return []; }
+            !this.$v.password.required && errors.push('Password is required');
 
-            return errors
-        }
-    },
-
-    head () {
-        return {
-            title: 'Login'
+            return errors;
         }
     },
 
     methods: {
         // Login
-        async login () {
+        async login() {
             if (!this.loading) {
-                this.$v.$touch()
+                this.$v.$touch();
 
                 if (!this.$v.$anyError) {
                     // Valid form
-                    this.loading = true
+                    this.loading = true;
 
-                    let body = new FormData()
+                    const body = new FormData();
 
                     // Checks whether the usernameEmail field is an email address
-                    const re = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/
+                    const re = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
                     if (re.test(this.usernameEmail)) {
                         // Login with email address
-                        body.set('email', this.usernameEmail)
+                        body.set('email', this.usernameEmail);
                     } else {
                         // Login with username
-                        body.set('username', this.usernameEmail)
+                        body.set('username', this.usernameEmail);
                     }
 
-                    body.set('password', this.password)
+                    body.set('password', this.password);
 
                     try {
                         // Login with the entered credentials
-                        const response = await this.$axios.post('/login', body)
+                        const response = await this.$axios.post('/login', body);
                         // Stores the user credentials in the store and the cookies
-                        this.$storeUserCredentials(response)
-                        this.$nuxt.$emit('snackbar', 'Successfully logged in !')
+                        this.$storeUserCredentials(response);
+                        this.$nuxt.$emit('snackbar', 'Successfully logged in !');
 
                         // Redirects to the last visited page
-                        this.$router.go(-1)
+                        this.$router.go(-1);
                     } catch (e) {
-                        this.$nuxt.$emit('snackbar', 'Invalid login')
-                        this.loading = false
+                        this.$nuxt.$emit('snackbar', 'Invalid login');
+                        this.loading = false;
                     }
                 }
             }
         }
+    },
+
+    head() {
+        return {
+            title: 'Login'
+        };
     }
-}
+};
 </script>

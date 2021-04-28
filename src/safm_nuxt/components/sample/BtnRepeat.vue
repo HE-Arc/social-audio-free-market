@@ -13,25 +13,25 @@
 export default {
     props: ['sampleId'],
 
-    data () {
+    data() {
         return {
             repeat: false
-        }
+        };
     },
 
     computed: {
-        icon () {
-            return this.repeat ? 'mdi-repeat' : 'mdi-repeat-off'
+        icon() {
+            return this.repeat ? 'mdi-repeat' : 'mdi-repeat-off';
         }
     },
 
     methods: {
         // On button click
-        click () {
+        click() {
             // Toggles repeat
-            this.repeat = !this.repeat
-            this.$nuxt.$emit('sampleRepeat', this.sampleId)
+            this.repeat = !this.repeat;
+            this.$nuxt.$emit('sampleRepeat', this.sampleId);
         }
     }
-}
+};
 </script>

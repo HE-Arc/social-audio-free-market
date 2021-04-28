@@ -11,36 +11,36 @@
 </template>
 
 <script>
-import SampleList from '~/components/sample/SampleList.vue'
+import SampleList from '~/components/sample/SampleList.vue';
 
 export default {
     components: {
         SampleList
     },
 
-    data () {
-        return {
-            samples: []
-        }
-    },
-
-    async asyncData ({ $axios, params, error }) {
+    async asyncData({ $axios, params, error }) {
         try {
             if (params.query.length > 0) {
                 // Quick Search query based on parameter
-                const samples = await $axios.$get(`/search/quick?search=${params.query}`)
+                const samples = await $axios.$get(`/search/quick?search=${params.query}`);
 
-                return { samples }
+                return { samples };
             }
         } catch (e) {
-            error({ statusCode: 404, message: 'Page not found' })
+            error({ statusCode: 404, message: 'Page not found' });
         }
     },
 
-    head () {
+    data() {
+        return {
+            samples: []
+        };
+    },
+
+    head() {
         return {
             title: 'Quick Search'
-        }
+        };
     },
-}
+};
 </script>

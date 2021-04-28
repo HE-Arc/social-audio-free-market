@@ -13,58 +13,58 @@
 export default {
     props: ['sampleId'],
 
-    data () {
+    data() {
         return {
             isPlaying: false,
             repeat: false
-        }
+        };
     },
 
     computed: {
-        color () {
-            return this.isPlaying ? 'primary' : ''
+        color() {
+            return this.isPlaying ? 'primary' : '';
         },
 
-        icon () {
-            return this.isPlaying ? 'mdi-pause' : 'mdi-play'
+        icon() {
+            return this.isPlaying ? 'mdi-pause' : 'mdi-play';
         }
     },
 
-    mounted () {
+    mounted() {
         // On Sample Play event
         this.$nuxt.$on('samplePlay', (id) => {
-            if (id == this.sampleId) {
-                this.isPlaying = true
+            if (id === this.sampleId) {
+                this.isPlaying = true;
             }
-        })
+        });
 
         // On Sample Pause event
         this.$nuxt.$on('samplePause', (id) => {
-            if (id == this.sampleId && !this.repeat) {
-                this.isPlaying = false
+            if (id === this.sampleId && !this.repeat) {
+                this.isPlaying = false;
             }
-        })
+        });
 
         // On Sample Repeat event
         this.$nuxt.$on('sampleRepeat', (sampleId) => {
-            if (this.sampleId == sampleId) {
-                this.repeat = !this.repeat
+            if (this.sampleId === sampleId) {
+                this.repeat = !this.repeat;
             }
-        })
+        });
 
         // On Stop All event
         this.$nuxt.$on('sampleStopAll', () => {
-            this.isPlaying = false
-        })
+            this.isPlaying = false;
+        });
     },
 
     methods: {
         // On button click
-        click () {
+        click() {
             // Toggles play/pause
-            this.isPlaying = !this.isPlaying
-            this.$nuxt.$emit('samplePlayPause', this.sampleId)
+            this.isPlaying = !this.isPlaying;
+            this.$nuxt.$emit('samplePlayPause', this.sampleId);
         }
     }
-}
+};
 </script>

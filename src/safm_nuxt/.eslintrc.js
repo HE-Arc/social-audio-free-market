@@ -2,28 +2,23 @@ module.exports = {
     root: true,
     env: {
         browser: true,
-        node: true
+        node: true,
     },
     parserOptions: {
-        parser: 'babel-eslint'
+        parser: 'babel-eslint',
     },
     extends: [
-        'eslint:recommended',
-        'plugin:nuxt/recommended',
-        //'plugin:prettier/recommended'
+        '@nuxtjs',
     ],
-    // required to lint *.vue files
     plugins: [
-        'vue'
     ],
     // add your custom rules here
     rules: {
-        'semi': ['error', 'never'],
-        'indent': ['error', 4],
-        'no-console': 2,
-        'no-alert': 2,
-        'no-debugger': 2,
-        'vue/max-attributes-per-line': 'off',
-        //'prettier/prettier': ['error', { 'semi': false }]
-    }
-}
+        'comma-dangle': ['error', 'only-multiline'],
+        indent: ['warn', 4],
+        'no-trailing-spaces': ['error', { skipBlankLines: true }],
+        semi: ['error', 'always'],
+        'space-before-function-paren': ['warn', 'never'],
+        'vue/html-indent': ['warn', 4],
+    },
+};
