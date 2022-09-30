@@ -16,7 +16,7 @@ django-rest-passwordreset==1.1.0
 djangorestframework==3.11.2
 filelock==3.0.12
 identify==1.5.10
-joblib==0.15.1
+joblib==1.2.0
 llvmlite==0.32.1
 Markdown==3.2.1
 mysqlclient==1.4.6
